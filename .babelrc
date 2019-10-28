@@ -1,0 +1,12 @@
+{
+    "presets": ["env", "react"],
+    "env": {
+        "targets": {
+            "browsers": ["last 4 versions"]					
+        },
+        "production": {
+            "presets": ["react-optimize"]
+        }
+    }
+}
+  
