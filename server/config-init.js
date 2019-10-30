@@ -37,10 +37,10 @@ module.exports = {
         secret: '<token_secret>'
         , access: {
             expiresIn: 1200000   //20 мин = 20*60*1000
-          },
-        
-          refresh: {
+        },
+    
+        refresh: {
             expiresIn: 3600000  //60 мин
-          },
+        },
     }
 };

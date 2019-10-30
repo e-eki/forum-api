@@ -11,8 +11,18 @@ const Promise = require('bluebird');
 const indexHTML = path.resolve('./front-end/public/index.html');
 const app = express();
 
+// сокеты
+const http = require('http').Server(app);
+const io = require('socket.io')(http);
+
+io.on('connection', function(socket){
+    // socket.on('chat message', function(msg){
+    //   io.emit('chat message', msg);
+    // });
+    console.log('connection!');
+});
+
 // статические файлы
-//app.use('/', express.static('front-end/public'));
 app.use(express.static('front-end/public'));
 
 app.use((req, res, next) => {
@@ -29,7 +39,6 @@ app.use((req, res, next) => {
 });
 
 app.use(bodyParser.json({type: 'application/json'}));
-//app.use(bodyParser.urlencoded({ extended: true }));
 
 // ---------------------------------------------------------------
 // запросы к api
@@ -40,10 +49,7 @@ app.use('/api', require('./api/auth/logout'));
 app.use('/api', require('./api/auth/resetPassword'));
 app.use('/api', require('./api/auth/refreshTokens'));
 
-app.use('/api', require('./api/routes/user'));
-app.use('/api', require('./api/routes/lkUserData'));
-app.use('/api', require('./api/routes/game'));
-app.use('/api', require('./api/routes/gameTurn'));
+app.use('/api', require('./api/forum/section'));
 
 // ---------------------------------------------------------------
 

@@ -15,7 +15,7 @@
     "path": "^0.12.7",
     "qs": "^6.5.2",
     "uuid": "^3.3.2",
-    "socket.io": "1.4.5"
+    "socket.io": "1.7.3"
   },
   "devDependencies": {
     "autoprefixer": "^9.1.1",
