@@ -14,6 +14,12 @@ router.route('/section')
   .get(function(req, res) { 
     return sectionModel.query()
       .then((sections) => {
+
+        // sections.map(item => {  //todo: ?
+        //   item.id = item._id;
+        //   delete item._id;
+        // })
+
         return utils.sendResponse(res, sections);
       })
       .catch((error) => {
@@ -24,8 +30,8 @@ router.route('/section')
   // создание нового раздела
   .post(function(req, res) {
     const sectionData = {
-      name     : data.name,
-			description     : data.description,
+      name: req.body.name,
+			description: req.body.description,
     }
 
     return sectionModel.create(sectionData)
