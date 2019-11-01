@@ -8,7 +8,10 @@ const SectionModel = mongoose.model('Section', sectionSchema);
 module.exports = {
 	
 	query: function(config) {
-		if (config) return SectionModel.find(config);		
+		if (config) {
+			return SectionModel.find(config);
+		}	
+
 		return SectionModel.find({});
 	},
 	
