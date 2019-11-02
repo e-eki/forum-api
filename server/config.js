@@ -5,7 +5,7 @@ const NODE_ENV = process.env.NODE_ENV || 'development';
 module.exports = {
     version: '1.0'
     , server: {
-        port: process.env.PORT || 3000
+        port: 3000   //process.env.PORT || 3000
         , host: (NODE_ENV == 'development') ? 'localhost' : 'checkers-game0.herokuapp.com'  
         , protocol: (NODE_ENV == 'development') ? 'http' : "https"
     }

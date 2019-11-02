@@ -1,6 +1,7 @@
 'use strict';
 
 const mongoose = require('mongoose');
+const ObjectId = require('mongoose').Types.ObjectId;
 const sectionSchema = require('../schemas/section');
 
 const SectionModel = mongoose.model('Section', sectionSchema);
@@ -9,7 +10,11 @@ module.exports = {
 	
 	query: function(config) {
 		if (config) {
-			return SectionModel.find(config);
+			//return SectionModel.find(config);
+			return SectionModel.aggregate([
+				{'$match': { '_id': new ObjectId(config)}},
+				{$project: {_id: 0, id: "$_id"}}
+			]);
 		}	
 
 		return SectionModel.find({});

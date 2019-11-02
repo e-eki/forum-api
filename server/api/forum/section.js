@@ -15,7 +15,7 @@ router.route('/section')
     return sectionModel.query()
       .then((sections) => {
 
-        // sections.map(item => {  //todo: ?
+        // sections.map(item => {  
         //   item.id = item._id;
         //   delete item._id;
         // })
@@ -64,7 +64,7 @@ router.route('/section/:id')
 
   // получение раздела по его id
   .get(function(req, res) {      
-    return sectionModel.query({_id: req.params.id})
+    return sectionModel.query(req.params.id)   //({_id: req.params.id})
       .then((data) => {
         return utils.sendResponse(res, data);
       })

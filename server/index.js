@@ -15,11 +15,15 @@ const app = express();
 const http = require('http').Server(app);
 const io = require('socket.io')(http);
 
-io.on('connection', function(socket){
-    // socket.on('chat message', function(msg){
+// подключения клиентов
+io.on('connection', function(client){
+    console.log('connection!');
+
+    //client.on('chat message', function(msg){
     //   io.emit('chat message', msg);
     // });
-    console.log('connection!');
+
+    io.emit('state', 1123);
 });
 
 // статические файлы
@@ -67,7 +71,7 @@ app.use((error, req, res, next) => {
     return utils.sendErrorResponse(res, error);
 });
 
-app.listen(config.server.port, () => {
+http.listen(config.server.port, () => {   //app.listen
     //соединение с БД
     mongoDbUtils.setUpConnection();
 
