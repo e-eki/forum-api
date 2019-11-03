@@ -3,22 +3,17 @@
 const express = require('express');
 const Promise = require('bluebird');
 const utils = require('../../lib/utils');
-const sectionModel = require('../../mongoDB/models/section');
+const subSectionModel = require('../../mongoDB/models/subSection');
 
 let router = express.Router();
 
-//----- endpoint: /api/section/
-router.route('/section')
+//----- endpoint: /api/subsection/
+router.route('/subsection')
 
-  // получение всех разделов
+  // получение всех подразделов
   .get(function(req, res) { 
-    return sectionModel.query()
+    return subSectionModel.query()
       .then((data) => {
-        // sections.map(item => {  
-        //   item.id = item._id;
-        //   delete item._id;
-        // })
-
         return utils.sendResponse(res, data);
       })
       .catch((error) => {
@@ -26,15 +21,16 @@ router.route('/section')
       });
   })
 
-  // создание нового раздела
+  // создание нового подраздела
   .post(function(req, res) {
     const data = {
       name: req.body.name,
       description: req.body.description,
       //senderId: req.body.senderId,
+      //sectionId: req.body.sectionId,
     }
 
-    return sectionModel.create(data)
+    return subSectionModel.create(data)
       .then((dbResponse) => {
 				return utils.sendResponse(res, 'section successfully saved', 201);
 			})
@@ -53,11 +49,11 @@ router.route('/section')
 ;
 
 //----- endpoint: /api/section/:id
-router.route('/section/:id')
+router.route('/subsection/:id')
 
-  // получение раздела по его id
+  // получение подраздела по его id
   .get(function(req, res) {      
-    return sectionModel.query({id: req.params.id})   //({_id: req.params.id})
+    return subSectionModel.query({id: req.params.id})
       .then((data) => {
         return utils.sendResponse(res, data);
       })
@@ -70,15 +66,16 @@ router.route('/section/:id')
 		return utils.sendErrorResponse(res, 'UNSUPPORTED_METHOD');
 	})
 
-  // редактирование данных раздела по его id
+  // редактирование данных подраздела по его id
   .put(function(req, res) {
     const data = {
       name: req.body.name,
       description: req.body.description,
       //senderId: req.body.senderId,
+      //sectionId: req.body.sectionId,
     }
 
-    return sectionModel.update(req.params.id, data)
+    return subSectionModel.update(req.params.id, data)
       .then((data) => {
         return utils.sendResponse(res, data);
       })
@@ -87,9 +84,9 @@ router.route('/section/:id')
       });
   })
 
-  // удаление раздела по его id
+  // удаление подраздела по его id
   .delete(function(req, res) {
-    return sectionModel.delete(req.params.id)
+    return subSectionModel.delete(req.params.id)
       .then((data) => {
         return utils.sendResponse(res, data);
       })

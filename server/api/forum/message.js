@@ -3,22 +3,17 @@
 const express = require('express');
 const Promise = require('bluebird');
 const utils = require('../../lib/utils');
-const sectionModel = require('../../mongoDB/models/section');
+const messageModel = require('../../mongoDB/models/message');
 
 let router = express.Router();
 
-//----- endpoint: /api/section/
-router.route('/section')
+//----- endpoint: /api/message/
+router.route('/message')
 
-  // получение всех разделов
+  // получение всех сообщений
   .get(function(req, res) { 
-    return sectionModel.query()
+    return messageModel.query()
       .then((data) => {
-        // sections.map(item => {  
-        //   item.id = item._id;
-        //   delete item._id;
-        // })
-
         return utils.sendResponse(res, data);
       })
       .catch((error) => {
@@ -26,15 +21,17 @@ router.route('/section')
       });
   })
 
-  // создание нового раздела
+  // создание нового сообщения
   .post(function(req, res) {
     const data = {
-      name: req.body.name,
-      description: req.body.description,
-      //senderId: req.body.senderId,
+      date: req.body.date,
+			text: req.body.text,
+			//senderId: req.body.senderId,
+			//recipientId: req.body.recipientId,
+			//channelId: req.body.channelId,
     }
 
-    return sectionModel.create(data)
+    return messageModel.create(data)
       .then((dbResponse) => {
 				return utils.sendResponse(res, 'section successfully saved', 201);
 			})
@@ -52,12 +49,12 @@ router.route('/section')
 	})
 ;
 
-//----- endpoint: /api/section/:id
-router.route('/section/:id')
+//----- endpoint: /api/message/:id
+router.route('/message/:id')
 
-  // получение раздела по его id
+  // получение сообщения по его id
   .get(function(req, res) {      
-    return sectionModel.query({id: req.params.id})   //({_id: req.params.id})
+    return messageModel.query({id: req.params.id})
       .then((data) => {
         return utils.sendResponse(res, data);
       })
@@ -70,15 +67,17 @@ router.route('/section/:id')
 		return utils.sendErrorResponse(res, 'UNSUPPORTED_METHOD');
 	})
 
-  // редактирование данных раздела по его id
+  // редактирование данных сообщения по его id
   .put(function(req, res) {
     const data = {
-      name: req.body.name,
-      description: req.body.description,
-      //senderId: req.body.senderId,
+      date: req.body.date,
+			text: req.body.text,
+			//senderId: req.body.senderId,
+			//recipientId: req.body.recipientId,
+			//channelId: req.body.channelId,
     }
 
-    return sectionModel.update(req.params.id, data)
+    return messageModel.update(req.params.id, data)
       .then((data) => {
         return utils.sendResponse(res, data);
       })
@@ -87,9 +86,9 @@ router.route('/section/:id')
       });
   })
 
-  // удаление раздела по его id
+  // удаление сообщения по его id
   .delete(function(req, res) {
-    return sectionModel.delete(req.params.id)
+    return messageModel.delete(req.params.id)
       .then((data) => {
         return utils.sendResponse(res, data);
       })

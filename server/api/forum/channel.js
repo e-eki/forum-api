@@ -3,22 +3,17 @@
 const express = require('express');
 const Promise = require('bluebird');
 const utils = require('../../lib/utils');
-const sectionModel = require('../../mongoDB/models/section');
+const channelModel = require('../../mongoDB/models/channel');
 
 let router = express.Router();
 
-//----- endpoint: /api/section/
-router.route('/section')
+//----- endpoint: /api/channel/
+router.route('/channel')
 
-  // получение всех разделов
+  // получение всех каналов
   .get(function(req, res) { 
-    return sectionModel.query()
+    return channelModel.query()
       .then((data) => {
-        // sections.map(item => {  
-        //   item.id = item._id;
-        //   delete item._id;
-        // })
-
         return utils.sendResponse(res, data);
       })
       .catch((error) => {
@@ -26,15 +21,17 @@ router.route('/section')
       });
   })
 
-  // создание нового раздела
+  // создание нового канала
   .post(function(req, res) {
     const data = {
       name: req.body.name,
       description: req.body.description,
       //senderId: req.body.senderId,
+      //subSectionId: req.body.subSectionId,
+			//descriptionMessageId: req.body.descriptionMessageId,
     }
 
-    return sectionModel.create(data)
+    return channelModel.create(data)
       .then((dbResponse) => {
 				return utils.sendResponse(res, 'section successfully saved', 201);
 			})
@@ -52,12 +49,12 @@ router.route('/section')
 	})
 ;
 
-//----- endpoint: /api/section/:id
-router.route('/section/:id')
+//----- endpoint: /api/channel/:id
+router.route('/channel/:id')
 
-  // получение раздела по его id
+  // получение канала по его id
   .get(function(req, res) {      
-    return sectionModel.query({id: req.params.id})   //({_id: req.params.id})
+    return channelModel.query({id: req.params.id})
       .then((data) => {
         return utils.sendResponse(res, data);
       })
@@ -70,15 +67,17 @@ router.route('/section/:id')
 		return utils.sendErrorResponse(res, 'UNSUPPORTED_METHOD');
 	})
 
-  // редактирование данных раздела по его id
+  // редактирование данных канала по его id
   .put(function(req, res) {
     const data = {
       name: req.body.name,
       description: req.body.description,
       //senderId: req.body.senderId,
+      //subSectionId: req.body.subSectionId,
+			//descriptionMessageId: req.body.descriptionMessageId,
     }
 
-    return sectionModel.update(req.params.id, data)
+    return channelModel.update(req.params.id, data)
       .then((data) => {
         return utils.sendResponse(res, data);
       })
@@ -87,9 +86,9 @@ router.route('/section/:id')
       });
   })
 
-  // удаление раздела по его id
+  // удаление канала по его id
   .delete(function(req, res) {
-    return sectionModel.delete(req.params.id)
+    return channelModel.delete(req.params.id)
       .then((data) => {
         return utils.sendResponse(res, data);
       })

@@ -3,7 +3,7 @@
 const bcrypt = require('bcryptjs');
 const Promise = require('bluebird');
 const uuidv5 = require('uuid/v5');
-const config = require('../../config');
+const config = require('../config');
 const errors = require('./errors');
 
 const utils = new function() {

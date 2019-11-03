@@ -8,8 +8,27 @@ const RefreshTokenModel = mongoose.model('RefreshToken', refreshTokenSchema);
 module.exports = {
 	
 	query: function(config) {
-		if (config) return RefreshTokenModel.find(config);
-		return RefreshTokenModel.find({});
+		// if (config) return RefreshTokenModel.find(config);
+		// return RefreshTokenModel.find({});
+
+		if (config) {
+			return RefreshTokenModel.aggregate([
+				{$match: { '_id': new ObjectId(config.id)}},
+				{$project: {
+							_id: 0, id: "$_id",
+							userId: 1,
+							refreshToken: 1
+				}}
+			]);
+		}	
+
+		return RefreshTokenModel.aggregate([
+			{$project: {
+				_id: 0, id: "$_id",
+				userId: 1,
+				refreshToken: 1
+			}}
+		]);
 	},
 	
 	create: function(data) {

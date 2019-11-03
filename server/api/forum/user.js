@@ -1,20 +1,27 @@
 'use strict';
 
 const express = require('express');
-const userModel = require('../models/user');
-const utils = require('../lib/utils');
+const Promise = require('bluebird');
+const utils = require('../../lib/utils');
+const userModel = require('../../mongoDB/models/user');
 
 let router = express.Router();
 
 //----- endpoint: /api/user/
 router.route('/user')
 
-  // метод не поддерживается - всех пользователей получить не можем
+  // получение всех юзеров  //todo - ограничения??
   .get(function(req, res) { 
-    return utils.sendErrorResponse(res, 'UNSUPPORTED_METHOD');
+    return userModel.query()
+      .then((data) => {
+        return utils.sendResponse(res, data);
+      })
+      .catch((error) => {
+				return utils.sendErrorResponse(res, error, 500);
+      });
   })
 
-  // метод не поддерживается - пользователь может быть добавлен только через регистрацию
+  // метод не поддерживается - юзер может быть добавлен только через регистрацию
   .post(function(req, res) {
     return utils.sendErrorResponse(res, 'UNSUPPORTED_METHOD');
   })
@@ -32,9 +39,8 @@ router.route('/user')
 router.route('/user/:id')
 
   // получение юзера по его id
-  .get(function(req, res) {   
-   
-    return userModel.query({_id: req.params.id})
+  .get(function(req, res) {      
+    return userModel.query({id: req.params.id})
       .then((data) => {
         return utils.sendResponse(res, data);
       })
@@ -48,32 +54,34 @@ router.route('/user/:id')
 	})
 
   // редактирование данных юзера по его id
-  /*data = {
-		accessToken
-	}*/
   .put(function(req, res) {
-    //TODO: проверка токенов
-    /*return userModel.update(req.params.id, req.body)
+    const data = {
+			email: req.body.email,
+			confirmEmailCode: req.body.confirmEmailCode,
+			isEmailConfirmed: req.body.isEmailConfirmed,
+			password: req.body.password,
+			resetPasswordCode: req.body.resetPasswordCode,
+			role: req.body.role,
+    }
+
+    return userModel.update(req.params.id, data)
       .then((data) => {
         return utils.sendResponse(res, data);
       })
       .catch((error) => {
 				return utils.sendErrorResponse(res, error, 500);
-      });*/
-      
-      return utils.sendErrorResponse(res, 'UNSUPPORTED_METHOD');
+      });
   })
 
+  // удаление юзера по его id
   .delete(function(req, res) {
-    /*userModel.delete(req.params.id)
+    return userModel.delete(req.params.id)
       .then((data) => {
-        res.send(data)
+        return utils.sendResponse(res, data);
       })
       .catch((error) => {
-        res.send(error);
-      })*/
-
-      return utils.sendErrorResponse(res, 'UNSUPPORTED_METHOD');
+        return utils.sendErrorResponse(res, error, 500);
+      })
   })
 ;
 

@@ -3,28 +3,42 @@
 const express = require('express');
 const path = require('path');
 const bodyParser = require('body-parser');
-const config = require('./config');
-const mongoDbUtils = require('./api/lib/mongoDbUtils');
-const utils = require('./api/lib/utils');
 const Promise = require('bluebird');
-
+const config = require('./config');
+const mongoDbUtils = require('./lib/mongoDbUtils');
+const utils = require('./lib/utils');
 const indexHTML = path.resolve('./front-end/public/index.html');
+const socket = require('./socket');
+
 const app = express();
-
-// сокеты
 const http = require('http').Server(app);
-const io = require('socket.io')(http);
 
-// подключения клиентов
-io.on('connection', function(client){
-    console.log('connection!');
+// инициализация сокетов
+const io = socket.initSocket(http);
 
-    //client.on('chat message', function(msg){
-    //   io.emit('chat message', msg);
-    // });
+// const io = require('socket.io')(http);
 
-    io.emit('state', 1123);
-});
+// // подключения клиентов
+// io.on('connection', function(client){
+//     console.log('connection!');
+
+//     client.on('action', function(action){
+//         //io.emit('chat message', msg);
+        
+//         if (action && action.type) {
+//             switch (action.type) {
+// 				case actionTypes.UPDATE_SECTIONS:
+					
+// 					break;
+				
+// 				default:
+// 					throw utils.initError('INTERNAL_SERVER_ERROR');
+//             }
+//         }
+//     });
+
+//     io.emit('state', 1123);
+// });
 
 // статические файлы
 app.use(express.static('front-end/public'));
@@ -46,14 +60,19 @@ app.use(bodyParser.json({type: 'application/json'}));
 
 // ---------------------------------------------------------------
 // запросы к api
-app.use('/api', require('./api/auth/registration'));
-app.use('/api', require('./api/auth/emailConfirm'));
-app.use('/api', require('./api/auth/login'));
-app.use('/api', require('./api/auth/logout'));
-app.use('/api', require('./api/auth/resetPassword'));
-app.use('/api', require('./api/auth/refreshTokens'));
+// app.use('/api', require('./api/auth/registration'));
+// app.use('/api', require('./api/auth/emailConfirm'));
+// app.use('/api', require('./api/auth/login'));
+// app.use('/api', require('./api/auth/logout'));
+// app.use('/api', require('./api/auth/resetPassword'));
+// app.use('/api', require('./api/auth/refreshTokens'));
 
 app.use('/api', require('./api/forum/section'));
+app.use('/api', require('./api/forum/subSection'));
+app.use('/api', require('./api/forum/channel'));
+app.use('/api', require('./api/forum/message'));
+app.use('/api', require('./api/forum/user'));
+app.use('/api', require('./api/forum/userInfo'));
 
 // ---------------------------------------------------------------
 

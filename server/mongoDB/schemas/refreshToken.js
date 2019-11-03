@@ -6,10 +6,10 @@ const Schema = mongoose.Schema;
 
 const refreshTokenSchema = new Schema(
 	{
-		userId     : { type: String },
+		userId: { type: Schema.Types.ObjectId },
 		refreshToken: { type: String }
 	},
-	{versionKey: false}   //отключение поля __v, которое указывает на версию документа
+	{versionKey: false}
 );
 
 module.exports = refreshTokenSchema;
