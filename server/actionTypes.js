@@ -11,6 +11,9 @@ module.exports = {
 	UPDATE_MESSAGES: 'UPDATE_MESSAGES',
 
 	//UPDATE_USER_INFO: 'UPDATE_USER_INFO',
+
+	
+	JOIN_ROOM: 'JOIN_ROOM',
 };
 
 

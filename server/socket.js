@@ -27,11 +27,24 @@ module.exports = {
 								})
 
 							break;
+
+						case actionTypes.JOIN_ROOM:
+							const roomId = action.roomId;
+
+							client.join(roomId);
+
+							io.to('2').emit('join');
+
+							break;
 						
 						default:
 							throw utils.initError('INTERNAL_SERVER_ERROR');
 					}
 				}
+			});
+
+			client.on('JOINED', function(action){
+
 			});
 	
 			//io.emit('state', 1123);
