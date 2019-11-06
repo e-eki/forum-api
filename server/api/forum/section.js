@@ -4,6 +4,7 @@ const express = require('express');
 const Promise = require('bluebird');
 const utils = require('../../lib/utils');
 const sectionModel = require('../../mongoDB/models/section');
+const subSectionModel = require('../../mongoDB/models/subSection');
 
 let router = express.Router();
 
@@ -57,8 +58,20 @@ router.route('/section/:id')
 
   // получение раздела по его id
   .get(function(req, res) {      
-    return sectionModel.query({id: req.params.id})   //({_id: req.params.id})
-      .then((data) => {
+    return Promise.resolve(sectionModel.query({id: req.params.id}))   //({_id: req.params.id})
+      .then(results => {
+        const section = results[0];
+        const tasks = [];
+
+        tasks.push(section);
+        tasks.push(subSectionModel.query({sectionId: section.id}));
+
+        return Promise.all(tasks);
+      })
+      .spread((section, subSections) => {
+        let data = section;
+        section.subSections = subSections;
+
         return utils.sendResponse(res, data);
       })
       .catch((error) => {

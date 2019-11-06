@@ -10,16 +10,31 @@ module.exports = {
 	
 	query: function(config) {
 		if (config) {
-			return SubSectionModel.aggregate([
-				{'$match': { '_id': new ObjectId(config.id)}},
-				{$project: {
-							_id: 0, id: "$_id",
-							name: 1,
-							description: 1,
-							senderId: 1,
-							sectionId: 1
-				}}
-			]);
+
+			if (config.id) {
+				return SubSectionModel.aggregate([
+					{'$match': { '_id': new ObjectId(config.id)}},
+					{$project: {
+								_id: 0, id: "$_id",
+								name: 1,
+								description: 1,
+								senderId: 1,
+								sectionId: 1
+					}}
+				]);
+			}
+			else if (config.sectionId) {
+				return SubSectionModel.aggregate([
+					{'$match': { 'sectionId': new ObjectId(config.sectionId)}},
+					{$project: {
+								_id: 0, id: "$_id",
+								name: 1,
+								description: 1,
+								senderId: 1,
+								sectionId: 1
+					}}
+				]);
+			}
 		}	
 
 		return SubSectionModel.aggregate([
@@ -38,7 +53,7 @@ module.exports = {
 			name: data.name,
 			description: data.description,
 			//senderId: data.senderId,
-			//sectionId: data.sectionId,
+			sectionId: data.sectionId,
 		});
 	
 		return subSection.save();
@@ -50,7 +65,7 @@ module.exports = {
 			name: data.name,
 			description: data.description,
 			//senderId: data.senderId,
-			//sectionId: data.sectionId,
+			sectionId: data.sectionId,
 		});
 
 		return SubSectionModel.findOneAndUpdate({_id: id}, subSection, {new: true});

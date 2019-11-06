@@ -2,6 +2,7 @@
 
 const actionTypes = require('./actionTypes');
 const sectionModel = require('./mongoDB/models/section');
+const subSectionModel = require('./mongoDB/models/subSection');
 
 module.exports = {
 	initSocket(http) {
@@ -28,12 +29,25 @@ module.exports = {
 
 							break;
 
+						case actionTypes.UPDATE_SUBSECTIONS:    //todo rename!
+							return subSectionModel.query({sectionId: action.sectionId})   //todo: получать раздел и подразделы и устанавливать на клиенте currentSection
+								.then((subSections) => {
+									io.to(action.sectionId).emit('action', {
+										type: actionTypes.UPDATE_SUBSECTIONS,
+										data: subSections,
+										sectionId: action.sectionId,
+									});
+									return true;
+								})
+
+							break;
+
 						case actionTypes.JOIN_ROOM:
-							const roomId = action.roomId;
+							//const roomId = action.roomId;
 
-							client.join(roomId);
+							client.join(action.roomId);
 
-							io.to('2').emit('join');
+							//io.to('2').emit('join');
 
 							break;
 						
