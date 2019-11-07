@@ -14,6 +14,7 @@ module.exports = {
 
 	
 	JOIN_ROOM: 'JOIN_ROOM',
+	LEAVE_ROOM: 'LEAVE_ROOM',
 
 
 	//--

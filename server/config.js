@@ -62,4 +62,7 @@ module.exports = {
         , secret: '3elLUQtox2HzRoUYmX-rapi1'
         , grantType: 'authorization_code'
     }
+
+    //-----
+    , defaultRoomId: '0'
 };

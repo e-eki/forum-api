@@ -1,9 +1,11 @@
 'use strict';
 
-import Promise from 'bluebird';
+const Promise = require('bluebird');
+const ObjectId = require('mongoose').Types.ObjectId;
 const actionTypes = require('./actionTypes');
 const sectionModel = require('./mongoDB/models/section');
 const subSectionModel = require('./mongoDB/models/subSection');
+const config = require('./config');
 
 module.exports = {
 	initSocket(http) {
@@ -60,21 +62,33 @@ module.exports = {
 							// 		return true;
 							// 	})
 
-							return sectionModel.query()
-								.then((sections) => {
+							const tasks = [];
 
-									const updatedSection = sections.find(item => item.id === action.sectionId)[0];
+							tasks.push(sectionModel.query());
 
-									io.emit('action', {
+							if (action.sectionId) {
+								tasks.push(sectionModel.query({id: action.sectionId}))
+							}
+							else {
+								tasks.push(false);
+							}
+
+							return Promise.all(tasks)
+								.spread((sections, section) => {
+
+									io.to(config.defaultRoomId).emit('action', {
 										type: actionTypes.UPDATE_SECTIONS,
 										data: sections,
 									});
 
-									io.emit('action', {
-										type: actionTypes.UPDATE_SECTION_BY_ID,
-										data: updatedSection,
-										sectionId: action.sectionId,
-									});
+									if (section) {
+										io.to(section.id).emit('action', {
+											type: actionTypes.UPDATE_SECTION_BY_ID,
+											data: section,
+											sectionId: action.sectionId,
+										});
+									}
+									
 									return true;
 								})
 
@@ -82,6 +96,13 @@ module.exports = {
 
 						case actionTypes.JOIN_ROOM:
 							client.join(action.roomId);
+
+							//client.join('1');
+
+							break;
+
+						case actionTypes.LEAVE_ROOM:
+							client.leave(action.roomId);
 
 							//io.to('2').emit('join');
 
