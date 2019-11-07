@@ -1,5 +1,6 @@
 'use strict';
 
+import Promise from 'bluebird';
 const actionTypes = require('./actionTypes');
 const sectionModel = require('./mongoDB/models/section');
 const subSectionModel = require('./mongoDB/models/subSection');
@@ -17,24 +18,61 @@ module.exports = {
 				if (action && action.type) {
 					switch (action.type) {
 
-						case actionTypes.UPDATE_SECTIONS:
+						// case actionTypes.UPDATE_SECTIONS:
+						// 	return sectionModel.query()
+						// 		.then((sections) => {
+						// 			io.emit('action', {
+						// 				type: actionTypes.UPDATE_SECTIONS,
+						// 				data: sections,
+						// 			});
+						// 			return true;
+						// 		})
+
+						// 	break;
+
+						case actionTypes.UPDATE_SECTION_BY_ID:
+							// const tasks = [];
+
+							// tasks.push(sectionModel.query({id: action.sectionId}))
+							// tasks.push(subSectionModel.query({sectionId: action.sectionId}))
+
+							// return Promise.all(tasks)
+							// 	.spread((section, subSections) => {
+							// 		let data = section;
+							// 		data.subSections = subSections;
+
+							// 		io.to(action.sectionId).emit('action', {
+							// 			type: actionTypes.UPDATE_SECTION_BY_ID,
+							// 			data: data,
+							// 			sectionId: action.sectionId,
+							// 		});
+							// 		return true;
+							// 	})
+
+							// return sectionModel.query({id: action.sectionId})
+							// 	.then((section) => {
+
+							// 		io.emit('action', {
+							// 			type: actionTypes.UPDATE_SECTION_BY_ID,
+							// 			data: data,
+							// 			sectionId: action.sectionId,
+							// 		});
+							// 		return true;
+							// 	})
+
 							return sectionModel.query()
 								.then((sections) => {
+
+									const updatedSection = sections.find(item => item.id === action.sectionId)[0];
+
 									io.emit('action', {
 										type: actionTypes.UPDATE_SECTIONS,
 										data: sections,
 									});
-									return true;
-								})
 
-							break;
-
-						case actionTypes.UPDATE_SUBSECTIONS:    //todo rename!
-							return subSectionModel.query({sectionId: action.sectionId})   //todo: получать раздел и подразделы и устанавливать на клиенте currentSection
-								.then((subSections) => {
-									io.to(action.sectionId).emit('action', {
-										type: actionTypes.UPDATE_SUBSECTIONS,
-										data: subSections,
+									io.emit('action', {
+										type: actionTypes.UPDATE_SECTION_BY_ID,
+										data: updatedSection,
 										sectionId: action.sectionId,
 									});
 									return true;
@@ -43,8 +81,6 @@ module.exports = {
 							break;
 
 						case actionTypes.JOIN_ROOM:
-							//const roomId = action.roomId;
-
 							client.join(action.roomId);
 
 							//io.to('2').emit('join');
@@ -57,11 +93,9 @@ module.exports = {
 				}
 			});
 
-			client.on('JOINED', function(action){
+			// client.on('JOINED', function(action){
 
-			});
-	
-			//io.emit('state', 1123);
+			// });
 		});
 	
 		return io;

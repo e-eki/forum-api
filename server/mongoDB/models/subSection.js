@@ -10,7 +10,6 @@ module.exports = {
 	
 	query: function(config) {
 		if (config) {
-
 			if (config.id) {
 				return SubSectionModel.aggregate([
 					{'$match': { '_id': new ObjectId(config.id)}},

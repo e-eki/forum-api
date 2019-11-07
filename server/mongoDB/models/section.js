@@ -15,15 +15,17 @@ module.exports = {
 		// return SectionModel.find({});
 
 		if (config) {
-			return SectionModel.aggregate([
-				{$match: { '_id': new ObjectId(config.id)}},
-				{$project: {
-							_id: 0, id: "$_id",
-							name: 1,
-							description: 1,
-							senderId: 1
-				}}
-			]);
+			if (config.id) {
+				return SectionModel.aggregate([
+					{$match: { '_id': new ObjectId(config.id)}},
+					{$project: {
+								_id: 0, id: "$_id",
+								name: 1,
+								description: 1,
+								senderId: 1
+					}}
+				]);
+			}
 		}	
 
 		return SectionModel.aggregate([
