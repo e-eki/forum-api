@@ -12,13 +12,14 @@ router.route('/message')
 
   // получение всех сообщений
   .get(function(req, res) { 
-    return messageModel.query()
-      .then((data) => {
-        return utils.sendResponse(res, data);
-      })
-      .catch((error) => {
-				return utils.sendErrorResponse(res, error, 500);
-      });
+    // return messageModel.query()
+    //   .then((data) => {
+    //     return utils.sendResponse(res, data);
+    //   })
+    //   .catch((error) => {
+		// 		return utils.sendErrorResponse(res, error, 500);
+    //   });
+    return utils.sendErrorResponse(res, 'UNSUPPORTED_METHOD');
   })
 
   // создание нового сообщения
@@ -28,12 +29,12 @@ router.route('/message')
 			text: req.body.text,
 			//senderId: req.body.senderId,
 			//recipientId: req.body.recipientId,
-			//channelId: req.body.channelId,
+			channelId: req.body.channelId,
     }
 
     return messageModel.create(data)
       .then((dbResponse) => {
-				return utils.sendResponse(res, 'section successfully saved', 201);
+				return utils.sendResponse(res, 'successfully saved', 201);
 			})
 			.catch((error) => {
 				return utils.sendErrorResponse(res, error, 500);
@@ -74,7 +75,7 @@ router.route('/message/:id')
 			text: req.body.text,
 			//senderId: req.body.senderId,
 			//recipientId: req.body.recipientId,
-			//channelId: req.body.channelId,
+			channelId: req.body.channelId,
     }
 
     return messageModel.update(req.params.id, data)

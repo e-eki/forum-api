@@ -37,7 +37,7 @@ router.route('/section')
 
     return sectionModel.create(data)
       .then((dbResponse) => {
-				return utils.sendResponse(res, 'section successfully saved', 201);
+				return utils.sendResponse(res, 'successfully saved', 201);
 			})
 			.catch((error) => {
 				return utils.sendErrorResponse(res, error, 500);
@@ -70,7 +70,7 @@ router.route('/section/:id')
       })
       .spread((section, subSections) => {
         let data = section;
-        section.subSections = subSections;
+        data.subSections = subSections;
 
         return utils.sendResponse(res, data);
       })

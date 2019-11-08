@@ -40,8 +40,8 @@ module.exports = {
 			date: data.date,
 			text: data.text,
 			//senderId: data.senderId,
-			//recipientId: data.recipientId,
-			//channelId: data.channelId,
+			recipientId: data.recipientId,
+			channelId: data.channelId,
 		});
 	
 		return message.save();
@@ -53,8 +53,8 @@ module.exports = {
 			date: data.date,
 			text: data.text,
 			//senderId: data.senderId,
-			//recipientId: data.recipientId,
-			//channelId: data.channelId,
+			recipientId: data.recipientId,
+			channelId: data.channelId,
 		});
 
 		return MessageModel.findOneAndUpdate({_id: id}, message, {new: true});

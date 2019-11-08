@@ -4,6 +4,7 @@ const express = require('express');
 const Promise = require('bluebird');
 const utils = require('../../lib/utils');
 const channelModel = require('../../mongoDB/models/channel');
+const messageModel = require('../../mongoDB/models/message');
 
 let router = express.Router();
 
@@ -12,13 +13,14 @@ router.route('/channel')
 
   // получение всех каналов
   .get(function(req, res) { 
-    return channelModel.query()
-      .then((data) => {
-        return utils.sendResponse(res, data);
-      })
-      .catch((error) => {
-				return utils.sendErrorResponse(res, error, 500);
-      });
+    // return channelModel.query()
+    //   .then((data) => {
+    //     return utils.sendResponse(res, data);
+    //   })
+    //   .catch((error) => {
+		// 		return utils.sendErrorResponse(res, error, 500);
+    //   });
+    return utils.sendErrorResponse(res, 'UNSUPPORTED_METHOD');
   })
 
   // создание нового канала
@@ -27,13 +29,13 @@ router.route('/channel')
       name: req.body.name,
       description: req.body.description,
       //senderId: req.body.senderId,
-      //subSectionId: req.body.subSectionId,
-			//descriptionMessageId: req.body.descriptionMessageId,
+      subSectionId: req.body.subSectionId,
+			descriptionMessageId: req.body.descriptionMessageId,
     }
 
     return channelModel.create(data)
       .then((dbResponse) => {
-				return utils.sendResponse(res, 'section successfully saved', 201);
+				return utils.sendResponse(res, 'successfully saved', 201);
 			})
 			.catch((error) => {
 				return utils.sendErrorResponse(res, error, 500);
@@ -54,13 +56,25 @@ router.route('/channel/:id')
 
   // получение канала по его id
   .get(function(req, res) {      
-    return channelModel.query({id: req.params.id})
-      .then((data) => {
+    return Promise.resolve(channelModel.query({id: req.params.id}))
+      .then(results => {
+        const channel = results[0];
+        const tasks = [];
+
+        tasks.push(channel);
+        tasks.push(messageModel.query({channelId: channel.id}));
+
+        return Promise.all(tasks);
+      })
+      .spread((channel, messages) => {
+        let data = channel;
+        data.subSections = messages;
+
         return utils.sendResponse(res, data);
       })
       .catch((error) => {
-				return utils.sendErrorResponse(res, error);
-			});
+        return utils.sendErrorResponse(res, error);
+      });
   })
 
   .post(function(req, res) {
@@ -73,8 +87,8 @@ router.route('/channel/:id')
       name: req.body.name,
       description: req.body.description,
       //senderId: req.body.senderId,
-      //subSectionId: req.body.subSectionId,
-			//descriptionMessageId: req.body.descriptionMessageId,
+      subSectionId: req.body.subSectionId,
+			descriptionMessageId: req.body.descriptionMessageId,
     }
 
     return channelModel.update(req.params.id, data)

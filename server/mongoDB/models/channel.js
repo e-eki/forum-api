@@ -40,8 +40,8 @@ module.exports = {
 			name: data.name,
 			description: data.description,
 			//senderId: data.senderId,
-			//subSectionId: data.subSectionId,
-			//descriptionMessageId: data.descriptionMessageId,
+			subSectionId: data.subSectionId,
+			descriptionMessageId: data.descriptionMessageId,
 		});
 	
 		return channel.save();
@@ -53,8 +53,8 @@ module.exports = {
 			name: data.name,
 			description: data.description,
 			//senderId: data.senderId,
-			//subSectionId: data.subSectionId,
-			//descriptionMessageId: data.descriptionMessageId,
+			subSectionId: data.subSectionId,
+			descriptionMessageId: data.descriptionMessageId,
 		});
 
 		return ChannelModel.findOneAndUpdate({_id: id}, channel, {new: true});

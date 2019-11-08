@@ -1,10 +1,11 @@
 'use strict';
 
 const Promise = require('bluebird');
-const ObjectId = require('mongoose').Types.ObjectId;
 const actionTypes = require('./actionTypes');
 const sectionModel = require('./mongoDB/models/section');
 const subSectionModel = require('./mongoDB/models/subSection');
+const channelModel = require('./mongoDB/models/channel');
+const messageModel = require('./mongoDB/models/message');
 const config = require('./config');
 
 module.exports = {
@@ -20,6 +21,17 @@ module.exports = {
 				if (action && action.type) {
 					switch (action.type) {
 
+						//---ROOM
+
+						case actionTypes.JOIN_ROOM:
+							client.join(action.roomId);
+							//client.join('1');
+							break;
+
+						case actionTypes.LEAVE_ROOM:
+							client.leave(action.roomId);
+							break;
+
 						// case actionTypes.UPDATE_SECTIONS:
 						// 	return sectionModel.query()
 						// 		.then((sections) => {
@@ -29,39 +41,11 @@ module.exports = {
 						// 			});
 						// 			return true;
 						// 		})
-
 						// 	break;
 
+						//---SECTION
+
 						case actionTypes.UPDATE_SECTION_BY_ID:
-							// const tasks = [];
-
-							// tasks.push(sectionModel.query({id: action.sectionId}))
-							// tasks.push(subSectionModel.query({sectionId: action.sectionId}))
-
-							// return Promise.all(tasks)
-							// 	.spread((section, subSections) => {
-							// 		let data = section;
-							// 		data.subSections = subSections;
-
-							// 		io.to(action.sectionId).emit('action', {
-							// 			type: actionTypes.UPDATE_SECTION_BY_ID,
-							// 			data: data,
-							// 			sectionId: action.sectionId,
-							// 		});
-							// 		return true;
-							// 	})
-
-							// return sectionModel.query({id: action.sectionId})
-							// 	.then((section) => {
-
-							// 		io.emit('action', {
-							// 			type: actionTypes.UPDATE_SECTION_BY_ID,
-							// 			data: data,
-							// 			sectionId: action.sectionId,
-							// 		});
-							// 		return true;
-							// 	})
-
 							const tasks = [];
 
 							tasks.push(sectionModel.query());
@@ -91,22 +75,171 @@ module.exports = {
 									
 									return true;
 								})
-
 							break;
 
-						case actionTypes.JOIN_ROOM:
-							client.join(action.roomId);
+						case actionTypes.DELETE_SECTION_BY_ID:
+							return sectionModel.query()
+								.then(sections => {
+									io.to(config.defaultRoomId).emit('action', {
+										type: actionTypes.UPDATE_SECTIONS,
+										data: sections,
+									});
 
-							//client.join('1');
-
+									if (action.sectionId) {
+										io.to(action.sectionId).emit('action', {
+											type: actionTypes.DELETE_SECTION_BY_ID,
+											sectionId: action.sectionId,
+										});
+									}
+									
+									return true;
+								})
 							break;
 
-						case actionTypes.LEAVE_ROOM:
-							client.leave(action.roomId);
+						//---SUBSECTION
 
-							//io.to('2').emit('join');
+						case actionTypes.UPDATE_SUBSECTION_BY_ID:
+							const tasks = [];
 
+							if (action.subSectionId) {
+								tasks.push(subSectionModel.query({id: action.subSectionId}));
+							}
+							else {
+								tasks.push(false);
+							}
+
+							return Promise.all(tasks)
+								.spread(subSection => {
+									if (subSection) {
+										io.to(action.subSectionId).emit('action', {
+											type: actionTypes.UPDATE_SUBSECTION_BY_ID,
+											data: subSection,
+											subSectionId: action.subSectionId,
+										});
+
+										if (action.sectionId) {
+											io.to(action.sectionId).emit('action', {
+												type: actionTypes.UPDATE_SUBSECTION_BY_ID,
+												data: subSection,
+												sectionId: action.sectionId,
+											});
+										}
+									}
+								});
 							break;
+
+						case actionTypes.DELETE_SUBSECTION_BY_ID:
+							if (action.subSectionId) {
+								io.to(action.subSectionId).emit('action', {
+									type: actionTypes.DELETE_SUBSECTION_BY_ID,
+									subSectionId: action.subSectionId,
+								});
+
+								if (action.sectionId) {
+									io.to(action.sectionId).emit('action', {
+										type: actionTypes.DELETE_SUBSECTION_BY_ID,
+										sectionId: action.sectionId,
+										subSectionId: action.subSectionId,
+									});
+								}
+							}
+							break;
+
+						//---CHANNEL
+						case actionTypes.UPDATE_CHANNEL_BY_ID:
+							const tasks = [];
+
+							if (action.channelId) {
+								tasks.push(channelModel.query({id: action.channelId}));
+							}
+							else {
+								tasks.push(false);
+							}
+
+							return Promise.all(tasks)
+								.spread(channel => {
+									if (channel) {
+										io.to(action.channelId).emit('action', {
+											type: actionTypes.UPDATE_CHANNEL_BY_ID,
+											data: channel,
+											channelId: action.channelId,
+										});
+
+										if (action.subSectionId) {
+											io.to(action.subSectionId).emit('action', {
+												type: actionTypes.UPDATE_CHANNEL_BY_ID,
+												data: channel,
+												channelId: action.channelId,
+											});
+										}
+									}
+								});
+							break;
+
+						case actionTypes.DELETE_CHANNEL_BY_ID:
+							if (action.channelId) {
+								io.to(action.channelId).emit('action', {
+									type: actionTypes.DELETE_CHANNEL_BY_ID,
+									channelId: action.channelId,
+								});
+
+								if (action.subSectionId) {
+									io.to(action.subSectionId).emit('action', {
+										type: actionTypes.DELETE_CHANNEL_BY_ID,
+										channelId: action.channelId,
+										subSectionId: action.subSectionId,
+									});
+								}
+							}
+							break;
+
+						//---MESSAGE
+						case actionTypes.UPDATE_MESSAGE_BY_ID:
+							const tasks = [];
+
+							if (action.messageId) {
+								tasks.push(messageModel.query({id: action.messageId}));
+							}
+							else {
+								tasks.push(false);
+							}
+
+							return Promise.all(tasks)
+								.spread(message => {
+									if (message) {
+										io.to(action.messageId).emit('action', {
+											type: actionTypes.UPDATE_MESSAGE_BY_ID,
+											data: message,
+											messageId: action.messageId,
+										});
+
+										if (action.channelId) {
+											io.to(action.channelId).emit('action', {
+												type: actionTypes.UPDATE_MESSAGE_BY_ID,
+												data: message,
+												messageId: action.messageId,
+											});
+										}
+									}
+								});
+							break;
+
+						case actionTypes.DELETE_MESSAGE_BY_ID:
+							if (action.messageId) {
+								io.to(action.messageId).emit('action', {
+									type: actionTypes.DELETE_MESSAGE_BY_ID,
+									messageId: action.messageId,
+								});
+
+								if (action.channelId) {
+									io.to(action.channelId).emit('action', {
+										type: actionTypes.DELETE_MESSAGE_BY_ID,
+										messageId: action.messageId,
+									});
+								}
+							}
+							break;
+
 						
 						default:
 							throw utils.initError('INTERNAL_SERVER_ERROR');
@@ -115,7 +248,6 @@ module.exports = {
 			});
 
 			// client.on('JOINED', function(action){
-
 			// });
 		});
 	
