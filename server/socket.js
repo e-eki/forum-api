@@ -18,6 +18,8 @@ module.exports = {
 	
 			client.on('action', function(action){
 
+				let tasks = [];
+
 				if (action && action.type) {
 					switch (action.type) {
 
@@ -46,23 +48,31 @@ module.exports = {
 						//---SECTION
 
 						case actionTypes.UPDATE_SECTION_BY_ID:
-							const tasks = [];
+							// tasks = [];
 
-							tasks.push(sectionModel.query());
+							// tasks.push(sectionModel.query());
 
-							if (action.sectionId) {
-								tasks.push(sectionModel.query({id: action.sectionId}))
-							}
-							else {
-								tasks.push(false);
-							}
+							// if (action.sectionId) {
+							// 	tasks.push(sectionModel.query({id: action.sectionId}))
+							// }
+							// else {
+							// 	tasks.push(false);
+							// }
 
-							return Promise.all(tasks)
-								.spread((sections, section) => {
+							// return Promise.all(tasks)
+							// 	.spread((sections, section) => {
+									// io.to(config.defaultRoomId).emit('action', {
+									// 	type: actionTypes.UPDATE_SECTIONS,
+									// 	data: sections,
+									// });
+
+							return sectionModel.query({id: action.sectionId})
+								.then(section => {
 
 									io.to(config.defaultRoomId).emit('action', {
-										type: actionTypes.UPDATE_SECTIONS,
-										data: sections,
+										type: actionTypes.UPDATE_SECTION_BY_ID,
+										data: section,
+										sectionId: action.sectionId,
 									});
 
 									if (section) {
@@ -78,11 +88,16 @@ module.exports = {
 							break;
 
 						case actionTypes.DELETE_SECTION_BY_ID:
-							return sectionModel.query()
+							return sectionModel.query()  //убрать
 								.then(sections => {
+									// io.to(config.defaultRoomId).emit('action', {
+									// 	type: actionTypes.UPDATE_SECTIONS,
+									// 	data: sections,
+									// });
+
 									io.to(config.defaultRoomId).emit('action', {
-										type: actionTypes.UPDATE_SECTIONS,
-										data: sections,
+										type: actionTypes.DELETE_SECTION_BY_ID,
+										sectionId: action.sectionId,
 									});
 
 									if (action.sectionId) {
@@ -99,7 +114,7 @@ module.exports = {
 						//---SUBSECTION
 
 						case actionTypes.UPDATE_SUBSECTION_BY_ID:
-							const tasks = [];
+							tasks = [];
 
 							if (action.subSectionId) {
 								tasks.push(subSectionModel.query({id: action.subSectionId}));
@@ -111,17 +126,26 @@ module.exports = {
 							return Promise.all(tasks)
 								.spread(subSection => {
 									if (subSection) {
+										io.to(config.defaultRoomId).emit('action', {
+											type: actionTypes.UPDATE_SUBSECTION_BY_ID,
+											data: subSection,
+											subSectionId: action.subSectionId,
+											sectionId: action.sectionId,
+										});
+
 										io.to(action.subSectionId).emit('action', {
 											type: actionTypes.UPDATE_SUBSECTION_BY_ID,
 											data: subSection,
 											subSectionId: action.subSectionId,
+											sectionId: action.sectionId,
 										});
 
-										if (action.sectionId) {
+										if (action.sectionId) {  //проверкИ должна быть не здесь, а где-то вначале
 											io.to(action.sectionId).emit('action', {
 												type: actionTypes.UPDATE_SUBSECTION_BY_ID,
 												data: subSection,
 												sectionId: action.sectionId,
+												subSectionId: action.subSectionId,
 											});
 										}
 									}
@@ -129,6 +153,12 @@ module.exports = {
 							break;
 
 						case actionTypes.DELETE_SUBSECTION_BY_ID:
+							io.to(config.defaultRoomId).emit('action', {
+								type: actionTypes.DELETE_SUBSECTION_BY_ID,
+								subSectionId: action.subSectionId,
+								sectionId: action.sectionId,
+							});
+
 							if (action.subSectionId) {
 								io.to(action.subSectionId).emit('action', {
 									type: actionTypes.DELETE_SUBSECTION_BY_ID,
@@ -147,7 +177,7 @@ module.exports = {
 
 						//---CHANNEL
 						case actionTypes.UPDATE_CHANNEL_BY_ID:
-							const tasks = [];
+							tasks = [];
 
 							if (action.channelId) {
 								tasks.push(channelModel.query({id: action.channelId}));
@@ -169,6 +199,7 @@ module.exports = {
 											io.to(action.subSectionId).emit('action', {
 												type: actionTypes.UPDATE_CHANNEL_BY_ID,
 												data: channel,
+												subSectionId: action.subSectionId,
 												channelId: action.channelId,
 											});
 										}
@@ -195,7 +226,7 @@ module.exports = {
 
 						//---MESSAGE
 						case actionTypes.UPDATE_MESSAGE_BY_ID:
-							const tasks = [];
+							tasks = [];
 
 							if (action.messageId) {
 								tasks.push(messageModel.query({id: action.messageId}));
@@ -218,6 +249,7 @@ module.exports = {
 												type: actionTypes.UPDATE_MESSAGE_BY_ID,
 												data: message,
 												messageId: action.messageId,
+												channelId: action.channelId,
 											});
 										}
 									}
@@ -235,6 +267,7 @@ module.exports = {
 									io.to(action.channelId).emit('action', {
 										type: actionTypes.DELETE_MESSAGE_BY_ID,
 										messageId: action.messageId,
+										channelId: action.channelId,
 									});
 								}
 							}
