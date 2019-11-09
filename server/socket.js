@@ -15,6 +15,14 @@ module.exports = {
 		// подключения клиентов
 		io.on('connection', function(client){
 			console.log('connection!');
+
+			// client.on('disconnect', function () {  //todo??
+			// 	const rooms = Object.keys(client.rooms);
+
+			// 	rooms.forEach(room => {
+			// 		client.leave(room);
+			// 	})
+			// });
 	
 			client.on('action', function(action){
 
@@ -26,12 +34,18 @@ module.exports = {
 						//---ROOM
 
 						case actionTypes.JOIN_ROOM:
-							client.join(action.roomId);
+
+							if (action.roomId) {
+								client.join(action.roomId);
+							}
 							//client.join('1');
 							break;
 
 						case actionTypes.LEAVE_ROOM:
-							client.leave(action.roomId);
+
+							if (action.roomId) {
+								client.leave(action.roomId);
+							}
 							break;
 
 						// case actionTypes.UPDATE_SECTIONS:
@@ -66,25 +80,32 @@ module.exports = {
 									// 	data: sections,
 									// });
 
-							return sectionModel.query({id: action.sectionId})
-								.then(section => {
+							if (action.sectionId) {
+								return sectionModel.query({id: action.sectionId})
+									.then(results => {
 
-									io.to(config.defaultRoomId).emit('action', {
-										type: actionTypes.UPDATE_SECTION_BY_ID,
-										data: section,
-										sectionId: action.sectionId,
-									});
+										if (results && results.length) {
+											const section = results[0];
 
-									if (section) {
-										io.to(section.id).emit('action', {
-											type: actionTypes.UPDATE_SECTION_BY_ID,
-											data: section,
-											sectionId: action.sectionId,
-										});
-									}
-									
-									return true;
-								})
+											io.to(config.defaultRoomId).emit('action', {
+												type: actionTypes.UPDATE_SECTION_BY_ID,
+												data: section,
+												sectionId: action.sectionId,
+												debug: 'default',
+											});
+
+											io.to(section.id).emit('action', {
+												type: actionTypes.UPDATE_SECTION_BY_ID,
+												data: section,
+												sectionId: action.sectionId,
+												debug: 'section',
+											});
+										}
+										
+										return true;
+									})
+							}
+
 							break;
 
 						case actionTypes.DELETE_SECTION_BY_ID:
@@ -110,180 +131,179 @@ module.exports = {
 							// 		return true;
 							// 	})
 
-							io.to(config.defaultRoomId).emit('action', {
-								type: actionTypes.DELETE_SECTION_BY_ID,
-								sectionId: action.sectionId,
-							});
-
 							if (action.sectionId) {
+								io.to(config.defaultRoomId).emit('action', {
+									type: actionTypes.DELETE_SECTION_BY_ID,
+									sectionId: action.sectionId,
+									debug: 'default',
+								});
+	
 								io.to(action.sectionId).emit('action', {
 									type: actionTypes.DELETE_SECTION_BY_ID,
 									sectionId: action.sectionId,
+									debug: 'section',
 								});
 							}
 							
-							return true;
 							break;
 
 						//---SUBSECTION
 
 						case actionTypes.UPDATE_SUBSECTION_BY_ID:
-							tasks = [];
 
-							if (action.subSectionId) {
-								tasks.push(subSectionModel.query({id: action.subSectionId}));
-							}
-							else {
-								tasks.push(false);
-							}
+							if (action.subSectionId && action.sectionId) {
+								return subSectionModel.query({id: action.subSectionId})
+									.then(results => {
+										if (results && results.length) {
+											const subSection = results[0];
 
-							return Promise.all(tasks)
-								.spread(subSection => {
-									if (subSection) {
-										io.to(config.defaultRoomId).emit('action', {
-											type: actionTypes.UPDATE_SUBSECTION_BY_ID,
-											data: subSection,
-											subSectionId: action.subSectionId,
-											sectionId: action.sectionId,
-										});
-
-										io.to(action.subSectionId).emit('action', {
-											type: actionTypes.UPDATE_SUBSECTION_BY_ID,
-											data: subSection,
-											subSectionId: action.subSectionId,
-											sectionId: action.sectionId,
-										});
-
-										if (action.sectionId) {  //todo: проверкИ должна быть не здесь, а где-то вначале
+											io.to(config.defaultRoomId).emit('action', {
+												type: actionTypes.UPDATE_SUBSECTION_BY_ID,
+												data: subSection,
+												subSectionId: action.subSectionId,
+												sectionId: action.sectionId,
+												debug: 'default',
+											});
+	
+											io.to(action.subSectionId).emit('action', {
+												type: actionTypes.UPDATE_SUBSECTION_BY_ID,
+												data: subSection,
+												subSectionId: action.subSectionId,
+												//sectionId: action.sectionId,
+												debug: 'subSection',
+											});
+	
 											io.to(action.sectionId).emit('action', {
 												type: actionTypes.UPDATE_SUBSECTION_BY_ID,
 												data: subSection,
 												sectionId: action.sectionId,
 												subSectionId: action.subSectionId,
+												debug: 'section',
 											});
 										}
-									}
-								});
+									})
+							}
+
 							break;
 
 						case actionTypes.DELETE_SUBSECTION_BY_ID:
-							io.to(config.defaultRoomId).emit('action', {
-								type: actionTypes.DELETE_SUBSECTION_BY_ID,
-								subSectionId: action.subSectionId,
-								sectionId: action.sectionId,
-							});
 
-							if (action.subSectionId) {
+							if (action.sectionId && action.subSectionId) {
+								io.to(config.defaultRoomId).emit('action', {
+									type: actionTypes.DELETE_SUBSECTION_BY_ID,
+									subSectionId: action.subSectionId,
+									sectionId: action.sectionId,
+									debug: 'default',
+								});
+	
 								io.to(action.subSectionId).emit('action', {
 									type: actionTypes.DELETE_SUBSECTION_BY_ID,
 									subSectionId: action.subSectionId,
+									//sectionId: action.sectionId,
+									debug: 'subSection',
 								});
 
-								if (action.sectionId) {
-									io.to(action.sectionId).emit('action', {
-										type: actionTypes.DELETE_SUBSECTION_BY_ID,
-										sectionId: action.sectionId,
-										subSectionId: action.subSectionId,
-									});
-								}
+								io.to(action.sectionId).emit('action', {
+									type: actionTypes.DELETE_SUBSECTION_BY_ID,
+									sectionId: action.sectionId,
+									subSectionId: action.subSectionId,
+									debug: 'section',
+								});
 							}
+							
 							break;
 
 						//---CHANNEL
 						case actionTypes.UPDATE_CHANNEL_BY_ID:
-							tasks = [];
 
-							if (action.channelId) {
-								tasks.push(channelModel.query({id: action.channelId}));
-							}
-							else {
-								tasks.push(false);
-							}
+							if (action.channelId && action.subSectionId) {
+								return channelModel.query({id: action.channelId})
+									.then(results => {
+										if (results && results.length) {
+											const channel = results[0];
 
-							return Promise.all(tasks)
-								.spread(channel => {
-									if (channel) {
-										io.to(action.channelId).emit('action', {
-											type: actionTypes.UPDATE_CHANNEL_BY_ID,
-											data: channel,
-											channelId: action.channelId,
-										});
-
-										if (action.subSectionId) {
-											io.to(action.subSectionId).emit('action', {
+											io.to(action.channelId).emit('action', {
 												type: actionTypes.UPDATE_CHANNEL_BY_ID,
 												data: channel,
-												subSectionId: action.subSectionId,
 												channelId: action.channelId,
+												debug: 'channel',
 											});
+	
+											if (action.subSectionId) {
+												io.to(action.subSectionId).emit('action', {
+													type: actionTypes.UPDATE_CHANNEL_BY_ID,
+													data: channel,
+													subSectionId: action.subSectionId,
+													channelId: action.channelId,
+													debug: 'subSection',
+												});
+											}
 										}
-									}
-								});
+									})
+							}
+
 							break;
 
 						case actionTypes.DELETE_CHANNEL_BY_ID:
-							if (action.channelId) {
+							if (action.channelId && action.subSectionId) {
 								io.to(action.channelId).emit('action', {
 									type: actionTypes.DELETE_CHANNEL_BY_ID,
 									channelId: action.channelId,
+									debug: 'channel',
 								});
 
-								if (action.subSectionId) {
-									io.to(action.subSectionId).emit('action', {
-										type: actionTypes.DELETE_CHANNEL_BY_ID,
-										channelId: action.channelId,
-										subSectionId: action.subSectionId,
-									});
-								}
+								io.to(action.subSectionId).emit('action', {
+									type: actionTypes.DELETE_CHANNEL_BY_ID,
+									channelId: action.channelId,
+									subSectionId: action.subSectionId,
+									debug: 'subSection',
+								});
 							}
 							break;
 
 						//---MESSAGE
 						case actionTypes.UPDATE_MESSAGE_BY_ID:
-							tasks = [];
 
-							if (action.messageId) {
-								tasks.push(messageModel.query({id: action.messageId}));
-							}
-							else {
-								tasks.push(false);
-							}
+							if (action.messageId && action.channelId) {
+								return messageModel.query({id: action.messageId})
+									.then(results => {
+										if (results && results.length) {
+											const message = results[0];
 
-							return Promise.all(tasks)
-								.spread(message => {
-									if (message) {
-										io.to(action.messageId).emit('action', {
-											type: actionTypes.UPDATE_MESSAGE_BY_ID,
-											data: message,
-											messageId: action.messageId,
-										});
-
-										if (action.channelId) {
+											io.to(action.messageId).emit('action', {  //??
+												type: actionTypes.UPDATE_MESSAGE_BY_ID,
+												data: message,
+												messageId: action.messageId,
+												debug: 'message',
+											});
+	
 											io.to(action.channelId).emit('action', {
 												type: actionTypes.UPDATE_MESSAGE_BY_ID,
 												data: message,
 												messageId: action.messageId,
 												channelId: action.channelId,
+												debug: 'channel',
 											});
 										}
-									}
-								});
+									})
+							}
+							
 							break;
 
 						case actionTypes.DELETE_MESSAGE_BY_ID:
-							if (action.messageId) {
+							if (action.messageId && action.channelId) {
 								io.to(action.messageId).emit('action', {
 									type: actionTypes.DELETE_MESSAGE_BY_ID,
 									messageId: action.messageId,
+									debug: 'message',
 								});
 
-								if (action.channelId) {
-									io.to(action.channelId).emit('action', {
-										type: actionTypes.DELETE_MESSAGE_BY_ID,
-										messageId: action.messageId,
-										channelId: action.channelId,
-									});
-								}
+								io.to(action.channelId).emit('action', {
+									type: actionTypes.DELETE_MESSAGE_BY_ID,
+									messageId: action.messageId,
+									channelId: action.channelId,
+									debug: 'channel',
+								});
 							}
 							break;
 
