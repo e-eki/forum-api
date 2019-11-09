@@ -88,27 +88,41 @@ module.exports = {
 							break;
 
 						case actionTypes.DELETE_SECTION_BY_ID:
-							return sectionModel.query()  //убрать
-								.then(sections => {
-									// io.to(config.defaultRoomId).emit('action', {
-									// 	type: actionTypes.UPDATE_SECTIONS,
-									// 	data: sections,
-									// });
+							// return sectionModel.query()
+							// 	.then(sections => {
+							// 		// io.to(config.defaultRoomId).emit('action', {
+							// 		// 	type: actionTypes.UPDATE_SECTIONS,
+							// 		// 	data: sections,
+							// 		// });
 
-									io.to(config.defaultRoomId).emit('action', {
-										type: actionTypes.DELETE_SECTION_BY_ID,
-										sectionId: action.sectionId,
-									});
+							// 		io.to(config.defaultRoomId).emit('action', {
+							// 			type: actionTypes.DELETE_SECTION_BY_ID,
+							// 			sectionId: action.sectionId,
+							// 		});
 
-									if (action.sectionId) {
-										io.to(action.sectionId).emit('action', {
-											type: actionTypes.DELETE_SECTION_BY_ID,
-											sectionId: action.sectionId,
-										});
-									}
+							// 		if (action.sectionId) {
+							// 			io.to(action.sectionId).emit('action', {
+							// 				type: actionTypes.DELETE_SECTION_BY_ID,
+							// 				sectionId: action.sectionId,
+							// 			});
+							// 		}
 									
-									return true;
-								})
+							// 		return true;
+							// 	})
+
+							io.to(config.defaultRoomId).emit('action', {
+								type: actionTypes.DELETE_SECTION_BY_ID,
+								sectionId: action.sectionId,
+							});
+
+							if (action.sectionId) {
+								io.to(action.sectionId).emit('action', {
+									type: actionTypes.DELETE_SECTION_BY_ID,
+									sectionId: action.sectionId,
+								});
+							}
+							
+							return true;
 							break;
 
 						//---SUBSECTION
@@ -140,7 +154,7 @@ module.exports = {
 											sectionId: action.sectionId,
 										});
 
-										if (action.sectionId) {  //проверкИ должна быть не здесь, а где-то вначале
+										if (action.sectionId) {  //todo: проверкИ должна быть не здесь, а где-то вначале
 											io.to(action.sectionId).emit('action', {
 												type: actionTypes.UPDATE_SUBSECTION_BY_ID,
 												data: subSection,
