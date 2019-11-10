@@ -37,7 +37,9 @@ router.route('/section')
 
     return sectionModel.create(data)
       .then((dbResponse) => {
-				return utils.sendResponse(res, 'successfully saved', 201);
+        const id = (dbResponse._doc && dbResponse._doc._id) ? dbResponse._doc._id.toString() : null;
+
+				return utils.sendResponse(res, {text: 'successfully saved', id: id}, 201);
 			})
 			.catch((error) => {
 				return utils.sendErrorResponse(res, error, 500);

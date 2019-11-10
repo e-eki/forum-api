@@ -16,17 +16,15 @@ module.exports = {
 		io.on('connection', function(client){
 			console.log('connection!');
 
-			// client.on('disconnect', function () {  //todo??
-			// 	const rooms = Object.keys(client.rooms);
+			client.on('disconnect', function () {  //todo??
+				const rooms = Object.keys(client.rooms);
 
-			// 	rooms.forEach(room => {
-			// 		client.leave(room);
-			// 	})
-			// });
+				// rooms.forEach(room => {
+				// 	client.leave(room);
+				// })
+			});
 	
 			client.on('action', function(action){
-
-				let tasks = [];
 
 				if (action && action.type) {
 					switch (action.type) {
@@ -94,7 +92,7 @@ module.exports = {
 												debug: 'default',
 											});
 
-											io.to(section.id).emit('action', {
+											io.to(section.id.toString()).emit('action', {
 												type: actionTypes.UPDATE_SECTION_BY_ID,
 												data: section,
 												sectionId: action.sectionId,
