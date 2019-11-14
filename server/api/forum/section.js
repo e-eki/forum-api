@@ -13,12 +13,30 @@ router.route('/section')
 
   // получение всех разделов
   .get(function(req, res) { 
-    return sectionModel.query()
-      .then((data) => {
-        // sections.map(item => {  
-        //   item.id = item._id;
-        //   delete item._id;
-        // })
+    let data = null;
+
+    return Promise.resolve(sectionModel.query())
+      .then((sections) => {
+        data = sections;
+
+        const tasks = [];
+
+        if (sections && sections.length) {
+          sections.forEach(item => {
+            tasks.push(subSectionModel.query({sectionId: item.id}));
+          })
+        }
+
+        return Promise.all(tasks);
+      })
+      .then((subSections) => {
+
+        if (data && data.length &&
+              subSections && subSections.length) {
+                for (let i = 0; i < subSections.length; i++) {
+                  data[i].subSections = subSections[i];
+                }
+        }
 
         return utils.sendResponse(res, data);
       })
