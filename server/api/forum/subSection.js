@@ -5,6 +5,7 @@ const Promise = require('bluebird');
 const utils = require('../../lib/utils');
 const subSectionModel = require('../../mongoDB/models/subSection');
 const channelModel = require('../../mongoDB/models/channel');
+const messageModel = require('../../mongoDB/models/message');
 
 let router = express.Router();
 
@@ -100,9 +101,37 @@ router.route('/subsection/:id')
 
   // удаление подраздела по его id
   .delete(function(req, res) {
-    return subSectionModel.delete(req.params.id)
-      .then((data) => {
-        return utils.sendResponse(res, data);
+
+    const deleteTasks = [];
+
+    deleteTasks.push(subSectionModel.delete(req.params.id));
+
+    return channelModel.query({subSectionId: req.params.id})
+      .then(channels => {
+        const queryTasks = [];
+
+        if (channels && channels.length) {
+          channels.forEach(item => {
+            deleteTasks.push(channelModel.delete(item.id));
+
+            queryTasks.push(messageModel.query({channelId: item.id}));
+          })
+        }
+
+        return Promise.all(queryTasks);
+      })
+      .then(messages => {
+
+        if (messages && messages.length) {
+          messages.forEach(item => {
+            deleteTasks.push(messageModel.delete(item.id));
+          })
+        }
+
+        return Promise.all(deleteTasks);
+      })
+      .then((dbResponse) => {
+        return utils.sendResponse(res);  //??data
       })
       .catch((error) => {
         return utils.sendErrorResponse(res, error, 500);

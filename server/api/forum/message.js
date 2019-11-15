@@ -3,6 +3,7 @@
 const express = require('express');
 const Promise = require('bluebird');
 const utils = require('../../lib/utils');
+const channelModel = require('../../mongoDB/models/channel');
 const messageModel = require('../../mongoDB/models/message');
 
 let router = express.Router();
@@ -89,9 +90,24 @@ router.route('/message/:id')
 
   // удаление сообщения по его id
   .delete(function(req, res) {
-    return messageModel.delete(req.params.id)
-      .then((data) => {
-        return utils.sendResponse(res, data);
+
+    const tasks = [];
+
+    tasks.push(messageModel.delete(req.params.id));
+
+    return channelModel.query({descriptionMessageId: req.params.id})
+      .then(result => {
+
+        if (result && result.length) {
+          const channel = result[0];
+          channel.descriptionMessageId = null;
+
+          tasks.push(channelModel.update(channel.id, channel));
+        }
+        return Promise.all(tasks)
+      })
+      .then(dbResponses => {
+        return utils.sendResponse(res);  //??data
       })
       .catch((error) => {
         return utils.sendErrorResponse(res, error, 500);

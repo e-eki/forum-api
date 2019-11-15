@@ -102,9 +102,24 @@ router.route('/channel/:id')
 
   // удаление канала по его id
   .delete(function(req, res) {
-    return channelModel.delete(req.params.id)
-      .then((data) => {
-        return utils.sendResponse(res, data);
+
+    const deleteTasks = [];
+
+    deleteTasks.push(channelModel.delete(req.params.id));
+
+    return messageModel.query({channelId: req.params.id})
+      .then(messages => {
+
+        if (messages && messages.length) {
+          messages.forEach(item => {
+            deleteTasks.push(messageModel.delete(item.id));
+          })
+        }
+
+        return Promise.all(deleteTasks);
+      })
+      .then((dbResponse) => {
+        return utils.sendResponse(res);  //??data
       })
       .catch((error) => {
         return utils.sendErrorResponse(res, error, 500);
