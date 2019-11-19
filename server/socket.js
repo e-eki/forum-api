@@ -141,6 +141,41 @@ module.exports = {
 									sectionId: action.sectionId,
 									debug: 'section',
 								});
+
+								return subSectionModel.query({sectionId: action.sectionId})
+									.then(results => {
+
+										if (results && results.length) {
+											const tasks = [];
+
+											results.forEach(item => {
+												tasks.push(channelModel.query({subSectionId: item.id}));
+
+												io.to(item.id).emit('action', {
+													type: actionTypes.DELETE_SECTION_BY_ID,
+													sectionId: action.sectionId,  //??
+													subSectionId: item.id,
+													debug: 'subSection',
+												});
+											})
+										}
+										
+										return Promise.all(tasks);
+									})
+									.then(results => {
+										if (results && results.length) {
+											results.forEach(item => {
+												io.to(item.id).emit('action', {
+													type: actionTypes.DELETE_SECTION_BY_ID,
+													sectionId: action.sectionId,  //??
+													channelId: item.id,
+													debug: 'channel',
+												});
+											})
+										}
+										
+										return true;
+									})								
 							}
 							
 							break;
@@ -207,6 +242,23 @@ module.exports = {
 									subSectionId: action.subSectionId,
 									debug: 'section',
 								});
+
+								return channelModel.query({subSectionId: action.subSectionId})
+									.then(results => {
+
+										if (results && results.length) {
+											results.forEach(item => {
+												io.to(item.id).emit('action', {
+													type: actionTypes.DELETE_SUBSECTION_BY_ID,
+													subSectionId: action.subSectionId,  //??
+													channelId: item.id,
+													debug: 'channel',
+												});
+											})
+										}
+										
+										return true;
+									})
 							}
 							
 							break;
