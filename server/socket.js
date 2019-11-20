@@ -7,6 +7,7 @@ const subSectionModel = require('./mongoDB/models/subSection');
 const channelModel = require('./mongoDB/models/channel');
 const messageModel = require('./mongoDB/models/message');
 const config = require('./config');
+const utils = require('./lib/utils');
 
 module.exports = {
 	initSocket(http) {
@@ -16,13 +17,13 @@ module.exports = {
 		io.on('connection', function(client){
 			console.log('connection!');
 
-			client.on('disconnect', function () {  //todo??
-				const rooms = Object.keys(client.rooms);
+			// client.on('disconnect', function () {  //todo??
+			// 	const rooms = Object.keys(client.rooms);
 
-				// rooms.forEach(room => {
-				// 	client.leave(room);
-				// })
-			});
+			// 	// rooms.forEach(room => {
+			// 	// 	client.leave(room);
+			// 	// })
+			// });
 	
 			client.on('action', function(action){
 
@@ -60,23 +61,6 @@ module.exports = {
 						//---SECTION
 
 						case actionTypes.UPDATE_SECTION_BY_ID:
-							// tasks = [];
-
-							// tasks.push(sectionModel.query());
-
-							// if (action.sectionId) {
-							// 	tasks.push(sectionModel.query({id: action.sectionId}))
-							// }
-							// else {
-							// 	tasks.push(false);
-							// }
-
-							// return Promise.all(tasks)
-							// 	.spread((sections, section) => {
-									// io.to(config.defaultRoomId).emit('action', {
-									// 	type: actionTypes.UPDATE_SECTIONS,
-									// 	data: sections,
-									// });
 
 							if (action.sectionId) {
 								return sectionModel.query({id: action.sectionId})
@@ -107,27 +91,6 @@ module.exports = {
 							break;
 
 						case actionTypes.DELETE_SECTION_BY_ID:
-							// return sectionModel.query()
-							// 	.then(sections => {
-							// 		// io.to(config.defaultRoomId).emit('action', {
-							// 		// 	type: actionTypes.UPDATE_SECTIONS,
-							// 		// 	data: sections,
-							// 		// });
-
-							// 		io.to(config.defaultRoomId).emit('action', {
-							// 			type: actionTypes.DELETE_SECTION_BY_ID,
-							// 			sectionId: action.sectionId,
-							// 		});
-
-							// 		if (action.sectionId) {
-							// 			io.to(action.sectionId).emit('action', {
-							// 				type: actionTypes.DELETE_SECTION_BY_ID,
-							// 				sectionId: action.sectionId,
-							// 			});
-							// 		}
-									
-							// 		return true;
-							// 	})
 
 							if (action.sectionId) {
 								io.to(config.defaultRoomId).emit('action', {
@@ -142,40 +105,39 @@ module.exports = {
 									debug: 'section',
 								});
 
-								return subSectionModel.query({sectionId: action.sectionId})
-									.then(results => {
+								// return subSectionModel.query({sectionId: action.sectionId})
+								// 	.then(results => {
+								// 		if (results && results.length) {
+								// 			const tasks = [];
 
-										if (results && results.length) {
-											const tasks = [];
+								// 			results.forEach(item => {
+								// 				tasks.push(channelModel.query({subSectionId: item.id}));
 
-											results.forEach(item => {
-												tasks.push(channelModel.query({subSectionId: item.id}));
-
-												io.to(item.id).emit('action', {
-													type: actionTypes.DELETE_SECTION_BY_ID,
-													sectionId: action.sectionId,  //??
-													subSectionId: item.id,
-													debug: 'subSection',
-												});
-											})
-										}
+								// 				io.to(item.id).emit('action', {
+								// 					type: actionTypes.DELETE_SECTION_BY_ID,
+								// 					sectionId: action.sectionId,  //??
+								// 					subSectionId: item.id,
+								// 					debug: 'subSection',
+								// 				});
+								// 			})
+								// 		}
 										
-										return Promise.all(tasks);
-									})
-									.then(results => {
-										if (results && results.length) {
-											results.forEach(item => {
-												io.to(item.id).emit('action', {
-													type: actionTypes.DELETE_SECTION_BY_ID,
-													sectionId: action.sectionId,  //??
-													channelId: item.id,
-													debug: 'channel',
-												});
-											})
-										}
+								// 		return Promise.all(tasks);
+								// 	})
+								// 	.then(results => {
+								// 		if (results && results.length) {
+								// 			results.forEach(item => {
+								// 				io.to(item.id).emit('action', {
+								// 					type: actionTypes.DELETE_SECTION_BY_ID,
+								// 					sectionId: action.sectionId,  //??
+								// 					channelId: item.id,
+								// 					debug: 'channel',
+								// 				});
+								// 			})
+								// 		}
 										
-										return true;
-									})								
+								// 		return true;
+								// 	})								
 							}
 							
 							break;
@@ -243,22 +205,21 @@ module.exports = {
 									debug: 'section',
 								});
 
-								return channelModel.query({subSectionId: action.subSectionId})
-									.then(results => {
-
-										if (results && results.length) {
-											results.forEach(item => {
-												io.to(item.id).emit('action', {
-													type: actionTypes.DELETE_SUBSECTION_BY_ID,
-													subSectionId: action.subSectionId,  //??
-													channelId: item.id,
-													debug: 'channel',
-												});
-											})
-										}
+								// return channelModel.query({subSectionId: action.subSectionId})
+								// 	.then(results => {
+								// 		if (results && results.length) {
+								// 			results.forEach(item => {
+								// 				io.to(item.id).emit('action', {
+								// 					type: actionTypes.DELETE_SUBSECTION_BY_ID,
+								// 					subSectionId: action.subSectionId,  //??
+								// 					channelId: item.id,
+								// 					debug: 'channel',
+								// 				});
+								// 			})
+								// 		}
 										
-										return true;
-									})
+								// 		return true;
+								// 	})
 							}
 							
 							break;
@@ -279,15 +240,13 @@ module.exports = {
 												debug: 'channel',
 											});
 	
-											if (action.subSectionId) {
-												io.to(action.subSectionId).emit('action', {
-													type: actionTypes.UPDATE_CHANNEL_BY_ID,
-													data: channel,
-													subSectionId: action.subSectionId,
-													channelId: action.channelId,
-													debug: 'subSection',
-												});
-											}
+											io.to(action.subSectionId).emit('action', {
+												type: actionTypes.UPDATE_CHANNEL_BY_ID,
+												data: channel,
+												subSectionId: action.subSectionId,
+												channelId: action.channelId,
+												debug: 'subSection',
+											});
 										}
 									})
 							}
@@ -320,12 +279,12 @@ module.exports = {
 										if (results && results.length) {
 											const message = results[0];
 
-											io.to(action.messageId).emit('action', {  //??
-												type: actionTypes.UPDATE_MESSAGE_BY_ID,
-												data: message,
-												messageId: action.messageId,
-												debug: 'message',
-											});
+											// io.to(action.messageId).emit('action', {  //??
+											// 	type: actionTypes.UPDATE_MESSAGE_BY_ID,
+											// 	data: message,
+											// 	messageId: action.messageId,
+											// 	debug: 'message',
+											// });
 	
 											io.to(action.channelId).emit('action', {
 												type: actionTypes.UPDATE_MESSAGE_BY_ID,
@@ -342,11 +301,11 @@ module.exports = {
 
 						case actionTypes.DELETE_MESSAGE_BY_ID:
 							if (action.messageId && action.channelId) {
-								io.to(action.messageId).emit('action', {
-									type: actionTypes.DELETE_MESSAGE_BY_ID,
-									messageId: action.messageId,
-									debug: 'message',
-								});
+								// io.to(action.messageId).emit('action', {
+								// 	type: actionTypes.DELETE_MESSAGE_BY_ID,
+								// 	messageId: action.messageId,
+								// 	debug: 'message',
+								// });
 
 								io.to(action.channelId).emit('action', {
 									type: actionTypes.DELETE_MESSAGE_BY_ID,
@@ -359,7 +318,7 @@ module.exports = {
 
 						
 						default:
-							throw utils.initError('INTERNAL_SERVER_ERROR');
+							throw utils.initError('UNSUPPORTED_METHOD');  //??
 					}
 				}
 			});
