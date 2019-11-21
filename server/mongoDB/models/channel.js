@@ -10,17 +10,32 @@ module.exports = {
 	
 	query: function(config) {
 		if (config) {
-			return ChannelModel.aggregate([
-				{'$match': { '_id': new ObjectId(config.id)}},
-				{$project: {
-							_id: 0, id: "$_id",
-							name: 1,
-							description: 1,
-							senderId: 1,
-							subSectionId: 1,
-							descriptionMessageId: 1,
-				}}
-			]);
+			if (config.id) {
+				return ChannelModel.aggregate([
+					{'$match': { '_id': new ObjectId(config.id)}},
+					{$project: {
+						_id: 0, id: "$_id",
+						name: 1,
+						description: 1,
+						senderId: 1,
+						subSectionId: 1,
+						descriptionMessageId: 1,
+					}}
+				]);
+			}
+			else if (config.subSectionId) {
+				return ChannelModel.aggregate([
+					{'$match': { 'subSectionId': new ObjectId(config.subSectionId)}},
+					{$project: {
+						_id: 0, id: "$_id",
+						name: 1,
+						description: 1,
+						senderId: 1,
+						subSectionId: 1,
+						descriptionMessageId: 1,
+					}}
+				]);
+			}
 		}	
 
 		return ChannelModel.aggregate([

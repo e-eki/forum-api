@@ -70,7 +70,7 @@ router.route('/subsection/:id')
       })
       .spread((subSection, channels) => {
         let data = subSection;  //??const
-        data.subSections = channels;
+        data.channels = channels;
 
         return utils.sendResponse(res, data);
       })

@@ -164,7 +164,7 @@ module.exports = {
 												type: actionTypes.UPDATE_SUBSECTION_BY_ID,
 												data: subSection,
 												subSectionId: action.subSectionId,
-												//sectionId: action.sectionId,
+												sectionId: action.sectionId,
 												debug: 'subSection',
 											});
 	
@@ -194,7 +194,7 @@ module.exports = {
 								io.to(action.subSectionId).emit('action', {
 									type: actionTypes.DELETE_SUBSECTION_BY_ID,
 									subSectionId: action.subSectionId,
-									//sectionId: action.sectionId,
+									sectionId: action.sectionId,
 									debug: 'subSection',
 								});
 
@@ -236,6 +236,7 @@ module.exports = {
 											io.to(action.channelId).emit('action', {
 												type: actionTypes.UPDATE_CHANNEL_BY_ID,
 												data: channel,
+												subSectionId: action.subSectionId,
 												channelId: action.channelId,
 												debug: 'channel',
 											});
@@ -258,6 +259,7 @@ module.exports = {
 								io.to(action.channelId).emit('action', {
 									type: actionTypes.DELETE_CHANNEL_BY_ID,
 									channelId: action.channelId,
+									subSectionId: action.subSectionId,
 									debug: 'channel',
 								});
 

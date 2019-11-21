@@ -10,6 +10,46 @@ module.exports = {
 	
 	query: function(config) {
 		if (config) {
+			if (config.id) {
+				return MessageModel.aggregate([
+					{'$match': { '_id': new ObjectId(config.id)}},
+					{$project: {
+						_id: 0, id: "$_id",
+						senderId: 1,
+						recipientId: 1,
+						channelId: 1,
+						date: 1,
+						text: 1,
+					}}
+				]);
+			}
+			else if (config.channelId) {
+				return MessageModel.aggregate([
+					{'$match': { 'channelId': new ObjectId(config.channelId)}},
+					{$project: {
+						_id: 0, id: "$_id",
+						senderId: 1,
+						recipientId: 1,
+						channelId: 1,
+						date: 1,
+						text: 1,
+					}}
+				]);
+			}
+		}	
+
+		return MessageModel.aggregate([
+			{$project: {
+				_id: 0, id: "$_id",
+				senderId: 1,
+				recipientId: 1,
+				channelId: 1,
+				date: 1,
+				text: 1,
+			}}
+		]);
+
+		if (config) {
 			return MessageModel.aggregate([
 				{'$match': { '_id': new ObjectId(config.id)}},
 				{$project: {

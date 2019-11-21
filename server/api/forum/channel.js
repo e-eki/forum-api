@@ -70,7 +70,7 @@ router.route('/channel/:id')
       })
       .spread((channel, messages) => {
         let data = channel;
-        data.subSections = messages;
+        data.messages = messages;
 
         return utils.sendResponse(res, data);
       })
