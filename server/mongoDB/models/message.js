@@ -2,6 +2,7 @@
 
 const mongoose = require('mongoose');
 const ObjectId = require('mongoose').Types.ObjectId;
+//const Date = require('mongoose').Types.Date;
 const messageSchema = require('../schemas/message');
 
 const MessageModel = mongoose.model('Message', messageSchema);
@@ -48,36 +49,11 @@ module.exports = {
 				text: 1,
 			}}
 		]);
-
-		if (config) {
-			return MessageModel.aggregate([
-				{'$match': { '_id': new ObjectId(config.id)}},
-				{$project: {
-							_id: 0, id: "$_id",
-							senderId: 1,
-							recipientId: 1,
-							channelId: 1,
-							date: 1,
-							text: 1,
-				}}
-			]);
-		}	
-
-		return MessageModel.aggregate([
-			{$project: {
-				_id: 0, id: "$_id",
-				senderId: 1,
-				recipientId: 1,
-				channelId: 1,
-				date: 1,
-				text: 1,
-			}}
-		]);
 	},
 	
 	create: function(data) {
 		const message = new MessageModel({
-			date: data.date,
+			date: new Date(),
 			text: data.text,
 			//senderId: data.senderId,
 			recipientId: data.recipientId,
