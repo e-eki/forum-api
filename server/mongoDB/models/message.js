@@ -55,7 +55,7 @@ module.exports = {
 		const message = new MessageModel({
 			date: new Date(),
 			text: data.text,
-			//senderId: data.senderId,
+			senderId: data.senderId,
 			recipientId: data.recipientId,
 			channelId: data.channelId,
 		});
@@ -68,7 +68,7 @@ module.exports = {
 			_id: id,
 			date: data.date,
 			text: data.text,
-			//senderId: data.senderId,
+			senderId: data.senderId,
 			recipientId: data.recipientId,
 			channelId: data.channelId,
 		});
