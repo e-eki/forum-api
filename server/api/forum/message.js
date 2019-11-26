@@ -28,10 +28,10 @@ router.route('/message')
     const data = {
       date: req.body.date,
 			text: req.body.text,
-			//senderId: req.body.senderId,
-			//recipientId: req.body.recipientId,
+			senderId: req.body.senderId,
+			recipientId: req.body.recipientId,
 			channelId: req.body.channelId,
-    }
+    };
 
     return messageModel.create(data)
       .then((dbResponse) => {
@@ -76,10 +76,10 @@ router.route('/message/:id')
     const data = {
       date: req.body.date,
 			text: req.body.text,
-			//senderId: req.body.senderId,
-			//recipientId: req.body.recipientId,
+			senderId: req.body.senderId,
+			recipientId: req.body.recipientId,
 			channelId: req.body.channelId,
-    }
+    };
 
     return messageModel.update(req.params.id, data)
       .then((data) => {

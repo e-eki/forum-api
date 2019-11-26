@@ -54,7 +54,7 @@ module.exports = {
 		const channel = new ChannelModel({
 			name: data.name,
 			description: data.description,
-			//senderId: data.senderId,
+			senderId: data.senderId,
 			subSectionId: data.subSectionId,
 			descriptionMessageId: data.descriptionMessageId,
 		});
@@ -64,11 +64,11 @@ module.exports = {
 
 	update: function(id, data) {
 		const channel = new ChannelModel({
-			_id: id,
+			//_id: id,
 			name: data.name,
 			description: data.description,
 			//senderId: data.senderId,
-			subSectionId: data.subSectionId,
+			subSectionId: data.subSectionId,  //todo!
 			descriptionMessageId: data.descriptionMessageId,
 		});
 

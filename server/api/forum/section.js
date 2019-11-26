@@ -52,8 +52,8 @@ router.route('/section')
     const data = {
       name: req.body.name,
       description: req.body.description,
-      //senderId: req.body.senderId,
-    }
+      senderId: req.body.senderId,
+    };
 
     return sectionModel.create(data)
       .then((dbResponse) => {
@@ -110,8 +110,8 @@ router.route('/section/:id')
     const data = {
       name: req.body.name,
       description: req.body.description,
-      //senderId: req.body.senderId,
-    }
+      senderId: req.body.senderId,
+    };
 
     return sectionModel.update(req.params.id, data)
       .then((data) => {

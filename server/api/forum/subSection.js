@@ -29,9 +29,9 @@ router.route('/subsection')
     const data = {
       name: req.body.name,
       description: req.body.description,
-      //senderId: req.body.senderId,
+      senderId: req.body.senderId,
       sectionId: req.body.sectionId,
-    }
+    };
 
     return subSectionModel.create(data)
       .then((dbResponse) => {
@@ -88,9 +88,9 @@ router.route('/subsection/:id')
     const data = {
       name: req.body.name,
       description: req.body.description,
-      //senderId: req.body.senderId,
+      senderId: req.body.senderId,
       sectionId: req.body.sectionId,
-    }
+    };
 
     return subSectionModel.update(req.params.id, data)
       .then((data) => {

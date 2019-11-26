@@ -1,6 +1,7 @@
 'use strict';
 
 const mongoose = require('mongoose');
+const ObjectId = require('mongoose').Types.ObjectId;
 const userSchema = require('../schemas/user');
 
 const UserModel = mongoose.model('User', userSchema);

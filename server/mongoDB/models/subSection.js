@@ -60,7 +60,7 @@ module.exports = {
 
 	update: function(id, data) {
 		const subSection = new SubSectionModel({
-			_id: id,
+			//_id: id,
 			name: data.name,
 			description: data.description,
 			//senderId: data.senderId,

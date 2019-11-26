@@ -6,6 +6,7 @@ const sectionModel = require('./mongoDB/models/section');
 const subSectionModel = require('./mongoDB/models/subSection');
 const channelModel = require('./mongoDB/models/channel');
 const messageModel = require('./mongoDB/models/message');
+const privateChannelModel = require('./mongoDB/models/privateChannel');
 const config = require('./config');
 const utils = require('./lib/utils');
 
@@ -317,6 +318,40 @@ module.exports = {
 								});
 							}
 							break;
+
+						//---PRIVATE-CHANNEL
+						case actionTypes.UPDATE_PRIVATE_CHANNEL_BY_ID:
+
+							if (action.privateChannelId) {
+								return privateChannelModel.query({id: action.privateChannelId})
+									.then(results => {
+										if (results && results.length) {
+											const privateChannel = results[0];
+
+											io.to(action.privateChannelId).emit('action', {
+												type: actionTypes.UPDATE_PRIVATE_CHANNEL_BY_ID,
+												data: privateChannel,
+												privateChannelId: action.privateChannelId,
+												debug: 'privateChannel',
+											});
+										}
+									})
+							}
+
+							break;
+
+						case actionTypes.DELETE_PRIVATE_CHANNEL_BY_ID:
+							if (action.privateChannelId) {
+								io.to(action.privateChannelId).emit('action', {
+									type: actionTypes.DELETE_PRIVATE_CHANNEL_BY_ID,
+									privateChannelId: action.privateChannelId,
+									debug: 'privateChannel',
+								});
+
+								//TODO: и в списке личных чатов юзера
+							}
+							break;
+
 
 						
 						default:

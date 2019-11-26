@@ -42,7 +42,7 @@ module.exports = {
 		const section = new SectionModel({
 			name: data.name,
 			description: data.description,
-			userId: data.userId,  //??
+			senderId: data.senderId,
 		});
 	
 		return section.save();
@@ -50,10 +50,10 @@ module.exports = {
 
 	update: function(id, data) {
 		const section = new SectionModel({
-			_id: id,
+			//_id: id,
 			name: data.name,
 			description: data.description,
-			//userId: data.userId,
+			//senderId: data.senderId,
 		});
 
 		return SectionModel.findOneAndUpdate({_id: id}, section, {new: true});

@@ -4,6 +4,7 @@ const express = require('express');
 const Promise = require('bluebird');
 const utils = require('../../lib/utils');
 const userInfoModel = require('../../mongoDB/models/userInfo');
+const ObjectId = require('mongoose').Types.ObjectId;
 
 let router = express.Router();
 
@@ -36,6 +37,17 @@ router.route('/user-info/:id')
   .get(function(req, res) {      
     return userInfoModel.query({id: req.params.id})
       .then((data) => {
+        data = {
+          userId: new ObjectId(req.params.id),  //todo!
+          nickName: 'VASYA',
+          // 	name: { type: String },
+          birthDate: new Date(),
+          city: 'Moscow',
+          // 	profession: { type: String },
+          // 	hobby: { type: String },
+          citation: 'All you need is love',
+        };
+
         return utils.sendResponse(res, data);
       })
       .catch((error) => {

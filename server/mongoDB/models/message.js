@@ -65,10 +65,10 @@ module.exports = {
 
 	update: function(id, data) {
 		const message = new MessageModel({
-			_id: id,
+			//_id: id,
 			date: data.date,
 			text: data.text,
-			senderId: data.senderId,
+			//senderId: data.senderId,
 			recipientId: data.recipientId,
 			channelId: data.channelId,
 		});

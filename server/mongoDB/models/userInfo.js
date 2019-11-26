@@ -1,6 +1,7 @@
 'use strict';
 
 const mongoose = require('mongoose');
+const ObjectId = require('mongoose').Types.ObjectId;
 const userInfoSchema = require('../schemas/userInfo');
 
 const UserInfoModel = mongoose.model('UserInfo', userInfoSchema);
@@ -8,6 +9,7 @@ const UserInfoModel = mongoose.model('UserInfo', userInfoSchema);
 module.exports = {
 	
 	query: function(config) {
+
 		if (config) {
 			return UserInfoModel.aggregate([
 				{$match: { '_id': new ObjectId(config.id)}},
@@ -57,7 +59,7 @@ module.exports = {
 
 	update: function(id, data) {
 		const userInfo = new UserInfoModel({
-			_id: id,
+			//_id: id,
 			userId: data.userId,   //??
 			nickName: data.nickName,
 			name: data.name,
