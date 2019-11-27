@@ -38,7 +38,7 @@ router.route('/user-info/:id')
     return userInfoModel.query({id: req.params.id})
       .then((data) => {
         data = {
-          userId: new ObjectId(req.params.id),  //todo!
+          id: new ObjectId(req.params.id),  //todo!
           nickName: 'VASYA',
           // 	name: { type: String },
           birthDate: new Date(),

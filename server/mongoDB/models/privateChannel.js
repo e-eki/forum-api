@@ -4,30 +4,30 @@ const mongoose = require('mongoose');
 const ObjectId = require('mongoose').Types.ObjectId;
 const privateChannelSchema = require('../schemas/privateChannel');
 
-const PrivatePrivateChannelModel = mongoose.model('PrivateChannel', privateChannelSchema);
+const PrivateChannelModel = mongoose.model('PrivateChannel', privateChannelSchema);
 
 module.exports = {
 	
 	query: function(config) {
 		if (config) {
 			if (config.id) {
-				return PrivatePrivateChannelModel.aggregate([
+				return PrivateChannelModel.aggregate([
 					{'$match': { '_id': new ObjectId(config.id)}},
 					{$project: {
 						_id: 0, id: "$_id",
-						firstSenderId: 1,
-						secondSenderId: 1,
+						recipientId: 1,
+						senderId: 1,
 						descriptionMessageId: 1,
 					}}
 				]);
 			}
-			else if (config.senderId) {
+			else if (config.recipientId) {
 				return PrivateChannelModel.aggregate([
-					{'$match': { 'firstSenderId': new ObjectId(config.senderId), 'secondSenderId': new ObjectId(config.senderId)}},
+					{'$match': { 'recipientId': new ObjectId(config.recipientId), 'senderId': new ObjectId(config.recipientId)}},
 					{$project: {
 						_id: 0, id: "$_id",
-						firstSenderId: 1,
-						secondSenderId: 1,
+						recipientId: 1,
+						senderId: 1,
 						descriptionMessageId: 1,
 					}}
 				]);
@@ -37,8 +37,8 @@ module.exports = {
 		return PrivateChannelModel.aggregate([
 			{$project: {
 				_id: 0, id: "$_id",
-				firstSenderId: 1,
-				secondSenderId: 1,
+				recipientId: 1,
+				senderId: 1,
 				descriptionMessageId: 1,
 			}}
 		]);
@@ -46,9 +46,8 @@ module.exports = {
 	
 	create: function(data) {
 		const privateChannel = new PrivateChannelModel({
-			firstSenderId: data.firstSenderId,
-			secondSenderId: data.secondSenderId,
-			descriptionMessageId: data.descriptionMessageId,
+			recipientId: data.recipientId,
+			senderId: data.senderId,
 		});
 	
 		return privateChannel.save();
@@ -57,8 +56,6 @@ module.exports = {
 	update: function(id, data) {
 		const privateChannel = new PrivateChannelModel({
 			//_id: id,
-			// firstSenderId: data.firstSenderId,
-			// secondSenderId: data.secondSenderId,
 			descriptionMessageId: data.descriptionMessageId,
 		});
 

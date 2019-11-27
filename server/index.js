@@ -70,6 +70,7 @@ app.use(bodyParser.json({type: 'application/json'}));
 app.use('/api', require('./api/forum/section'));
 app.use('/api', require('./api/forum/subSection'));
 app.use('/api', require('./api/forum/channel'));
+app.use('/api', require('./api/forum/privateChannel'));
 app.use('/api', require('./api/forum/message'));
 app.use('/api', require('./api/forum/user'));
 app.use('/api', require('./api/forum/userInfo'));

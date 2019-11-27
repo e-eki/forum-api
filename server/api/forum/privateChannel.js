@@ -13,15 +13,21 @@ let router = express.Router();
 router.route('/private-channel')
 
   .get(function(req, res) { 
-    //???
+
+    return Promise.resolve(privateChannelModel.query({recipientId: req.query.recipientId}))
+      .then(results => {
+        return utils.sendResponse(res, results);
+      })
+      .catch((error) => {
+        return utils.sendErrorResponse(res, error);
+      });
   })
 
   // создание нового приватного канала
   .post(function(req, res) {
     const data = {
-      firstSenderId: req.body.firstSenderId,
-			secondSenderId: req.body.secondSenderId,
-			descriptionMessageId: req.body.descriptionMessageId,
+      recipientId: req.body.recipientId,
+			senderId: req.body.recipientId,    //todo: senderId!!
     };
 
     return privateChannelModel.create(data)
@@ -73,7 +79,9 @@ router.route('/private-channel/:id')
       })
       .spread((privateChannel, recepientUserInfo) => {
         //privateChannel.name = recepientUserInfo.nickName;  //todo!
-        privateChannel.name = 'ALICE';
+
+        let data = privateChannel;
+        data.name = 'ALICE';
 
         return utils.sendResponse(res, data);
       })
@@ -88,7 +96,7 @@ router.route('/private-channel/:id')
 
   // редактирование данных приватного канала по его id
   .put(function(req, res) {
-  const data = {
+    const data = {
       descriptionMessageId: req.body.descriptionMessageId,
     };
 
