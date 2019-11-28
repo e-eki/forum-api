@@ -16,7 +16,41 @@ router.route('/private-channel')
 
     return Promise.resolve(privateChannelModel.query({recipientId: req.query.recipientId}))
       .then(results => {
-        return utils.sendResponse(res, results);
+
+        let privateChannel;
+        // if (results && results.length) {
+        //   privateChannel = results.find(item => {
+        //     ((item.senderId === userId) || (item.recepientId === userId));   //todo!userId
+        //   })
+        // };
+
+        privateChannel = (results && results.length) ? results[0] : null;
+
+        const tasks = [];
+
+        if (!privateChannel) {
+          tasks.push(false);
+        }
+        else {
+          tasks.push(privateChannel);
+          tasks.push(messageModel.query({channelId: privateChannel.id}));
+        }
+
+        // const recipientId = (privateChannel.senderId !== req.params.id) ? privateChannel.senderId : privateChannel.recipientId;
+        // tasks.push(userInfoModel.query({id: recipientId}));  //??
+
+        return Promise.all(tasks);
+      })
+      .spread((privateChannel, messages, recepientUserInfo) => {
+
+        if (privateChannel) {
+          privateChannel.messages = messages;
+
+          //privateChannel.name = recepientUserInfo.nickName;  //todo!!
+          privateChannel.name = 'ALICE-PRIVATE';
+        }
+
+        return utils.sendResponse(res, privateChannel);
       })
       .catch((error) => {
         return utils.sendErrorResponse(res, error);
@@ -63,27 +97,18 @@ router.route('/private-channel/:id')
         tasks.push(privateChannel);
         tasks.push(messageModel.query({channelId: privateChannel.id}));
 
+        // const recipientId = (privateChannel.senderId !== req.params.id) ? privateChannel.senderId : privateChannel.recipientId;
+        // tasks.push(userInfoModel.query({id: recipientId}));  //??
+
         return Promise.all(tasks);
       })
-      .spread((privateChannel, messages) => {
+      .spread((privateChannel, messages, recepientUserInfo) => {
         privateChannel.messages = messages;
 
-        const recipientId = (privateChannel.firstSenderId !== req.params.id) ? privateChannel.firstSenderId : privateChannel.secondSenderId;
+        //privateChannel.name = recepientUserInfo.nickName;  //todo!!
+        privateChannel.name = 'ALICE';
 
-        const tasks = [];
-
-        tasks.push(privateChannel);
-        tasks.push(userInfoModel.query({id: recipientId}));
-
-        return Promise.all(tasks);
-      })
-      .spread((privateChannel, recepientUserInfo) => {
-        //privateChannel.name = recepientUserInfo.nickName;  //todo!
-
-        let data = privateChannel;
-        data.name = 'ALICE';
-
-        return utils.sendResponse(res, data);
+        return utils.sendResponse(res, privateChannel);
       })
       .catch((error) => {
         return utils.sendErrorResponse(res, error);
