@@ -32,6 +32,17 @@ module.exports = {
 					}}
 				]);
 			}
+			else if (config.userId) {
+				return PrivateChannelModel.aggregate([
+					{'$match': { 'senderId': new ObjectId(config.userId)}},
+					{$project: {
+						_id: 0, id: "$_id",
+						recipientId: 1,
+						senderId: 1,
+						descriptionMessageId: 1,
+					}}
+				]);
+			}
 		}	
 
 		return PrivateChannelModel.aggregate([

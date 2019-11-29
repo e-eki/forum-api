@@ -14,43 +14,24 @@ router.route('/private-channel')
 
   .get(function(req, res) { 
 
-    return Promise.resolve(privateChannelModel.query({recipientId: req.query.recipientId}))
+    const userId = '5dd964d6dafac429cc97f200'; //todo
+    let config = {};
+
+    if (req.query.recipientId) {
+      config = {
+        recipientId: req.query.recipientId,
+      };
+    }
+    else if (userId) {
+      config = {
+        userId: userId,  //todo
+      };
+    }
+
+    return Promise.resolve(privateChannelModel.query(config))
       .then(results => {
 
-        let privateChannel;
-        // if (results && results.length) {
-        //   privateChannel = results.find(item => {
-        //     ((item.senderId === userId) || (item.recepientId === userId));   //todo!userId
-        //   })
-        // };
-
-        privateChannel = (results && results.length) ? results[0] : null;
-
-        const tasks = [];
-
-        if (!privateChannel) {
-          tasks.push(false);
-        }
-        else {
-          tasks.push(privateChannel);
-          tasks.push(messageModel.query({channelId: privateChannel.id}));
-        }
-
-        // const recipientId = (privateChannel.senderId !== req.params.id) ? privateChannel.senderId : privateChannel.recipientId;
-        // tasks.push(userInfoModel.query({id: recipientId}));  //??
-
-        return Promise.all(tasks);
-      })
-      .spread((privateChannel, messages, recepientUserInfo) => {
-
-        if (privateChannel) {
-          privateChannel.messages = messages;
-
-          //privateChannel.name = recepientUserInfo.nickName;  //todo!!
-          privateChannel.name = 'ALICE-PRIVATE';
-        }
-
-        return utils.sendResponse(res, privateChannel);
+        return utils.sendResponse(res, results);
       })
       .catch((error) => {
         return utils.sendErrorResponse(res, error);
