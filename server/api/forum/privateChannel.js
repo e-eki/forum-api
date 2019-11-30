@@ -30,6 +30,18 @@ router.route('/private-channel')
 
     return Promise.resolve(privateChannelModel.query(config))
       .then(results => {
+        const tasks = [];
+
+        if (!req.query.recipientId) {
+          tasks.push(results)
+        }
+        else {
+          
+
+          tasks.push(privateChannel);
+          tasks.push(messageModel.query({channelId: privateChannel.id}));
+        }
+
 
         return utils.sendResponse(res, results);
       })
