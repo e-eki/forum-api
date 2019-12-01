@@ -14,7 +14,7 @@ router.route('/private-channel')
 
   .get(function(req, res) { 
 
-    const userId = '5dd964d6dafac429cc97f200'; //todo
+    const userId = '5dd6d4c6d0412d25e4895fad'; //todo
     let config = {};
 
     if (req.query.recipientId) {
@@ -32,18 +32,39 @@ router.route('/private-channel')
       .then(results => {
         const tasks = [];
 
+        if (results.length) {
+          let i = 0;
+          results.forEach(item => {
+            item.name = "PRIVATE - " + i;   //TODO!
+            i++;
+          })
+        }
+
         if (!req.query.recipientId) {
-          tasks.push(results)
+          tasks.push(results);
         }
         else {
-          
+          //const results = results.filter(item => item.senderId === userId);  //todo!
 
-          tasks.push(privateChannel);
-          tasks.push(messageModel.query({channelId: privateChannel.id}));
+          if (results && results.length) {
+            const privateChannel = results[0];
+
+            tasks.push(privateChannel);
+            tasks.push(messageModel.query({channelId: privateChannel.id}));
+          }
+          else {
+            tasks.push(false);
+          }
         }
 
+        return Promise.all(tasks)
+      })
+      .spread((result, messages) => {
+        if (result && req.query.recipientId) {
+          result.messages = messages;
+        }
 
-        return utils.sendResponse(res, results);
+        return utils.sendResponse(res, result);
       })
       .catch((error) => {
         return utils.sendErrorResponse(res, error);
