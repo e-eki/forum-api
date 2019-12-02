@@ -17,14 +17,15 @@ router.route('/private-channel')
     const userId = '5dd6d4c6d0412d25e4895fad'; //todo
     let config = {};
 
-    if (req.query.recipientId) {
+    if (userId && req.query.recipientId) {   //todo: check!
       config = {
         recipientId: req.query.recipientId,
+        userId: userId,
       };
     }
-    else if (userId) {
+    else if (userId) {   //todo: check!
       config = {
-        userId: userId,  //todo
+        userId: userId,
       };
     }
 
