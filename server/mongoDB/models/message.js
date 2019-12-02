@@ -37,6 +37,19 @@ module.exports = {
 					}}
 				]);
 			}
+			else if (config.text) {
+				return MessageModel.aggregate([
+					{'$match': { 'text': config.text}},
+					{$project: {
+						_id: 0, id: "$_id",
+						senderId: 1,
+						recipientId: 1,
+						channelId: 1,
+						date: 1,
+						text: 1,
+					}}
+				]);
+			}
 		}	
 
 		return MessageModel.aggregate([

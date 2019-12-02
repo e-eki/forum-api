@@ -36,6 +36,19 @@ module.exports = {
 					}}
 				]);
 			}
+			else if (config.text) {
+				return ChannelModel.aggregate([
+					{'$match': { 'name': config.text, 'description': config.text}},
+					{$project: {
+						_id: 0, id: "$_id",
+						name: 1,
+						description: 1,
+						senderId: 1,
+						subSectionId: 1,
+						descriptionMessageId: 1,
+					}}
+				]);
+			}
 		}	
 
 		return ChannelModel.aggregate([

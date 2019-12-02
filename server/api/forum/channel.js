@@ -11,16 +11,24 @@ let router = express.Router();
 //----- endpoint: /api/channel/
 router.route('/channel')
 
-  // получение всех каналов
+  // получение всех каналов (для поиска по форуму)
   .get(function(req, res) { 
-    // return channelModel.query()
-    //   .then((data) => {
-    //     return utils.sendResponse(res, data);
-    //   })
-    //   .catch((error) => {
-		// 		return utils.sendErrorResponse(res, error, 500);
-    //   });
-    return utils.sendErrorResponse(res, 'UNSUPPORTED_METHOD');
+    const tasks = [];
+
+    if (req.query.text) {
+      tasks.push(channelModel.query({text: req.query.text}));
+    }
+    else {
+      tasks.push(false);
+    }
+
+    return Promise.all(tasks)
+      .spread(results => {
+        return utils.sendResponse(res, results);
+      })
+      .catch((error) => {
+        return utils.sendErrorResponse(res, error);
+      })
   })
 
   // создание нового канала

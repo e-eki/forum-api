@@ -57,7 +57,7 @@ const utils = new function() {
 
     this.sendResponse = function(res, response, statusCode) {
         let status = statusCode || 200;
-        let responseData = response ? response : 'OK'; //??
+        let responseData = (response || response === false) ? response : 'OK'; //??
 
         return res.status(status).send(responseData);
     };

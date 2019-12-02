@@ -11,16 +11,24 @@ let router = express.Router();
 //----- endpoint: /api/message/
 router.route('/message')
 
-  // получение всех сообщений
+  // получение всех сообщений (для поиска по форуму)
   .get(function(req, res) { 
-    // return messageModel.query()
-    //   .then((data) => {
-    //     return utils.sendResponse(res, data);
-    //   })
-    //   .catch((error) => {
-		// 		return utils.sendErrorResponse(res, error, 500);
-    //   });
-    return utils.sendErrorResponse(res, 'UNSUPPORTED_METHOD');
+    const tasks = [];
+
+    if (req.query.text) {
+      tasks.push(messageModel.query({text: req.query.text}));
+    }
+    else {
+      tasks.push(false);
+    }
+
+    return Promise.all(tasks)
+      .spread(results => {
+        return utils.sendResponse(res, results);
+      })
+      .catch((error) => {
+        return utils.sendErrorResponse(res, error);
+      })
   })
 
   // создание нового сообщения

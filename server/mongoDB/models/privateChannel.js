@@ -34,7 +34,7 @@ module.exports = {
 			}
 			else if (config.userId) {
 				return PrivateChannelModel.aggregate([
-					{'$match': { 'senderId': new ObjectId(config.userId)}},
+					{'$match': { 'senderId': new ObjectId(config.userId), 'recipientId': new ObjectId(config.userId),}},
 					{$project: {
 						_id: 0, id: "$_id",
 						recipientId: 1,
