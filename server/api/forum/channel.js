@@ -15,8 +15,8 @@ router.route('/channel')
   .get(function(req, res) { 
     const tasks = [];
 
-    if (req.query.text) {
-      tasks.push(channelModel.query({text: req.query.text}));
+    if (req.query.searchText) {
+      tasks.push(channelModel.query({searchText: req.query.searchText}));
     }
     else {
       tasks.push(false);

@@ -36,9 +36,9 @@ module.exports = {
 					}}
 				]);
 			}
-			else if (config.text) {
+			else if (config.searchText) {
 				return ChannelModel.aggregate([
-					{'$match': {'name': { $regex: `${config.text}`}} || {'description': { $regex: `${config.text}`}}},
+					{'$match': {'name': { $regex: `${config.searchText}`}} || {'description': { $regex: `${config.searchText}`}}},
 					{$project: {
 						_id: 0, id: "$_id",
 						name: 1,

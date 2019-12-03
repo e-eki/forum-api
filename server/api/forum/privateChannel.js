@@ -45,8 +45,6 @@ router.route('/private-channel')
           tasks.push(results);
         }
         else {
-          //const results = results.filter(item => item.senderId === userId);  //todo!
-
           if (results && results.length) {
             const privateChannel = results[0];
 

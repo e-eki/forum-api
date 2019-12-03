@@ -15,8 +15,8 @@ router.route('/message')
   .get(function(req, res) { 
     const tasks = [];
 
-    if (req.query.text) {
-      tasks.push(messageModel.query({text: req.query.text}));
+    if (req.query.searchText) {
+      tasks.push(messageModel.query({searchText: req.query.searchText}));
     }
     else {
       tasks.push(false);
