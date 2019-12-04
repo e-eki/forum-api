@@ -74,7 +74,7 @@ router.route('/private-channel')
   .post(function(req, res) {
     const data = {
       recipientId: req.body.recipientId,
-			senderId: req.body.recipientId,    //todo: senderId!!
+			senderId: req.body.senderId,    //todo: senderId!!
     };
 
     return privateChannelModel.create(data)

@@ -21,7 +21,7 @@ module.exports = {
 					}}
 				]);
 			}
-			else if (config.recipientId & config.userId) {  //todo!
+			else if (config.recipientId && config.userId) {
 				return PrivateChannelModel.aggregate([
 					//{'$match': {'name': { $regex: `${config.text}`}} || {'description': { $regex: `${config.text}`}}},
 					//{'$match': { 'recipientId': new ObjectId(config.recipientId), 'senderId': new ObjectId(config.recipientId)}},

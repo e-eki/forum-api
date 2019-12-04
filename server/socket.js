@@ -296,6 +296,17 @@ module.exports = {
 												channelId: action.channelId,
 												debug: 'channel',
 											});
+
+											if (message.recipientId) {  //todo! check
+												io.to(message.recipientId).emit('action', {
+													type: actionTypes.UPDATE_MESSAGE_BY_ID,
+													data: message,
+													messageId: action.messageId,
+													channelId: action.channelId,
+													recipientId: message.recipientId,
+													debug: 'recipientId',
+												});
+											}
 										}
 									})
 							}
@@ -334,6 +345,24 @@ module.exports = {
 												privateChannelId: action.privateChannelId,
 												debug: 'privateChannel',
 											});
+
+											if (action.senderId) {
+												io.to(action.senderId).emit('action', {
+													type: actionTypes.UPDATE_PRIVATE_CHANNEL_BY_ID,
+													data: privateChannel,
+													privateChannelId: action.privateChannelId,
+													debug: 'senderId',
+												});
+											}
+
+											if (action.recipientId) {
+												io.to(action.recipientId).emit('action', {
+													type: actionTypes.UPDATE_PRIVATE_CHANNEL_BY_ID,
+													data: privateChannel,
+													privateChannelId: action.privateChannelId,
+													debug: 'recipientId',
+												});
+											}
 										}
 									})
 							}
@@ -348,7 +377,21 @@ module.exports = {
 									debug: 'privateChannel',
 								});
 
-								//TODO: и в списке личных чатов юзера
+								if (action.senderId) {
+									io.to(action.senderId).emit('action', {
+										type: actionTypes.DELETE_PRIVATE_CHANNEL_BY_ID,
+										privateChannelId: action.privateChannelId,
+										debug: 'senderId',
+									});
+								}
+
+								if (action.recipientId) {
+									io.to(action.recipientId).emit('action', {
+										type: actionTypes.DELETE_PRIVATE_CHANNEL_BY_ID,
+										privateChannelId: action.privateChannelId,
+										debug: 'recipientId',
+									});
+								}
 							}
 							break;
 
