@@ -18,14 +18,12 @@ module.exports = {
 						recipientId: 1,
 						senderId: 1,
 						descriptionMessageId: 1,
+						name: 1,
 					}}
 				]);
 			}
 			else if (config.recipientId && config.userId) {
 				return PrivateChannelModel.aggregate([
-					//{'$match': {'name': { $regex: `${config.text}`}} || {'description': { $regex: `${config.text}`}}},
-					//{'$match': { 'recipientId': new ObjectId(config.recipientId), 'senderId': new ObjectId(config.recipientId)}},
-
 					{'$match': ({'recipientId': new ObjectId(config.recipientId)} && {'senderId': new ObjectId(config.userId)} ||
 								{'recipientId': new ObjectId(config.userId)} && {'senderId': new ObjectId(config.recipientId)})},
 					{$project: {
@@ -33,6 +31,7 @@ module.exports = {
 						recipientId: 1,
 						senderId: 1,
 						descriptionMessageId: 1,
+						name: 1,
 					}}
 				]);
 			}
@@ -44,6 +43,7 @@ module.exports = {
 						recipientId: 1,
 						senderId: 1,
 						descriptionMessageId: 1,
+						name: 1,
 					}}
 				]);
 			}
@@ -55,6 +55,7 @@ module.exports = {
 				recipientId: 1,
 				senderId: 1,
 				descriptionMessageId: 1,
+				name: 1,
 			}}
 		]);
 	},
@@ -63,6 +64,7 @@ module.exports = {
 		const privateChannel = new PrivateChannelModel({
 			recipientId: data.recipientId,
 			senderId: data.senderId,
+			name: data.name,
 		});
 	
 		return privateChannel.save();
@@ -72,6 +74,7 @@ module.exports = {
 		const privateChannel = new PrivateChannelModel({
 			//_id: id,
 			descriptionMessageId: data.descriptionMessageId,
+			name: data.name,
 		});
 
 		return PrivateChannelModel.findOneAndUpdate({_id: id}, privateChannel, {new: true});

@@ -17,13 +17,13 @@ router.route('/private-channel')
     const userId = '5dd6d4c6d0412d25e4895fad'; //todo
     let config = {};
 
-    if (userId && req.query.recipientId) {   //todo: check!
+    if (userId && req.query.recipientId) {
       config = {
         recipientId: req.query.recipientId,
         userId: userId,
       };
     }
-    else if (userId) {   //todo: check!
+    else if (userId) {
       config = {
         userId: userId,
       };
@@ -32,14 +32,6 @@ router.route('/private-channel')
     return Promise.resolve(privateChannelModel.query(config))
       .then(results => {
         const tasks = [];
-
-        if (results.length) {
-          let i = 0;
-          results.forEach(item => {
-            item.name = "PRIVATE - " + i;   //TODO!
-            i++;
-          })
-        }
 
         if (!req.query.recipientId) {
           tasks.push(results);
@@ -59,6 +51,10 @@ router.route('/private-channel')
         return Promise.all(tasks)
       })
       .spread((result, messages) => {
+        const tasks = [];
+
+        tasks.push(result);
+
         if (result && req.query.recipientId) {
           result.messages = messages;
         }
@@ -74,7 +70,8 @@ router.route('/private-channel')
   .post(function(req, res) {
     const data = {
       recipientId: req.body.recipientId,
-			senderId: req.body.senderId,    //todo: senderId!!
+      senderId: req.body.senderId,    //todo: senderId!!
+      name: req.body.name,
     };
 
     return privateChannelModel.create(data)
@@ -110,16 +107,10 @@ router.route('/private-channel/:id')
         tasks.push(privateChannel);
         tasks.push(messageModel.query({channelId: privateChannel.id}));
 
-        // const recipientId = (privateChannel.senderId !== req.params.id) ? privateChannel.senderId : privateChannel.recipientId;
-        // tasks.push(userInfoModel.query({id: recipientId}));  //??
-
         return Promise.all(tasks);
       })
-      .spread((privateChannel, messages, recepientUserInfo) => {
+      .spread((privateChannel, messages) => {
         privateChannel.messages = messages;
-
-        //privateChannel.name = recepientUserInfo.nickName;  //todo!!
-        privateChannel.name = 'ALICE';
 
         return utils.sendResponse(res, privateChannel);
       })
@@ -136,6 +127,7 @@ router.route('/private-channel/:id')
   .put(function(req, res) {
     const data = {
       descriptionMessageId: req.body.descriptionMessageId,
+      name: req.body.name,
     };
 
     return privateChannelModel.update(req.params.id, data)

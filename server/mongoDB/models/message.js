@@ -39,7 +39,7 @@ module.exports = {
 			}
 			else if (config.searchText) {
 				return MessageModel.aggregate([
-					{'$match': {'text': { $regex: `${config.searchText}`}}},
+					{'$match': {'text': { $regex: `${config.searchText}`}, 'recipientId': null}},
 					{$project: {
 						_id: 0, id: "$_id",
 						senderId: 1,

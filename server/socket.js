@@ -7,6 +7,7 @@ const subSectionModel = require('./mongoDB/models/subSection');
 const channelModel = require('./mongoDB/models/channel');
 const messageModel = require('./mongoDB/models/message');
 const privateChannelModel = require('./mongoDB/models/privateChannel');
+const userInfoModel = require('./mongoDB/models/userInfo');
 const config = require('./config');
 const utils = require('./lib/utils');
 
@@ -297,8 +298,8 @@ module.exports = {
 												debug: 'channel',
 											});
 
-											if (message.recipientId) {  //todo! check
-												io.to(message.recipientId).emit('action', {
+											if (action.recipientId) {  //todo! check
+												io.to(action.recipientId).emit('action', {
 													type: actionTypes.UPDATE_MESSAGE_BY_ID,
 													data: message,
 													messageId: action.messageId,
@@ -336,6 +337,7 @@ module.exports = {
 							if (action.privateChannelId) {
 								return privateChannelModel.query({id: action.privateChannelId})
 									.then(results => {
+
 										if (results && results.length) {
 											const privateChannel = results[0];
 
