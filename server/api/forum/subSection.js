@@ -69,8 +69,21 @@ router.route('/subsection/:id')
         return Promise.all(tasks);
       })
       .spread((subSection, channels) => {
-        let data = subSection;  //??const
-        data.channels = channels;
+        subSection.channels = channels;
+
+        const tasks = [];
+        tasks.push(subSection);
+
+        if (channels) {
+          for (let i = 0; i < channels.length; i++) {
+            tasks.push(messageModel.query({channelId: channels[i].id, getLastMessage: true}));
+            tasks.push(messageModel.query({channelId: channels[i].id, getLastMessage: true})); //todo
+          }
+        }
+
+        return Promise.all(tasks);
+      })
+      .spread((subSection, lastMessages) => {
 
         return utils.sendResponse(res, data);
       })

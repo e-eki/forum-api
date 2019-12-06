@@ -12,6 +12,7 @@ let router = express.Router();
 //----- endpoint: /api/private-channel/
 router.route('/private-channel')
 
+//todo - lastmessage!
   .get(function(req, res) { 
 
     const userId = '5dd6d4c6d0412d25e4895fad'; //todo
