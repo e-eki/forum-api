@@ -6,6 +6,7 @@ const utils = require('../../lib/utils');
 const subSectionModel = require('../../mongoDB/models/subSection');
 const channelModel = require('../../mongoDB/models/channel');
 const messageModel = require('../../mongoDB/models/message');
+const userInfoModel = require('../../mongoDB/models/userInfo');
 
 let router = express.Router();
 
@@ -74,18 +75,45 @@ router.route('/subsection/:id')
         const tasks = [];
         tasks.push(subSection);
 
-        if (channels) {
-          for (let i = 0; i < channels.length; i++) {
-            tasks.push(messageModel.query({channelId: channels[i].id, getLastMessage: true}));
-            tasks.push(messageModel.query({channelId: channels[i].id, getLastMessage: true})); //todo
+        // ищем последнее сообщение в каждом чате - отображаются в подразделе
+        //todo: вынести в utils
+        if (subSection.channels) {
+          for (let i = 0; i < subSection.channels.length; i++) {
+            tasks.push(messageModel.query({channelId: subSection.channels[i].id, getLastMessage: true}));
           }
         }
 
         return Promise.all(tasks);
       })
       .spread((subSection, lastMessages) => {
+        const tasks = [];
 
-        return utils.sendResponse(res, data);
+        tasks.push(subSection);
+
+        if (subSection.channels && lastMessages) {
+          for (let i = 0; i < subSection.channels.length; i++) {
+
+            if (lastMessages[i]) {
+              const lastMessage = lastMessages[i];
+
+              subSection.channels[i].lastMessage = lastMessage;
+
+              // ищем имя отправителя для каждого последнего сообщения
+              tasks.push(userInfoModel.query({id: lastMessage.senderId}));
+            }
+          }
+        }
+
+        return Promise.all(tasks);
+      })
+      .spread((subSection, userInfos) => {
+        if (subSection.channels && userInfos) {
+          for (let i = 0; i < subSection.channels.length; i++) {
+            subSection.channels[i].lastMessage.senderName = userInfos[i] ? userInfos[i].nickName : null;
+          }
+        }
+
+        return utils.sendResponse(res, subSection);
       })
       .catch((error) => {
         return utils.sendErrorResponse(res, error);

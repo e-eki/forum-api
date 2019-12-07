@@ -12,7 +12,6 @@ let router = express.Router();
 //----- endpoint: /api/private-channel/
 router.route('/private-channel')
 
-//todo - lastmessage!
   .get(function(req, res) { 
 
     const userId = '5dd6d4c6d0412d25e4895fad'; //todo
@@ -31,15 +30,59 @@ router.route('/private-channel')
     }
 
     return Promise.resolve(privateChannelModel.query(config))
-      .then(results => {
+      .then(privateChannels => {
+        const tasks = [];
+        tasks.push(privateChannels);
+
+        // если это список приватных чатов, ищем последнее сообщение в каждом чате
+        //todo: вынести в utils
+        if (!req.query.recipientId && privateChannels) {
+          for (let i = 0; i < privateChannels.length; i++) {
+            tasks.push(messageModel.query({channelId: privateChannels[i].id, getLastMessage: true}));
+          }
+        }
+
+        return Promise.all(tasks);
+      })
+      .spread((privateChannels, lastMessages) => {
         const tasks = [];
 
-        if (!req.query.recipientId) {
-          tasks.push(results);
+        tasks.push(privateChannels);
+
+        if (!req.query.recipientId && privateChannels && lastMessages) {
+          for (let i = 0; i < privateChannels.length; i++) {
+
+            if (lastMessages[i]) {
+              const lastMessage = lastMessages[i];
+
+              privateChannels[i].lastMessage = lastMessage;
+
+              // ищем имя отправителя для каждого последнего сообщения
+              tasks.push(userInfoModel.query({id: lastMessage.senderId}));
+            }
+          }
         }
+
+        return Promise.all(tasks);
+      })
+      .spread((privateChannels, userInfos) => {
+
+        if (!req.query.recipientId && privateChannels && userInfos) {
+          for (let i = 0; i < privateChannels.length; i++) {
+            privateChannels[i].lastMessage.senderName = userInfos[i] ? userInfos[i].nickName : null;
+          }
+        }
+
+        const tasks = [];
+
+        //если это список приватных чатов, то сообщения не нужны
+        if (!req.query.recipientId) {
+          tasks.push(privateChannels);
+        }
+        //если это приватный чат для recipientId, то нужны его сообщения
         else {
-          if (results && results.length) {
-            const privateChannel = results[0];
+          if (privateChannels && privateChannels.length) {
+            const privateChannel = privateChannels[0];
 
             tasks.push(privateChannel);
             tasks.push(messageModel.query({channelId: privateChannel.id}));
@@ -51,16 +94,16 @@ router.route('/private-channel')
 
         return Promise.all(tasks)
       })
-      .spread((result, messages) => {
+      .spread((privateChannels, messages) => {
         const tasks = [];
 
-        tasks.push(result);
+        tasks.push(privateChannels);
 
-        if (result && req.query.recipientId) {
-          result.messages = messages;
+        if (privateChannels && req.query.recipientId) {
+          privateChannels.messages = messages;
         }
 
-        return utils.sendResponse(res, result);
+        return utils.sendResponse(res, privateChannels);
       })
       .catch((error) => {
         return utils.sendErrorResponse(res, error);

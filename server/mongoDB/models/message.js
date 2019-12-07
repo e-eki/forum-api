@@ -24,9 +24,7 @@ module.exports = {
 					}}
 				]);
 			}
-			//db.users.find().sort( { username : 1, age : -1 } );
-			else if (config.channelId && config.getLastMessage) {   //?
-				//return MessageModel.findOne().sort({date: -1});
+			else if (config.channelId && config.getLastMessage) {
 				return MessageModel.aggregate([
 					{'$match': { 'channelId': new ObjectId(config.channelId)}},
 					{'$sort': {'date': -1}},
@@ -34,8 +32,6 @@ module.exports = {
 					{$project: {
 						_id: 0, id: "$_id",
 						senderId: 1,
-						recipientId: 1,
-						channelId: 1,
 						date: 1,
 						text: 1,
 					}}
