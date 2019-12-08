@@ -19,6 +19,7 @@ module.exports = {
 						senderId: 1,
 						descriptionMessageId: 1,
 						name: 1,
+						lastVisitDate: 1,
 					}}
 				]);
 			}
@@ -32,6 +33,7 @@ module.exports = {
 						senderId: 1,
 						descriptionMessageId: 1,
 						name: 1,
+						lastVisitDate: 1,
 					}}
 				]);
 			}
@@ -44,6 +46,7 @@ module.exports = {
 						senderId: 1,
 						descriptionMessageId: 1,
 						name: 1,
+						lastVisitDate: 1,
 					}}
 				]);
 			}
@@ -56,6 +59,7 @@ module.exports = {
 				senderId: 1,
 				descriptionMessageId: 1,
 				name: 1,
+				lastVisitDate: 1,
 			}}
 		]);
 	},
@@ -75,6 +79,7 @@ module.exports = {
 			//_id: id,
 			descriptionMessageId: data.descriptionMessageId,
 			name: data.name,
+			lastVisitDate: data.lastVisitDate,
 		});
 
 		return PrivateChannelModel.findOneAndUpdate({_id: id}, privateChannel, {new: true});

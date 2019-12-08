@@ -83,6 +83,8 @@ router.route('/subsection/:id')
           }
         }
 
+        //todo: кол-во непрочитанных!
+
         return Promise.all(tasks);
       })
       .spread((subSection, lastMessages) => {

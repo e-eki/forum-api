@@ -20,6 +20,7 @@ module.exports = {
 						senderId: 1,
 						subSectionId: 1,
 						descriptionMessageId: 1,
+						lastVisitDate: 1,
 					}}
 				]);
 			}
@@ -33,6 +34,7 @@ module.exports = {
 						senderId: 1,
 						subSectionId: 1,
 						descriptionMessageId: 1,
+						lastVisitDate: 1,
 					}}
 				]);
 			}
@@ -46,6 +48,7 @@ module.exports = {
 						senderId: 1,
 						subSectionId: 1,
 						descriptionMessageId: 1,
+						lastVisitDate: 1,
 					}}
 				]);
 			}
@@ -59,6 +62,7 @@ module.exports = {
 				senderId: 1,
 				subSectionId: 1,
 				descriptionMessageId: 1,
+				lastVisitDate: 1,
 			}}
 		]);
 	},
@@ -83,6 +87,7 @@ module.exports = {
 			//senderId: data.senderId,
 			subSectionId: data.subSectionId,  //todo!
 			descriptionMessageId: data.descriptionMessageId,
+			lastVisitDate: data.lastVisitDate,
 		});
 
 		return ChannelModel.findOneAndUpdate({_id: id}, channel, {new: true});
