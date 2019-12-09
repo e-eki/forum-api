@@ -5,6 +5,7 @@ const Promise = require('bluebird');
 const utils = require('../../lib/utils');
 const channelModel = require('../../mongoDB/models/channel');
 const messageModel = require('../../mongoDB/models/message');
+const channelUtils = require('../../lib/channelUtils');
 
 let router = express.Router();
 
@@ -23,8 +24,21 @@ router.route('/channel')
     }
 
     return Promise.all(tasks)
-      .spread(results => {
-        return utils.sendResponse(res, results);
+      .spread(channels => {
+        if (channels && channels.length) {
+          // ищем кол-во новых сообщений и последнее сообщение в каждом чате - отображаются в подразделе
+          tasks.push(channelUtils.getMessagesDataForChannels(channels));
+        }
+        else {
+          tasks.push(false);
+        }  
+
+        return Promise.all(tasks);
+      })
+      .spread(channels => {  //?
+        const channels = channels || [];
+
+        return utils.sendResponse(res, channels);
       })
       .catch((error) => {
         return utils.sendErrorResponse(res, error);
@@ -38,7 +52,8 @@ router.route('/channel')
       description: req.body.description,
       senderId: req.body.senderId,
       subSectionId: req.body.subSectionId,
-			descriptionMessageId: req.body.descriptionMessageId,
+      descriptionMessageId: req.body.descriptionMessageId,
+      lastVisitDate: new Date(),  //?
     };
 
     return channelModel.create(data)
@@ -69,18 +84,26 @@ router.route('/channel/:id')
     return Promise.resolve(channelModel.query({id: req.params.id}))
       .then(results => {
         const channel = results[0];
+        
+        if (channel) {
+          return channelUtils.getMessagesDataForChannel(channel);
+        }
+        else {
+          return channel;
+        }
+      })
+      .spread((channel) => {
         const tasks = [];
-
         tasks.push(channel);
-        tasks.push(messageModel.query({channelId: channel.id}));
+
+        //проставляем дату последнего просмотра канала
+        channel.lastVisitDate = new Date();
+        tasks.push(channelModel.update(channel.id, channel));
 
         return Promise.all(tasks);
       })
-      .spread((channel, messages) => {
-        let data = channel;
-        data.messages = messages;
-
-        return utils.sendResponse(res, data);
+      .spread((channel, dbResponse) => {
+        return utils.sendResponse(res, channel);
       })
       .catch((error) => {
         return utils.sendErrorResponse(res, error);
@@ -98,7 +121,8 @@ router.route('/channel/:id')
       description: req.body.description,
       senderId: req.body.senderId,
       subSectionId: req.body.subSectionId,
-			descriptionMessageId: req.body.descriptionMessageId,
+      descriptionMessageId: req.body.descriptionMessageId,
+      //lastVisitDate: req.body.lastVisitDate,  //?
     };
 
     return channelModel.update(req.params.id, data)

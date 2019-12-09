@@ -298,7 +298,7 @@ module.exports = {
 												debug: 'channel',
 											});
 
-											if (action.recipientId) {  //todo! check
+											if (action.recipientId) {
 												io.to(action.recipientId).emit('action', {
 													type: actionTypes.UPDATE_MESSAGE_BY_ID,
 													data: message,

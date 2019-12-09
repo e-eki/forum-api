@@ -24,44 +24,61 @@ module.exports = {
 					}}
 				]);
 			}
-			else if (config.channelId && config.getLastMessage) {
+			else if (config.searchText) {
 				return MessageModel.aggregate([
-					{'$match': { 'channelId': new ObjectId(config.channelId)}},
-					{'$sort': {'date': -1}},
-					{'$limit': 1},					
+					{'$match': {'text': { $regex: `${config.searchText}`}, 'recipientId': null}},
+					{'$sort': {'date': -1}},  //?
 					{$project: {
 						_id: 0, id: "$_id",
 						senderId: 1,
+						recipientId: 1,
+						channelId: 1,
 						date: 1,
 						text: 1,
 					}}
 				]);
 			}
 			else if (config.channelId) {
-				return MessageModel.aggregate([
-					{'$match': { 'channelId': new ObjectId(config.channelId)}},
-					{$project: {
-						_id: 0, id: "$_id",
-						senderId: 1,
-						recipientId: 1,
-						channelId: 1,
-						date: 1,
-						text: 1,
-					}}
-				]);
-			}
-			else if (config.searchText) {
-				return MessageModel.aggregate([
-					{'$match': {'text': { $regex: `${config.searchText}`}, 'recipientId': null}},
-					{$project: {
-						_id: 0, id: "$_id",
-						senderId: 1,
-						recipientId: 1,
-						channelId: 1,
-						date: 1,
-						text: 1,
-					}}
-				]);
+				if (config.getLastMessage) {
+					return MessageModel.aggregate([
+						{'$match': { 'channelId': new ObjectId(config.channelId)}},
+						{'$sort': {'date': -1}},
+						{'$limit': 1},					
+						{$project: {
+							_id: 0, id: "$_id",
+							senderId: 1,
+							date: 1,
+							text: 1,
+						}}
+					]);
+				}
+				else if (config.getNewMessagesCount) {  //todo
+					return MessageModel.aggregate([
+						{'$match': { 'channelId': new ObjectId(config.channelId)}},
+						{'$sort': {'date': -1}},
+						{'$limit': 1},					
+						{$project: {
+							_id: 0, id: "$_id",
+							senderId: 1,
+							date: 1,
+							text: 1,
+						}}
+					]);
+				}
+				else {
+					return MessageModel.aggregate([
+						{'$match': { 'channelId': new ObjectId(config.channelId)}},
+						{'$sort': {'date': -1}},  //?
+						{$project: {
+							_id: 0, id: "$_id",
+							senderId: 1,
+							recipientId: 1,
+							channelId: 1,
+							date: 1,
+							text: 1,
+						}}
+					]);
+				}
 			}
 		}	
 

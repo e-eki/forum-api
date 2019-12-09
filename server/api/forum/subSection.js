@@ -6,7 +6,7 @@ const utils = require('../../lib/utils');
 const subSectionModel = require('../../mongoDB/models/subSection');
 const channelModel = require('../../mongoDB/models/channel');
 const messageModel = require('../../mongoDB/models/message');
-const userInfoModel = require('../../mongoDB/models/userInfo');
+const channelUtils = require('../../lib/channelUtils');
 
 let router = express.Router();
 
@@ -75,44 +75,36 @@ router.route('/subsection/:id')
         const tasks = [];
         tasks.push(subSection);
 
-        // ищем последнее сообщение в каждом чате - отображаются в подразделе
-        //todo: вынести в utils
-        if (subSection.channels) {
-          for (let i = 0; i < subSection.channels.length; i++) {
-            tasks.push(messageModel.query({channelId: subSection.channels[i].id, getLastMessage: true}));
-          }
+        if (channels && channels.length) {
+          // ищем кол-во новых сообщений и последнее сообщение в каждом чате - отображаются в подразделе
+          tasks.push(channelUtils.getMessagesDataForChannels(channels));
         }
-
-        //todo: кол-во непрочитанных!
+        else {
+          tasks.push(false);
+        }  
 
         return Promise.all(tasks);
       })
-      .spread((subSection, lastMessages) => {
-        const tasks = [];
+      .spread((subSection, channels) => {
+        if (channels) {
+          subSection.channels = channels.sort((item0, item1) => {
+            // if (a > b) return 1;
+            // if (a == b) return 0;
+            // if (a < b) return -1;
 
-        tasks.push(subSection);
+            
+            const value0 = item0.lastMessage ? item0.lastMessage.getTime() : null;
+            const value1 = item1.lastMessage ? item1.lastMessage.getTime() : null;
 
-        if (subSection.channels && lastMessages) {
-          for (let i = 0; i < subSection.channels.length; i++) {
+            let result;
 
-            if (lastMessages[i]) {
-              const lastMessage = lastMessages[i];
-
-              subSection.channels[i].lastMessage = lastMessage;
-
-              // ищем имя отправителя для каждого последнего сообщения
-              tasks.push(userInfoModel.query({id: lastMessage.senderId}));
-            }
-          }
+            if (value0 > value1) return 1;
+            if (value0 === value1) return 0;
+            if (value0 < value1) return -1;
+          });
         }
+        else {
 
-        return Promise.all(tasks);
-      })
-      .spread((subSection, userInfos) => {
-        if (subSection.channels && userInfos) {
-          for (let i = 0; i < subSection.channels.length; i++) {
-            subSection.channels[i].lastMessage.senderName = userInfos[i] ? userInfos[i].nickName : null;
-          }
         }
 
         return utils.sendResponse(res, subSection);

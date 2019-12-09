@@ -5,7 +5,7 @@ const Promise = require('bluebird');
 const utils = require('../../lib/utils');
 const privateChannelModel = require('../../mongoDB/models/privateChannel');
 const messageModel = require('../../mongoDB/models/message');
-const userInfoModel = require('../../mongoDB/models/userInfo');
+const channelUtils = require('../../lib/channelUtils');
 
 let router = express.Router();
 
@@ -32,78 +32,28 @@ router.route('/private-channel')
     return Promise.resolve(privateChannelModel.query(config))
       .then(privateChannels => {
         const tasks = [];
-        tasks.push(privateChannels);
 
-        // если это список приватных чатов, ищем последнее сообщение в каждом чате
-        //todo: вынести в utils
-        if (!req.query.recipientId && privateChannels) {
-          for (let i = 0; i < privateChannels.length; i++) {
-            tasks.push(messageModel.query({channelId: privateChannels[i].id, getLastMessage: true}));
-          }
-        }
-
-        return Promise.all(tasks);
-      })
-      .spread((privateChannels, lastMessages) => {
-        const tasks = [];
-
-        tasks.push(privateChannels);
-
-        if (!req.query.recipientId && privateChannels && lastMessages) {
-          for (let i = 0; i < privateChannels.length; i++) {
-
-            if (lastMessages[i]) {
-              const lastMessage = lastMessages[i];
-
-              privateChannels[i].lastMessage = lastMessage;
-
-              // ищем имя отправителя для каждого последнего сообщения
-              tasks.push(userInfoModel.query({id: lastMessage.senderId}));
-            }
-          }
-        }
-
-        return Promise.all(tasks);
-      })
-      .spread((privateChannels, userInfos) => {
-
-        if (!req.query.recipientId && privateChannels && userInfos) {
-          for (let i = 0; i < privateChannels.length; i++) {
-            privateChannels[i].lastMessage.senderName = userInfos[i] ? userInfos[i].nickName : null;
-          }
-        }
-
-        const tasks = [];
-
-        //если это список приватных чатов, то сообщения не нужны
-        if (!req.query.recipientId) {
-          tasks.push(privateChannels);
-        }
-        //если это приватный чат для recipientId, то нужны его сообщения
-        else {
-          if (privateChannels && privateChannels.length) {
+        if (privateChannels && privateChannels.length) {
+          //если ищем чат по id получателя - то это будет один приватный чат (текущий)
+          if (req.query.recipientId) {
             const privateChannel = privateChannels[0];
 
-            tasks.push(privateChannel);
-            tasks.push(messageModel.query({channelId: privateChannel.id}));
+            tasks.push(channelUtils.getMessagesDataForChannel(privateChannel));
           }
+          // иначе это список приватных чатов
           else {
-            tasks.push(false);
+            tasks.push(channelUtils.getMessagesDataForChannels(privateChannels));
           }
         }
-
-        return Promise.all(tasks)
-      })
-      .spread((privateChannels, messages) => {
-        const tasks = [];
-
-        tasks.push(privateChannels);
-
-        if (privateChannels && req.query.recipientId) {
-          privateChannels.messages = messages;
+        else {
+          tasks.push(false);
         }
+        
+        return Promise.all(tasks);
+      })
+      .spread(result => {
 
-        return utils.sendResponse(res, privateChannels);
+        return utils.sendResponse(res, result);
       })
       .catch((error) => {
         return utils.sendErrorResponse(res, error);
@@ -116,6 +66,7 @@ router.route('/private-channel')
       recipientId: req.body.recipientId,
       senderId: req.body.senderId,    //todo: senderId!!
       name: req.body.name,
+      lastVisitDate: new Date(),  //?
     };
 
     return privateChannelModel.create(data)
@@ -145,17 +96,25 @@ router.route('/private-channel/:id')
   .get(function(req, res) {      
     return Promise.resolve(privateChannelModel.query({id: req.params.id}))
       .then(results => {
-        const privateChannel = results[0];
+        if (results && results.length) {
+          return channelUtils.getMessagesDataForChannel(results[0]);
+        }
+        else {
+          return false;
+        }
+      })
+      .then((privateChannel) => {
         const tasks = [];
-
         tasks.push(privateChannel);
-        tasks.push(messageModel.query({channelId: privateChannel.id}));
+
+        if (privateChannel) {
+          privateChannel.lastVisitDate = new Date();
+          tasks.push(privateChannelModel.update(privateChannel.id, privateChannel));
+        }
 
         return Promise.all(tasks);
       })
-      .spread((privateChannel, messages) => {
-        privateChannel.messages = messages;
-
+      .spread((privateChannel, dbResponse) => {
         return utils.sendResponse(res, privateChannel);
       })
       .catch((error) => {
@@ -172,6 +131,7 @@ router.route('/private-channel/:id')
     const data = {
       descriptionMessageId: req.body.descriptionMessageId,
       name: req.body.name,
+      //lastVisitDate: req.body.lastVisitDate,  //?
     };
 
     return privateChannelModel.update(req.params.id, data)
@@ -185,7 +145,6 @@ router.route('/private-channel/:id')
 
   // удаление приватного канала по его id
   .delete(function(req, res) {
-
     const deleteTasks = [];
 
     deleteTasks.push(privateChannelModel.delete(req.params.id));
