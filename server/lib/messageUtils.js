@@ -12,7 +12,7 @@ const messageUtils = new function() {
 
 		for (let i = 0; i < channels.length; i++) {
 			tasks.push(messageModel.query({
-				channelId: channel.id,
+				channelId: channels[i].id,
 				getLastMessage: true
 			}));
 		}
@@ -58,9 +58,11 @@ const messageUtils = new function() {
 		const tasks = [];
 
 		for (let i = 0; i < channels.length; i++) {
+			const channel = channels[i];
+
 			tasks.push(messageModel.query({
 				channelId: channel.id,
-				channelLastVisitDate: channel.lastVisitDate,
+				channelLastVisitDate: new Date("2019-11-26T12:46:27.235Z"),    // todo: channel.lastVisitDate,
 				getNewMessagesCount: true
 			}));
 		}

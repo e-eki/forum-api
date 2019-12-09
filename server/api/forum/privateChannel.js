@@ -13,7 +13,6 @@ let router = express.Router();
 router.route('/private-channel')
 
   .get(function(req, res) { 
-
     const userId = '5dd6d4c6d0412d25e4895fad'; //todo
     let config = {};
 
@@ -38,9 +37,28 @@ router.route('/private-channel')
           if (req.query.recipientId) {
             const privateChannel = privateChannels[0];
 
-            tasks.push(channelUtils.getMessagesDataForChannel(privateChannel));
+            tasks.push(channelUtils.getNameForPrivateChannel(privateChannel, userId));
           }
           // иначе это список приватных чатов
+          else {
+            tasks.push(channelUtils.getNamesForPrivateChannels(privateChannels, userId));
+          }
+        }
+        else {
+          tasks.push(false);
+        }
+        
+        return Promise.all(tasks);
+      })
+      .then(privateChannels => {
+        const tasks = [];
+
+        if (privateChannels && privateChannels.length) {
+          if (req.query.recipientId) {
+            const privateChannel = privateChannels[0];
+
+            tasks.push(channelUtils.getMessagesDataForChannel(privateChannel));
+          }
           else {
             tasks.push(channelUtils.getMessagesDataForChannels(privateChannels));
           }
@@ -51,7 +69,15 @@ router.route('/private-channel')
         
         return Promise.all(tasks);
       })
-      .spread(result => {
+      .spread(privateChannels => {
+        let result;
+
+        if (privateChannels && privateChannels.length) {
+          result = channelUtils.sortChannelsByLastMessageDate(channels);
+        }
+        else {
+          result = privateChannels;
+        }
 
         return utils.sendResponse(res, result);
       })
@@ -65,7 +91,6 @@ router.route('/private-channel')
     const data = {
       recipientId: req.body.recipientId,
       senderId: req.body.senderId,    //todo: senderId!!
-      name: req.body.name,
       lastVisitDate: new Date(),  //?
     };
 
@@ -93,11 +118,23 @@ router.route('/private-channel')
 router.route('/private-channel/:id')
 
   // получение приватного канала по его id
-  .get(function(req, res) {      
+  .get(function(req, res) { 
+    const userId = '5dd6d4c6d0412d25e4895fad'; //todo
+
     return Promise.resolve(privateChannelModel.query({id: req.params.id}))
       .then(results => {
         if (results && results.length) {
-          return channelUtils.getMessagesDataForChannel(results[0]);
+          const privateChannel = results[0];
+
+          return channelUtils.getNameForPrivateChannel(privateChannel, userId);
+        }
+        else {
+          return false;
+        }
+      })
+      .then(privateChannel => {
+        if (privateChannel) {
+          return channelUtils.getMessagesDataForChannel(privateChannel);
         }
         else {
           return false;
@@ -130,7 +167,6 @@ router.route('/private-channel/:id')
   .put(function(req, res) {
     const data = {
       descriptionMessageId: req.body.descriptionMessageId,
-      name: req.body.name,
       //lastVisitDate: req.body.lastVisitDate,  //?
     };
 

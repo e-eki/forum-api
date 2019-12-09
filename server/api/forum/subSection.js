@@ -87,24 +87,10 @@ router.route('/subsection/:id')
       })
       .spread((subSection, channels) => {
         if (channels) {
-          subSection.channels = channels.sort((item0, item1) => {
-            // if (a > b) return 1;
-            // if (a == b) return 0;
-            // if (a < b) return -1;
-
-            
-            const value0 = item0.lastMessage ? item0.lastMessage.getTime() : null;
-            const value1 = item1.lastMessage ? item1.lastMessage.getTime() : null;
-
-            let result;
-
-            if (value0 > value1) return 1;
-            if (value0 === value1) return 0;
-            if (value0 < value1) return -1;
-          });
+          subSection.channels = channelUtils.sortChannelsByLastMessageDate(channels);
         }
         else {
-
+          subSection.channels = [];
         }
 
         return utils.sendResponse(res, subSection);

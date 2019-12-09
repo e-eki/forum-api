@@ -52,21 +52,20 @@ module.exports = {
 						}}
 					]);
 				}
-				else if (config.getNewMessagesCount) {  //todo
-					return MessageModel.aggregate([
+				else if (config.getNewMessagesCount && config.channelLastVisitDate) {  //?
+					return MessageModel.count([
 						{'$match': { 'channelId': new ObjectId(config.channelId)}},
-						{'$sort': {'date': -1}},
-						{'$limit': 1},					
-						{$project: {
-							_id: 0, id: "$_id",
-							senderId: 1,
-							date: 1,
-							text: 1,
-						}}
+						{ '$date': { $gt: config.channelLastVisitDate } }					
+						// {$project: {
+						// 	_id: 0, id: "$_id",
+						// 	senderId: 1,
+						// 	date: 1,
+						// 	text: 1,
+						// }}
 					]);
 				}
 				else {
-					return MessageModel.aggregate([
+					return [];/*MessageModel.aggregate([
 						{'$match': { 'channelId': new ObjectId(config.channelId)}},
 						{'$sort': {'date': -1}},  //?
 						{$project: {
@@ -77,7 +76,7 @@ module.exports = {
 							date: 1,
 							text: 1,
 						}}
-					]);
+					]);*/
 				}
 			}
 		}	

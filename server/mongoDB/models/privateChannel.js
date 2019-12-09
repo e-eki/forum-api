@@ -18,7 +18,6 @@ module.exports = {
 						recipientId: 1,
 						senderId: 1,
 						descriptionMessageId: 1,
-						name: 1,
 						lastVisitDate: 1,
 					}}
 				]);
@@ -32,7 +31,6 @@ module.exports = {
 						recipientId: 1,
 						senderId: 1,
 						descriptionMessageId: 1,
-						name: 1,
 						lastVisitDate: 1,
 					}}
 				]);
@@ -45,7 +43,6 @@ module.exports = {
 						recipientId: 1,
 						senderId: 1,
 						descriptionMessageId: 1,
-						name: 1,
 						lastVisitDate: 1,
 					}}
 				]);
@@ -58,7 +55,6 @@ module.exports = {
 				recipientId: 1,
 				senderId: 1,
 				descriptionMessageId: 1,
-				name: 1,
 				lastVisitDate: 1,
 			}}
 		]);
@@ -68,7 +64,6 @@ module.exports = {
 		const privateChannel = new PrivateChannelModel({
 			recipientId: data.recipientId,
 			senderId: data.senderId,
-			name: data.name,
 		});
 	
 		return privateChannel.save();
@@ -78,7 +73,6 @@ module.exports = {
 		const privateChannel = new PrivateChannelModel({
 			//_id: id,
 			descriptionMessageId: data.descriptionMessageId,
-			name: data.name,
 			lastVisitDate: data.lastVisitDate,
 		});
 

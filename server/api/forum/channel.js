@@ -36,9 +36,9 @@ router.route('/channel')
         return Promise.all(tasks);
       })
       .spread(channels => {  //?
-        const channels = channels || [];
+        const result = channels || [];
 
-        return utils.sendResponse(res, channels);
+        return utils.sendResponse(res, result);
       })
       .catch((error) => {
         return utils.sendErrorResponse(res, error);
