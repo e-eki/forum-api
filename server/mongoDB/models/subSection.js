@@ -36,7 +36,7 @@ module.exports = {
 			}
 		}	
 
-		return SubSectionModel.aggregate([
+		return [];  /*SubSectionModel.aggregate([
 			{$project: {
 				_id: 0, id: "$_id",
 				name: 1,
@@ -44,7 +44,7 @@ module.exports = {
 				senderId: 1,
 				sectionId: 1
 			}}
-		]);
+		]);*/
 	},
 	
 	create: function(data) {
@@ -60,7 +60,7 @@ module.exports = {
 
 	update: function(id, data) {
 		const subSection = new SubSectionModel({
-			//_id: id,
+			_id: id,
 			name: data.name,
 			description: data.description,
 			//senderId: data.senderId,

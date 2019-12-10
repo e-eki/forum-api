@@ -9,10 +9,6 @@ const SectionModel = mongoose.model('Section', sectionSchema);
 module.exports = {
 	
 	query: function(config) {
-		// if (config) {
-		// 	return SectionModel.find(config);
-		// }	
-		// return SectionModel.find({});
 
 		if (config) {
 			if (config.id) {
@@ -50,7 +46,7 @@ module.exports = {
 
 	update: function(id, data) {
 		const section = new SectionModel({
-			//_id: id,
+			_id: id,
 			name: data.name,
 			description: data.description,
 			//senderId: data.senderId,

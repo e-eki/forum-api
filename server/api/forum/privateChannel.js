@@ -50,7 +50,7 @@ router.route('/private-channel')
         
         return Promise.all(tasks);
       })
-      .then(privateChannels => {
+      .spread(privateChannels => {
         const tasks = [];
 
         if (privateChannels && privateChannels.length) {
@@ -72,8 +72,8 @@ router.route('/private-channel')
       .spread(privateChannels => {
         let result;
 
-        if (privateChannels && privateChannels.length) {
-          result = channelUtils.sortChannelsByLastMessageDate(channels);
+        if (privateChannels && privateChannels.length && (privateChannels.length > 1)) {
+          result = channelUtils.sortChannelsByLastMessageDate(privateChannels);
         }
         else {
           result = privateChannels;

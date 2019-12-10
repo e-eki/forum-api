@@ -54,7 +54,7 @@ module.exports = {
 			}
 		}	
 
-		return ChannelModel.aggregate([
+		return [];/*ChannelModel.aggregate([
 			{$project: {
 				_id: 0, id: "$_id",
 				name: 1,
@@ -64,7 +64,7 @@ module.exports = {
 				descriptionMessageId: 1,
 				lastVisitDate: 1,
 			}}
-		]);
+		]);*/
 	},
 	
 	create: function(data) {
@@ -81,7 +81,7 @@ module.exports = {
 
 	update: function(id, data) {
 		const channel = new ChannelModel({
-			//_id: id,
+			_id: id,
 			name: data.name,
 			description: data.description,
 			//senderId: data.senderId,

@@ -33,7 +33,7 @@ const channelUtils = new function() {
 	// получить данные о сообщениях для текущего чата
 	this.getMessagesDataForChannel = function(channel) {
 		// сообщения в чате
-		return messageModel.query({channelId: channel.id})
+		return Promise.resolve(messageModel.query({channelId: channel.id}))
 			.then(messages => {
 				channel.messages = messages || [];
 
@@ -83,6 +83,7 @@ const channelUtils = new function() {
 		const tasks = [];
 
 		for (let i = 0; i < privateChannels.length; i++) {
+			const privateChannel = privateChannels[0];
 			const recipientId = (privateChannel.senderId === userId) ? privateChannel.recipientId : privateChannel.senderId;
 
 			tasks.push(userInfoModel.query({id: recipientId}));
@@ -91,8 +92,8 @@ const channelUtils = new function() {
 		return Promise.all(tasks)	
 			.then(userInfos => {
 				if (userInfos && userInfos.length) {
-					for (i = 0; i < privateChannels.length; i++) {
-						privateChannels[i].name = userInfos[i] ? userInfos[i].nickName : null;
+					for (let i = 0; i < privateChannels.length; i++) {
+						privateChannels[i].name = (userInfos[i] && userInfos[i][0]) ? userInfos[i][0].nickName : null;
 					}
 				}
 

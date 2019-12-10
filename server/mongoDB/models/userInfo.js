@@ -59,7 +59,7 @@ module.exports = {
 
 	update: function(id, data) {
 		const userInfo = new UserInfoModel({
-			//_id: id,
+			_id: id,
 			userId: data.userId,   //??
 			nickName: data.nickName,
 			name: data.name,

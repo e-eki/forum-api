@@ -53,19 +53,14 @@ module.exports = {
 					]);
 				}
 				else if (config.getNewMessagesCount && config.channelLastVisitDate) {  //?
-					return MessageModel.count([
-						{'$match': { 'channelId': new ObjectId(config.channelId)}},
-						{ '$date': { $gt: config.channelLastVisitDate } }					
-						// {$project: {
-						// 	_id: 0, id: "$_id",
-						// 	senderId: 1,
-						// 	date: 1,
-						// 	text: 1,
-						// }}
-					]);
+					return MessageModel.count(
+						// db.collection.find( { a: { $gt: 5 }, b: 5 } ).count()
+						// db.collection.find( { a: 5, b: 5, c: 5 } ).count()
+						{ 'channelId': new ObjectId(config.channelId), 'date': { $gt: config.channelLastVisitDate}} /*&& { 'date': { $gt: config.channelLastVisitDate}}*/		
+					);
 				}
 				else {
-					return [];/*MessageModel.aggregate([
+					return MessageModel.aggregate([
 						{'$match': { 'channelId': new ObjectId(config.channelId)}},
 						{'$sort': {'date': -1}},  //?
 						{$project: {
@@ -76,7 +71,7 @@ module.exports = {
 							date: 1,
 							text: 1,
 						}}
-					]);*/
+					]);
 				}
 			}
 		}	
@@ -107,7 +102,7 @@ module.exports = {
 
 	update: function(id, data) {
 		const message = new MessageModel({
-			//_id: id,
+			_id: id,
 			date: data.date,
 			text: data.text,
 			//senderId: data.senderId,

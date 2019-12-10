@@ -49,7 +49,7 @@ module.exports = {
 			}
 		}	
 
-		return PrivateChannelModel.aggregate([
+		return [];/*PrivateChannelModel.aggregate([
 			{$project: {
 				_id: 0, id: "$_id",
 				recipientId: 1,
@@ -57,7 +57,7 @@ module.exports = {
 				descriptionMessageId: 1,
 				lastVisitDate: 1,
 			}}
-		]);
+		]);*/
 	},
 	
 	create: function(data) {
@@ -71,7 +71,7 @@ module.exports = {
 
 	update: function(id, data) {
 		const privateChannel = new PrivateChannelModel({
-			//_id: id,
+			_id: id,
 			descriptionMessageId: data.descriptionMessageId,
 			lastVisitDate: data.lastVisitDate,
 		});

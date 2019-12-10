@@ -92,7 +92,7 @@ router.route('/channel/:id')
           return channel;
         }
       })
-      .spread((channel) => {
+      .then(channel => {
         const tasks = [];
         tasks.push(channel);
 
