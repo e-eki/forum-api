@@ -298,6 +298,7 @@ module.exports = {
 												debug: 'channel',
 											});
 
+											// если это личное сообщение, то о нем должен узнать получатель
 											if (action.recipientId) {
 												io.to(action.recipientId).emit('action', {
 													type: actionTypes.UPDATE_MESSAGE_BY_ID,
@@ -307,6 +308,23 @@ module.exports = {
 													recipientId: message.recipientId,
 													debug: 'recipientId',
 												});
+											}
+											// если это сообщение на форуме, то о нем должны узнать все, кто в соотв.подразделе
+											else {
+												return channelModel.query({id: action.channelId})
+													.then(results => {
+														if (results && results.length) {
+															const channel = results[0];
+
+															io.to(channel.subSectionId).emit('action', {
+																type: actionTypes.UPDATE_MESSAGE_BY_ID,
+																data: message,
+																messageId: action.messageId,
+																channelId: action.channelId,
+																debug: 'subSection',
+															});
+														}
+												})
 											}
 										}
 									})
@@ -404,9 +422,6 @@ module.exports = {
 					}
 				}
 			});
-
-			// client.on('JOINED', function(action){
-			// });
 		});
 	
 		return io;

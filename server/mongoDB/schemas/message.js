@@ -10,6 +10,7 @@ const messageSchema = new Schema(
 		recipientId: {type: Schema.Types.ObjectId, default: null },
 		channelId: {type: Schema.Types.ObjectId, default: null },
 		date: Date,
+		editDate: Date,
 		text: String,
 	},
 	{versionKey: false}

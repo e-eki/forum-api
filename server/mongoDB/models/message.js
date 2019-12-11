@@ -20,6 +20,7 @@ module.exports = {
 						recipientId: 1,
 						channelId: 1,
 						date: 1,
+						editDate: 1,
 						text: 1,
 					}}
 				]);
@@ -27,7 +28,7 @@ module.exports = {
 			else if (config.searchText) {
 				return MessageModel.aggregate([
 					{'$match': {'text': { $regex: `${config.searchText}`}, 'recipientId': null}},
-					{'$sort': {'date': -1}},  //?
+					{'$sort': {'date': 1}},  //-1?
 					{$project: {
 						_id: 0, id: "$_id",
 						senderId: 1,
@@ -62,7 +63,7 @@ module.exports = {
 				else {
 					return MessageModel.aggregate([
 						{'$match': { 'channelId': new ObjectId(config.channelId)}},
-						{'$sort': {'date': -1}},  //?
+						{'$sort': {'date': 1}},  //-1?
 						{$project: {
 							_id: 0, id: "$_id",
 							senderId: 1,
@@ -108,6 +109,7 @@ module.exports = {
 			//senderId: data.senderId,
 			recipientId: data.recipientId,
 			channelId: data.channelId,
+			editDate: new Date(),  //?
 		});
 
 		return MessageModel.findOneAndUpdate({_id: id}, message, {new: true});
