@@ -5,6 +5,7 @@ const Promise = require('bluebird');
 const utils = require('../../lib/utils');
 const channelModel = require('../../mongoDB/models/channel');
 const messageModel = require('../../mongoDB/models/message');
+const messageUtils = require('../../lib/messageUtils');
 
 let router = express.Router();
 
@@ -23,7 +24,10 @@ router.route('/message')
     }
 
     return Promise.all(tasks)
-      .spread(results => {
+      .spread(messages => {
+        return messageUtils.getSenderNamesInMessages(messages);
+      })
+      .spread(messages => {
         return utils.sendResponse(res, results);
       })
       .catch((error) => {
@@ -67,8 +71,13 @@ router.route('/message/:id')
   // получение сообщения по его id
   .get(function(req, res) {      
     return messageModel.query({id: req.params.id})
-      .then((data) => {
-        return utils.sendResponse(res, data);
+      .then(data => {
+        return messageUtils.getSenderNamesInMessages(messages);
+      })
+      .then(data => {
+        const message = (data && data.length) ? data[0] : null;
+
+        return utils.sendResponse(res, message);
       })
       .catch((error) => {
 				return utils.sendErrorResponse(res, error);
@@ -104,19 +113,22 @@ router.route('/message/:id')
     const tasks = [];
 
     tasks.push(messageModel.delete(req.params.id));
+    tasks.push(channelModel.query({descriptionMessageId: req.params.id}));
 
-    return channelModel.query({descriptionMessageId: req.params.id})
-      .then(result => {
+    return Promise.all(tasks)
+      .spread((dbResponse, result) => {
 
         if (result && result.length) {
           const channel = result[0];
           channel.descriptionMessageId = null;
 
-          tasks.push(channelModel.update(channel.id, channel));
+          return channelModel.update(channel.id, channel);
         }
-        return Promise.all(tasks)
+        else {
+          return false;
+        }
       })
-      .then(dbResponses => {
+      .then(dbResponse => {
         return utils.sendResponse(res);  //??data
       })
       .catch((error) => {

@@ -6,6 +6,39 @@ const userInfoModel = require('../mongoDB/models/userInfo');
 
 const messageUtils = new function() {
 
+	// найти имена отправителей для сообщений
+	this.getSenderNamesInMessages = function(messages) {
+		const tasks = [];
+
+		if (messages && messages.length) {					
+			for (let i = 0; i < messages.length; i++) {
+				const message = messages[i];
+
+				if (message) {
+					tasks.push(userInfoModel.query({id: message.senderId}));
+				}
+				else {
+					tasks.push(false);
+				}
+			}
+		}
+
+		return Promise.all(tasks)
+			.spread(userInfos => {
+				if (messages && userInfos) {
+					for (let i = 0; i < messages.length; i++) {
+						const message = messages[i];
+
+						if (message) {
+							message.senderName = userInfos[i] ? userInfos[i].nickName : null;
+						}
+					}
+				}
+
+				return messages;
+			})
+	}
+
 	// найти последнее сообщение в каждом чате
 	this.getLastMessageInChannels = function(channels) {
 		const tasks = [];
@@ -19,38 +52,44 @@ const messageUtils = new function() {
 
 		return Promise.all(tasks)
 			.spread(lastMessages => {
-				const tasks = [];
-				tasks.push(lastMessages);
+				return this.getSenderNamesInMessages(lastMessages);
+			});
+	}
 
-				// ищем имя отправителя для каждого последнего сообщения
-				if (lastMessages && lastMessages.length) {					
-					for (let i = 0; i < lastMessages.length; i++) {
-						const lastMessage = lastMessages[i];
+		// return Promise.all(tasks)
+		// 	.spread(lastMessages => {
+		// 		const tasks = [];
+		// 		tasks.push(lastMessages);
 
-						if (lastMessage) {
-							tasks.push(userInfoModel.query({id: lastMessages[i].senderId}));
-						}
-						else {
-							tasks.push(false);
-						}
-					}
-				}
+		// 		// ищем имя отправителя для каждого последнего сообщения
+		// 		if (lastMessages && lastMessages.length) {					
+		// 			for (let i = 0; i < lastMessages.length; i++) {
+		// 				const lastMessage = lastMessages[i];
 
-				return Promise.all(tasks);
-			})
-			.spread((lastMessages, userInfos) => {
-				if (lastMessages && userInfos) {
-					for (let i = 0; i < lastMessages.length; i++) {
-						const lastMessage = lastMessages[i];
+		// 				if (lastMessage) {
+		// 					tasks.push(userInfoModel.query({id: lastMessages[i].senderId}));
+		// 				}
+		// 				else {
+		// 					tasks.push(false);
+		// 				}
+		// 			}
+		// 		}
 
-						if (lastMessage) {
-							lastMessage.senderName = userInfos[i] ? userInfos[i].nickName : null;
-						}
-					}
-				}
+		// 		return Promise.all(tasks);
+		// 	})
+		// 	.spread((lastMessages, userInfos) => {
+		// 		if (lastMessages && userInfos) {
+		// 			for (let i = 0; i < lastMessages.length; i++) {
+		// 				const lastMessage = lastMessages[i];
 
-				return lastMessages;
-			})
+		// 				if (lastMessage) {
+		// 					lastMessage.senderName = userInfos[i] ? userInfos[i].nickName : null;
+		// 				}
+		// 			}
+		// 		}
+
+		// 		return lastMessages;
+		// 	})
 	};
 
 	// найти кол-во новых сообщений в каждом чате

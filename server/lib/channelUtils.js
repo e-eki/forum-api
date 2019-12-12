@@ -34,8 +34,17 @@ const channelUtils = new function() {
 	this.getMessagesDataForChannel = function(channel) {
 		// сообщения в чате
 		return Promise.resolve(messageModel.query({channelId: channel.id}))
-			.then(messages => {
+			.spread(messages => {
+				return messageUtils.getSenderNamesInMessages(messages);  //check!
+			})
+			.spread(messages => {
 				channel.messages = messages || [];
+
+				if (messages && channel.descriptionMessageId) {
+					const descriptionMessage = messages.findOne(item => item.id === channel.descriptionMessageId);
+
+					channel.descriptionMessage = descriptionMessage || null;   //check!
+				}
 
 				if (channel.messages.length) {
 					return messageUtils.getNewMessagesCountInChannel(channel)
@@ -55,8 +64,8 @@ const channelUtils = new function() {
 	// сортировка чатов по дате последнего сообщения
 	this.sortChannelsByLastMessageDate = function(channels) {
 		const sortedChannels = channels.sort((item0, item1) => {
-            const value0 = item0.lastMessage ? item0.lastMessage.getTime() : null;
-            const value1 = item1.lastMessage ? item1.lastMessage.getTime() : null;
+            const value0 = item0.lastMessage ? item0.lastMessage.date.getTime() : null;
+            const value1 = item1.lastMessage ? item1.lastMessage.date.getTime() : null;
 
             if (value0 > value1) return 1;
             if (value0 === value1) return 0;
