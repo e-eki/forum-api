@@ -1,6 +1,7 @@
 'use strict';
 
 const Promise = require('bluebird');
+const ObjectId = require('mongoose').Types.ObjectId;
 const messageUtils = require('./messageUtils');
 const messageModel = require('../mongoDB/models/message');
 const userInfoModel = require('../mongoDB/models/userInfo');
@@ -34,18 +35,20 @@ const channelUtils = new function() {
 	this.getMessagesDataForChannel = function(channel) {
 		// сообщения в чате
 		return Promise.resolve(messageModel.query({channelId: channel.id}))
-			.spread(messages => {
-				return messageUtils.getSenderNamesInMessages(messages);  //check!
+			.then(messages => {
+				return messageUtils.getSenderNamesInMessages(messages);
 			})
-			.spread(messages => {
-				channel.messages = messages || [];
+			.then(messages => {
+				channel.messages = messages;
 
-				if (messages && channel.descriptionMessageId) {
-					const descriptionMessage = messages.findOne(item => item.id === channel.descriptionMessageId);
-
-					channel.descriptionMessage = descriptionMessage || null;   //check!
+				if (channel.descriptionMessageId) {
+					return messageUtils.getDescriptionMessageInChannel(channel)
 				}
-
+				else {
+					return channel;
+				}
+			})
+			.then(channel => {
 				if (channel.messages.length) {
 					return messageUtils.getNewMessagesCountInChannel(channel)
 				}

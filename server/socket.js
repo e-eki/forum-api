@@ -10,6 +10,7 @@ const privateChannelModel = require('./mongoDB/models/privateChannel');
 const userInfoModel = require('./mongoDB/models/userInfo');
 const config = require('./config');
 const utils = require('./lib/utils');
+const messageUtils = require('./lib/messageUtils');
 
 module.exports = {
 	initSocket(http) {
@@ -230,27 +231,33 @@ module.exports = {
 						case actionTypes.UPDATE_CHANNEL_BY_ID:
 
 							if (action.channelId && action.subSectionId) {
-								return channelModel.query({id: action.channelId})
+								return Promise.resolve(channelModel.query({id: action.channelId}))
 									.then(results => {
 										if (results && results.length) {
 											const channel = results[0];
 
-											io.to(action.channelId).emit('action', {
-												type: actionTypes.UPDATE_CHANNEL_BY_ID,
-												data: channel,
-												subSectionId: action.subSectionId,
-												channelId: action.channelId,
-												debug: 'channel',
-											});
-	
-											io.to(action.subSectionId).emit('action', {
-												type: actionTypes.UPDATE_CHANNEL_BY_ID,
-												data: channel,
-												subSectionId: action.subSectionId,
-												channelId: action.channelId,
-												debug: 'subSection',
-											});
+											return messageUtils.getDescriptionMessageInChannel(channel);
 										}
+										else {
+											return false;
+										}
+									})
+									.then(channel => {
+										io.to(action.channelId).emit('action', {
+											type: actionTypes.UPDATE_CHANNEL_BY_ID,
+											data: channel,
+											subSectionId: action.subSectionId,
+											channelId: action.channelId,
+											debug: 'channel',
+										});
+
+										io.to(action.subSectionId).emit('action', {
+											type: actionTypes.UPDATE_CHANNEL_BY_ID,
+											data: channel,
+											subSectionId: action.subSectionId,
+											channelId: action.channelId,
+											debug: 'subSection',
+										});
 									})
 							}
 
@@ -355,34 +362,39 @@ module.exports = {
 							if (action.privateChannelId) {
 								return privateChannelModel.query({id: action.privateChannelId})
 									.then(results => {
-
 										if (results && results.length) {
 											const privateChannel = results[0];
 
-											io.to(action.privateChannelId).emit('action', {
+											return messageUtils.getDescriptionMessageInChannel(privateChannel);
+										}
+										else {
+											return false;
+										}
+									})
+									.then(privateChannel => {
+										io.to(action.privateChannelId).emit('action', {
+											type: actionTypes.UPDATE_PRIVATE_CHANNEL_BY_ID,
+											data: privateChannel,
+											privateChannelId: action.privateChannelId,
+											debug: 'privateChannel',
+										});
+
+										if (action.senderId) {
+											io.to(action.senderId).emit('action', {
 												type: actionTypes.UPDATE_PRIVATE_CHANNEL_BY_ID,
 												data: privateChannel,
 												privateChannelId: action.privateChannelId,
-												debug: 'privateChannel',
+												debug: 'senderId',
 											});
+										}
 
-											if (action.senderId) {
-												io.to(action.senderId).emit('action', {
-													type: actionTypes.UPDATE_PRIVATE_CHANNEL_BY_ID,
-													data: privateChannel,
-													privateChannelId: action.privateChannelId,
-													debug: 'senderId',
-												});
-											}
-
-											if (action.recipientId) {
-												io.to(action.recipientId).emit('action', {
-													type: actionTypes.UPDATE_PRIVATE_CHANNEL_BY_ID,
-													data: privateChannel,
-													privateChannelId: action.privateChannelId,
-													debug: 'recipientId',
-												});
-											}
+										if (action.recipientId) {
+											io.to(action.recipientId).emit('action', {
+												type: actionTypes.UPDATE_PRIVATE_CHANNEL_BY_ID,
+												data: privateChannel,
+												privateChannelId: action.privateChannelId,
+												debug: 'recipientId',
+											});
 										}
 									})
 							}

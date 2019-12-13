@@ -166,6 +166,7 @@ router.route('/private-channel/:id')
   // редактирование данных приватного канала по его id
   .put(function(req, res) {
     const data = {
+      senderId: req.body.senderId,
       descriptionMessageId: req.body.descriptionMessageId,
       //lastVisitDate: req.body.lastVisitDate,  //?
     };
