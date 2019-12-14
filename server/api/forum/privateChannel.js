@@ -76,7 +76,7 @@ router.route('/private-channel')
           result = channelUtils.sortChannelsByLastMessageDate(privateChannels);
         }
         else {
-          result = privateChannels;
+          result = privateChannels || [];
         }
 
         return utils.sendResponse(res, result);

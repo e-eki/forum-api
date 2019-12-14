@@ -27,8 +27,8 @@ router.route('/message')
       .spread(messages => {
         return messageUtils.getSenderNamesInMessages(messages);
       })
-      .spread(messages => {
-        return utils.sendResponse(res, results);
+      .then(messages => {
+        return utils.sendResponse(res, messages);
       })
       .catch((error) => {
         return utils.sendErrorResponse(res, error);

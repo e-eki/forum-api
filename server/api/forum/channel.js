@@ -35,7 +35,7 @@ router.route('/channel')
 
         return Promise.all(tasks);
       })
-      .spread(channels => {  //?
+      .spread(channels => {
         const result = channels || [];
 
         return utils.sendResponse(res, result);
