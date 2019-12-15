@@ -63,7 +63,7 @@ module.exports = {
 				else {
 					return MessageModel.aggregate([
 						{'$match': { 'channelId': new ObjectId(config.channelId)}},
-						{'$sort': {'date': 1}},  //-1?
+						{'$sort': {'date': 1}},  // по дате по возрастанию!
 						{$project: {
 							_id: 0, id: "$_id",
 							senderId: 1,

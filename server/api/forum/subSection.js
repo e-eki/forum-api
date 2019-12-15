@@ -32,6 +32,7 @@ router.route('/subsection')
       description: req.body.description,
       senderId: req.body.senderId,
       sectionId: req.body.sectionId,
+      orderNumber: req.body.orderNumber,
     };
 
     return subSectionModel.create(data)
@@ -111,6 +112,7 @@ router.route('/subsection/:id')
       description: req.body.description,
       senderId: req.body.senderId,
       sectionId: req.body.sectionId,
+      orderNumber: req.body.orderNumber,
     };
 
     return subSectionModel.update(req.params.id, data)

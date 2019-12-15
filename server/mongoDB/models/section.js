@@ -15,21 +15,24 @@ module.exports = {
 				return SectionModel.aggregate([
 					{$match: { '_id': new ObjectId(config.id)}},
 					{$project: {
-								_id: 0, id: "$_id",
-								name: 1,
-								description: 1,
-								senderId: 1
+						_id: 0, id: "$_id",
+						name: 1,
+						description: 1,
+						senderId: 1,
+						orderNumber: 1,
 					}}
 				]);
 			}
 		}	
 
 		return SectionModel.aggregate([
+			{'$sort': {'orderNumber': 1}},  // по порядку по возрастанию
 			{$project: {
 				_id: 0, id: "$_id",
 				name: 1,
 				description: 1,
-				senderId: 1
+				senderId: 1,
+				orderNumber: 1,
 			}}
 		]);
 	},
@@ -39,6 +42,7 @@ module.exports = {
 			name: data.name,
 			description: data.description,
 			senderId: data.senderId,
+			orderNumber: data.orderNumber,
 		});
 	
 		return section.save();
@@ -50,6 +54,7 @@ module.exports = {
 			name: data.name,
 			description: data.description,
 			//senderId: data.senderId,
+			orderNumber: data.orderNumber,
 		});
 
 		return SectionModel.findOneAndUpdate({_id: id}, section, {new: true});

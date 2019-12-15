@@ -53,6 +53,7 @@ router.route('/section')
       name: req.body.name,
       description: req.body.description,
       senderId: req.body.senderId,
+      orderNumber: req.body.orderNumber,
     };
 
     return sectionModel.create(data)
@@ -111,6 +112,7 @@ router.route('/section/:id')
       name: req.body.name,
       description: req.body.description,
       senderId: req.body.senderId,
+      orderNumber: req.body.orderNumber,
     };
 
     return sectionModel.update(req.params.id, data)
@@ -157,7 +159,6 @@ router.route('/section/:id')
         return Promise.all(queryTasks);
       })
       .then(messages => {
-
         if (messages && messages.length) {
           messages.forEach(item => {
             deleteTasks.push(messageModel.delete(item.id));
@@ -166,7 +167,7 @@ router.route('/section/:id')
 
         return Promise.all(deleteTasks);
       })
-      .then((dbResponse) => {
+      .then(dbResponse => {
         return utils.sendResponse(res);  //??data
       })
       .catch((error) => {

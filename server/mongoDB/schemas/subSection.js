@@ -10,6 +10,7 @@ const subSectionSchema = new Schema(
 		sectionId: Schema.Types.ObjectId ,
 		name: String,
 		description: String,
+		orderNumber: Number,
 	},
 	{versionKey: false}
 );

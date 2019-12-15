@@ -9,6 +9,7 @@ const sectionSchema = new Schema(
 		senderId: {type: Schema.Types.ObjectId, default: null },
 		name: String,
 		description: String,
+		orderNumber: Number,
 	},
 	{versionKey: false}
 );
