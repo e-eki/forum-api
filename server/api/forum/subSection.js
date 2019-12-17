@@ -15,14 +15,15 @@ router.route('/subsection')
 
   // получение всех подразделов
   .get(function(req, res) { 
-    // return subSectionModel.query()
-    //   .then((data) => {
-    //     return utils.sendResponse(res, data);
-    //   })
-    //   .catch((error) => {
-		// 		return utils.sendErrorResponse(res, error, 500);
-    //   });
-    return utils.sendErrorResponse(res, 'UNSUPPORTED_METHOD');
+    return subSectionModel.query()
+      .then(subSections => {
+        const result = subSections || [];
+
+        return utils.sendResponse(res, result);
+      })
+      .catch((error) => {
+        return utils.sendErrorResponse(res, error);
+      })
   })
 
   // создание нового подраздела
@@ -126,12 +127,30 @@ router.route('/subsection/:id')
 
   // удаление подраздела по его id
   .delete(function(req, res) {
+    const subSectionId = req.params.id;
 
+    const subSectionsUpdateTasks = [];
     const deleteTasks = [];
 
-    deleteTasks.push(subSectionModel.delete(req.params.id));
+    return subSectionModel.query()
+      .then(subSections => {
+        // корректируем номер порядка у всех элементов, следующих за удаляемым
+        if (subSections && subSections.length) {
+          const subSection = subSections.find(item => item.id.toString() === subSectionId);
 
-    return channelModel.query({subSectionId: req.params.id})
+          subSections.forEach(item => {
+            if (item.orderNumber > subSection.orderNumber) {
+              item.orderNumber--;
+
+              subSectionsUpdateTasks.push(subSectionModel.update(item.id, item));
+            }
+          })
+        }
+
+        deleteTasks.push(subSectionModel.delete(req.params.id));
+
+        return channelModel.query({subSectionId: req.params.id});
+      })
       .then(channels => {
         const queryTasks = [];
 
@@ -145,17 +164,23 @@ router.route('/subsection/:id')
 
         return Promise.all(queryTasks);
       })
-      .then(messages => {
-
-        if (messages && messages.length) {
-          messages.forEach(item => {
-            deleteTasks.push(messageModel.delete(item.id));
+      .then(results => {
+        if (results && results.length) {
+          results.forEach(messages => {
+            if (messages && messages.length) {
+              messages.forEach(item => {
+                deleteTasks.push(messageModel.delete(item.id));
+              })
+            }
           })
         }
 
         return Promise.all(deleteTasks);
       })
-      .then((dbResponse) => {
+      .then(dbResponse => {
+        return Promise.all(subSectionsUpdateTasks);
+      })
+      .then(dbResponse => {
         return utils.sendResponse(res);  //??data
       })
       .catch((error) => {

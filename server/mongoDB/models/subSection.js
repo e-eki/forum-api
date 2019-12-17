@@ -39,15 +39,17 @@ module.exports = {
 			}
 		}	
 
-		return [];  /*SubSectionModel.aggregate([
+		return SubSectionModel.aggregate([   //?
+			{'$sort': {'orderNumber': 1}},  // по порядку по возрастанию
 			{$project: {
 				_id: 0, id: "$_id",
 				name: 1,
-				description: 1,
-				senderId: 1,
-				sectionId: 1
+				orderNumber: 1
+				// description: 1,
+				// senderId: 1,
+				// sectionId: 1
 			}}
-		]);*/
+		]);
 	},
 	
 	create: function(data) {

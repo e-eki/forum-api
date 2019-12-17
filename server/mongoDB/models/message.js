@@ -2,7 +2,6 @@
 
 const mongoose = require('mongoose');
 const ObjectId = require('mongoose').Types.ObjectId;
-//const Date = require('mongoose').Types.Date;
 const messageSchema = require('../schemas/message');
 
 const MessageModel = mongoose.model('Message', messageSchema);
@@ -78,6 +77,7 @@ module.exports = {
 		}	
 
 		return MessageModel.aggregate([
+			{'$sort': {'date': 1}},  // по дате по возрастанию!
 			{$project: {
 				_id: 0, id: "$_id",
 				senderId: 1,

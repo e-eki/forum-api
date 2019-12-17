@@ -20,21 +20,22 @@ router.route('/channel')
       tasks.push(channelModel.query({searchText: req.query.searchText}));
     }
     else {
-      tasks.push(false);
+      //tasks.push(false);
+      tasks.push(channelModel.query());
     }
 
     return Promise.all(tasks)
-      .spread(channels => {
-        if (channels && channels.length) {
-          // ищем кол-во новых сообщений и последнее сообщение в каждом чате - отображаются в подразделе
-          tasks.push(channelUtils.getMessagesDataForChannels(channels));
-        }
-        else {
-          tasks.push(false);
-        }  
+      // .spread(channels => {
+      //   if (channels && channels.length) {
+      //     // ищем кол-во новых сообщений и последнее сообщение в каждом чате - отображаются в подразделе
+      //     tasks.push(channelUtils.getMessagesDataForChannels(channels));
+      //   }
+      //   else {
+      //     tasks.push(false);
+      //   }  
 
-        return Promise.all(tasks);
-      })
+      //   return Promise.all(tasks);
+      // })
       .spread(channels => {
         const result = channels || [];
 

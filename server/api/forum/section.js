@@ -34,10 +34,10 @@ router.route('/section')
       .then((subSections) => {
 
         if (data && data.length &&
-              subSections && subSections.length) {
-                for (let i = 0; i < subSections.length; i++) {
-                  data[i].subSections = subSections[i];
-                }
+            subSections && subSections.length) {
+              for (let i = 0; i < subSections.length; i++) {
+                data[i].subSections = subSections[i] || [];
+              }
         }
 
         return utils.sendResponse(res, data);
@@ -126,12 +126,30 @@ router.route('/section/:id')
 
   // удаление раздела по его id
   .delete(function(req, res) {
+    const sectionId = req.params.id;
 
+    const sectionsUpdateTasks = [];
     const deleteTasks = [];
 
-    deleteTasks.push(sectionModel.delete(req.params.id));
+    return sectionModel.query()
+      .then(sections => {
+        // корректируем номер порядка у всех элементов, следующих за удаляемым
+        if (sections && sections.length) {
+          const section = sections.find(item => item.id.toString() === sectionId);
 
-    return subSectionModel.query({sectionId: req.params.id})
+          sections.forEach(item => {
+            if (item.orderNumber > section.orderNumber) {
+              item.orderNumber--;
+
+              sectionsUpdateTasks.push(sectionModel.update(item.id, item));
+            }
+          })
+        }
+
+        deleteTasks.push(sectionModel.delete(sectionId));
+
+        return subSectionModel.query({sectionId: sectionId});
+      })
       .then(subSections => {
         const queryTasks = [];
 
@@ -145,27 +163,40 @@ router.route('/section/:id')
 
         return Promise.all(queryTasks);
       })
-      .then(channels => {
+      .then(results => {
         const queryTasks = [];
 
-        if (channels && channels.length) {
-          channels.forEach(item => {
-            deleteTasks.push(channelModel.delete(item.id));
-
-            queryTasks.push(messageModel.query({channelId: item.id}));
+        if (results && results.length) {
+          results.forEach(channels => {
+            if (channels && channels.length) {
+              channels.forEach(item => {
+                channels.forEach(item => {
+                  deleteTasks.push(channelModel.delete(item.id));
+      
+                  queryTasks.push(messageModel.query({channelId: item.id}));
+                })
+              })
+            }
           })
         }
 
         return Promise.all(queryTasks);
       })
-      .then(messages => {
-        if (messages && messages.length) {
-          messages.forEach(item => {
-            deleteTasks.push(messageModel.delete(item.id));
+      .then(results => {
+        if (results && results.length) {
+          results.forEach(messages => {
+            if (messages && messages.length) {
+              messages.forEach(item => {
+                deleteTasks.push(messageModel.delete(item.id));
+              })
+            }
           })
         }
 
         return Promise.all(deleteTasks);
+      })
+      .then(dbResponse => {
+        return Promise.all(sectionsUpdateTasks);
       })
       .then(dbResponse => {
         return utils.sendResponse(res);  //??data
