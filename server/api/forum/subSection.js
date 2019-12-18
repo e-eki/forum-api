@@ -139,10 +139,11 @@ router.route('/subsection/:id')
           const subSection = subSections.find(item => item.id.toString() === subSectionId);
 
           subSections.forEach(item => {
-            if (item.orderNumber > subSection.orderNumber) {
-              item.orderNumber--;
+            if ((item.sectionId === subSection.sectionId) &&
+                (item.orderNumber > subSection.orderNumber)) {
+                  item.orderNumber--;
 
-              subSectionsUpdateTasks.push(subSectionModel.update(item.id, item));
+                  subSectionsUpdateTasks.push(subSectionModel.update(item.id, item));
             }
           })
         }

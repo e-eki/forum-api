@@ -52,7 +52,7 @@ module.exports = {
 						}}
 					]);
 				}
-				else if (config.getNewMessagesCount && config.channelLastVisitDate) {  //?
+				else if (config.getNewMessagesCount) {   //&& config.channelLastVisitDate?
 					return MessageModel.count(
 						// db.collection.find( { a: { $gt: 5 }, b: 5 } ).count()
 						// db.collection.find( { a: 5, b: 5, c: 5 } ).count()
