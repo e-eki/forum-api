@@ -66,7 +66,7 @@ const messageUtils = new function() {
 
 			tasks.push(messageModel.query({
 				channelId: channel.id,
-				channelLastVisitDate: channel.lastVisitDate,   //new Date("2019-11-26T12:46:27.235Z"),
+				channelLastVisitDate: null,   //new Date("2019-11-26T12:46:27.235Z"),  //todo: userChannelsVisitData.query()!
 				getNewMessagesCount: true
 			}));
 		}
@@ -79,7 +79,7 @@ const messageUtils = new function() {
 
 		return messageModel.query({
 			channelId: channel.id,
-			channelLastVisitDate: channel.lastVisitDate,   //new Date("2019-11-26T12:46:27.235Z"),
+			channelLastVisitDate: null,   //new Date("2019-11-26T12:46:27.235Z"),   //todo: userChannelsVisitData.query()!
 			getNewMessagesCount: true
 		});		
 	};

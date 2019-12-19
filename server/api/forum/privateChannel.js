@@ -91,7 +91,7 @@ router.route('/private-channel')
     const data = {
       recipientId: req.body.recipientId,
       senderId: req.body.senderId,    //todo: senderId!!
-      lastVisitDate: new Date(),  //?
+      //lastVisitDate: new Date(),  //?
     };
 
     return privateChannelModel.create(data)
@@ -141,17 +141,17 @@ router.route('/private-channel/:id')
         }
       })
       .then((privateChannel) => {
-        const tasks = [];
-        tasks.push(privateChannel);
+      //   const tasks = [];
+      //   tasks.push(privateChannel);
 
-        if (privateChannel) {
-          privateChannel.lastVisitDate = new Date();
-          tasks.push(privateChannelModel.update(privateChannel.id, privateChannel));
-        }
+      //   if (privateChannel) {
+      //     privateChannel.lastVisitDate = new Date();
+      //     tasks.push(privateChannelModel.update(privateChannel.id, privateChannel));
+      //   }
 
-        return Promise.all(tasks);
-      })
-      .spread((privateChannel, dbResponse) => {
+      //   return Promise.all(tasks);
+      // })
+      // .spread((privateChannel, dbResponse) => {
         return utils.sendResponse(res, privateChannel);
       })
       .catch((error) => {

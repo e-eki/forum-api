@@ -11,7 +11,7 @@ const channelSchema = new Schema(
 		name: String,
 		description: String,
 		descriptionMessageId: {type: Schema.Types.ObjectId, default: null },
-		lastVisitDate: Date,
+		//lastVisitDate: Date,
 	},
 	{versionKey: false}
 );

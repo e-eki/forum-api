@@ -22,22 +22,10 @@ router.route('/channel')
       tasks.push(channelModel.query({searchText: req.query.searchText}));
     }
     else {
-      //tasks.push(false);
       tasks.push(channelModel.query());
     }
 
     return Promise.all(tasks)
-      // .spread(channels => {
-      //   if (channels && channels.length) {
-      //     // ищем кол-во новых сообщений и последнее сообщение в каждом чате - отображаются в подразделе
-      //     tasks.push(channelUtils.getMessagesDataForChannels(channels));
-      //   }
-      //   else {
-      //     tasks.push(false);
-      //   }  
-
-      //   return Promise.all(tasks);
-      // })
       .spread(channels => {
         const result = channels || [];
 
@@ -56,7 +44,7 @@ router.route('/channel')
       senderId: req.body.senderId,
       subSectionId: req.body.subSectionId,
       descriptionMessageId: req.body.descriptionMessageId,
-      lastVisitDate: new Date(),  //?
+      //lastVisitDate: new Date(),  //?
     };
 
     return channelModel.create(data)
@@ -113,8 +101,6 @@ router.route('/channel/:id')
           tasks.push(false);
         }
 
-
-
         return Promise.all(tasks);
       })
       .spread((channel, results) => {
@@ -130,16 +116,17 @@ router.route('/channel/:id')
         return channelUtils.getMessagesDataForChannel(channel);
       })
       .then(channel => {
-        const tasks = [];
-        tasks.push(channel);
+      //   const tasks = [];
+      //   tasks.push(channel);
 
-        //проставляем дату последнего просмотра канала
-        channel.lastVisitDate = new Date();
-        tasks.push(channelModel.update(channel.id, channel));
+      //   //проставляем дату последнего просмотра канала
+      //   channel.lastVisitDate = new Date();
+      //   tasks.push(channelModel.update(channel.id, channel));
 
-        return Promise.all(tasks);
-      })
-      .spread((channel, dbResponse) => {
+      //   return Promise.all(tasks);
+      // })
+      // .spread((channel, dbResponse) => {
+        
         return utils.sendResponse(res, channel);
       })
       .catch((error) => {

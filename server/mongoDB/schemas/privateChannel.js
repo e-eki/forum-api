@@ -9,7 +9,7 @@ const privateChannelSchema = new Schema(
 		recipientId: Schema.Types.ObjectId ,
 		senderId: Schema.Types.ObjectId ,
 		descriptionMessageId: {type: Schema.Types.ObjectId, default: null },
-		lastVisitDate: Date,
+		//lastVisitDate: Date,
 	},
 	{versionKey: false}
 );
