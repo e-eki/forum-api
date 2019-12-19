@@ -5,7 +5,7 @@ const axios = require('axios');
 const qs = require('qs');
 const config = require('../../config');
 const userModel = require('../models/user');
-const utils = require('./utils');
+const utils = require('./baseUtils');
 
 // методы ищут юзера по email при входе через сайт/вк/фб
 const authUtils = new function() {

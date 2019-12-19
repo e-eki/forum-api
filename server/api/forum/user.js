@@ -2,7 +2,7 @@
 
 const express = require('express');
 const Promise = require('bluebird');
-const utils = require('../../lib/utils');
+const utils = require('../../utils/baseUtils');
 const userModel = require('../../mongoDB/models/user');
 
 let router = express.Router();

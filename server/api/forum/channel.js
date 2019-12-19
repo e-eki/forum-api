@@ -2,10 +2,12 @@
 
 const express = require('express');
 const Promise = require('bluebird');
-const utils = require('../../lib/utils');
+const utils = require('../../utils/baseUtils');
 const channelModel = require('../../mongoDB/models/channel');
 const messageModel = require('../../mongoDB/models/message');
-const channelUtils = require('../../lib/channelUtils');
+const channelUtils = require('../../utils/channelUtils');
+const sectionModel = require('../../mongoDB/models/section');
+const subSectionModel = require('../../mongoDB/models/subSection');
 
 let router = express.Router();
 
@@ -85,13 +87,47 @@ router.route('/channel/:id')
     return Promise.resolve(channelModel.query({id: req.params.id}))
       .then(results => {
         const channel = results[0];
-        
-        if (channel) {
-          return channelUtils.getMessagesDataForChannel(channel);
+
+        const tasks = [];
+
+        tasks.push(channel);
+        tasks.push(subSectionModel.query({id: channel.subSectionId}));
+
+        return Promise.all(tasks);
+      })
+      .spread((channel, results) => {
+        const tasks = [];
+        tasks.push(channel);  //?
+
+        if (results && results.length) {
+          const parentSubSection = results[0];
+
+          channel.parentSubSection = {
+            id: parentSubSection.id,
+            name: parentSubSection.name,
+          };
+
+          tasks.push(sectionModel.query({id: parentSubSection.sectionId}));
         }
         else {
-          return channel;
+          tasks.push(false);
         }
+
+
+
+        return Promise.all(tasks);
+      })
+      .spread((channel, results) => {
+        if (results && results.length) {
+          const parentSection = results[0];
+
+          channel.parentSection = {
+            id: parentSection.id,
+            name: parentSection.name,
+          }
+        }
+
+        return channelUtils.getMessagesDataForChannel(channel);
       })
       .then(channel => {
         const tasks = [];

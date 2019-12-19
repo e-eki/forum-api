@@ -5,8 +5,8 @@ const path = require('path');
 const bodyParser = require('body-parser');
 const Promise = require('bluebird');
 const config = require('./config');
-const mongoDbUtils = require('./lib/mongoDbUtils');
-const utils = require('./lib/utils');
+const mongoDbUtils = require('./utils/mongoDbUtils');
+const utils = require('./utils/baseUtils');
 const indexHTML = path.resolve('./front-end/public/index.html');
 const socket = require('./socket');
 

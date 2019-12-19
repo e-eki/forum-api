@@ -2,10 +2,10 @@
 
 const express = require('express');
 const Promise = require('bluebird');
-const utils = require('../../lib/utils');
+const utils = require('../../utils/baseUtils');
 const privateChannelModel = require('../../mongoDB/models/privateChannel');
 const messageModel = require('../../mongoDB/models/message');
-const channelUtils = require('../../lib/channelUtils');
+const channelUtils = require('../../utils/channelUtils');
 
 let router = express.Router();
 

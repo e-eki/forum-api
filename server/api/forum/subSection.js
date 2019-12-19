@@ -2,11 +2,12 @@
 
 const express = require('express');
 const Promise = require('bluebird');
-const utils = require('../../lib/utils');
+const utils = require('../../utils/baseUtils');
 const subSectionModel = require('../../mongoDB/models/subSection');
 const channelModel = require('../../mongoDB/models/channel');
 const messageModel = require('../../mongoDB/models/message');
-const channelUtils = require('../../lib/channelUtils');
+const channelUtils = require('../../utils/channelUtils');
+const sectionModel = require('../../mongoDB/models/section');
 
 let router = express.Router();
 
@@ -64,6 +65,23 @@ router.route('/subsection/:id')
     return Promise.resolve(subSectionModel.query({id: req.params.id}))
       .then(results => {
         const subSection = results[0];
+        const tasks = [];
+
+        tasks.push(subSection);
+        tasks.push(sectionModel.query({id: subSection.sectionId}));
+
+        return Promise.all(tasks);
+      })
+      .spread((subSection, results) => {
+        if (results && results.length) {
+          const parentSection = results[0];
+
+          subSection.parentSection = {
+            id: parentSection.id,
+            name: parentSection.name,
+          }
+        }
+
         const tasks = [];
 
         tasks.push(subSection);

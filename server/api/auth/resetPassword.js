@@ -3,9 +3,9 @@
 const express = require('express');
 const Promise = require('bluebird');
 const config = require('../../config');
-const utils = require('../lib/utils');
-const mail = require('../lib/mail');
-const tokenUtils = require('../lib/tokenUtils');
+const utils = require('../utils/baseUtils');
+const mail = require('../utils/mail');
+const tokenUtils = require('../utils/tokenUtils');
 const userModel = require('../models/user');
 
 let router = express.Router();

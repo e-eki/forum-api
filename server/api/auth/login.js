@@ -2,9 +2,9 @@
 
 const express = require('express');
 const Promise = require('bluebird');
-const utils = require('../lib/utils');
-const tokenUtils = require('../lib/tokenUtils');
-const authUtils = require('../lib/authUtils');
+const utils = require('../utils/baseUtils');
+const tokenUtils = require('../utils/tokenUtils');
+const authUtils = require('../utils/authUtils');
 
 let router = express.Router();
 

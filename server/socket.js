@@ -9,8 +9,8 @@ const messageModel = require('./mongoDB/models/message');
 const privateChannelModel = require('./mongoDB/models/privateChannel');
 const userInfoModel = require('./mongoDB/models/userInfo');
 const config = require('./config');
-const utils = require('./lib/utils');
-const messageUtils = require('./lib/messageUtils');
+const utils = require('./utils/baseUtils');
+const messageUtils = require('./utils/messageUtils');
 
 module.exports = {
 	initSocket(http) {

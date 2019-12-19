@@ -5,7 +5,7 @@ const jwt = require('jsonwebtoken');
 const config = require('../../config');
 const refreshTokenModel = require('../models/refreshToken');
 const userModel = require('../models/user');
-const utils = require('./utils');
+const utils = require('./baseUtils');
 
 const tokenUtils = new function() {
 
