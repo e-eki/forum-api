@@ -86,7 +86,7 @@ router.route('/private-channel')
       });
   })
 
-  // создание нового приватного канала
+  // создание нового приватного чата
   .post(function(req, res) {
     const data = {
       recipientId: req.body.recipientId,
@@ -117,7 +117,7 @@ router.route('/private-channel')
 //----- endpoint: /api/private-channel/:id
 router.route('/private-channel/:id')
 
-  // получение приватного канала по его id
+  // получение приватного чата по его id
   .get(function(req, res) { 
     const userId = '5dd6d4c6d0412d25e4895fad'; //todo
 
@@ -163,7 +163,7 @@ router.route('/private-channel/:id')
 		return utils.sendErrorResponse(res, 'UNSUPPORTED_METHOD');
 	})
 
-  // редактирование данных приватного канала по его id
+  // редактирование данных приватного чата по его id
   .put(function(req, res) {
     const data = {
       senderId: req.body.senderId,
@@ -180,7 +180,7 @@ router.route('/private-channel/:id')
       });
   })
 
-  // удаление приватного канала по его id
+  // удаление приватного чата по его id
   .delete(function(req, res) {
     const deleteTasks = [];
 

@@ -14,7 +14,7 @@ let router = express.Router();
 //----- endpoint: /api/channel/
 router.route('/channel')
 
-  // получение всех каналов (для поиска по форуму)
+  // получение всех чатов (для поиска по форуму)
   .get(function(req, res) { 
     const tasks = [];
 
@@ -36,7 +36,7 @@ router.route('/channel')
       })
   })
 
-  // создание нового канала
+  // создание нового чата
   .post(function(req, res) {
     const data = {
       name: req.body.name,
@@ -70,7 +70,7 @@ router.route('/channel')
 //----- endpoint: /api/channel/:id
 router.route('/channel/:id')
 
-  // получение канала по его id
+  // получение чата по его id
   .get(function(req, res) {      
     return Promise.resolve(channelModel.query({id: req.params.id}))
       .then(results => {
@@ -119,7 +119,7 @@ router.route('/channel/:id')
       //   const tasks = [];
       //   tasks.push(channel);
 
-      //   //проставляем дату последнего просмотра канала
+      //   //проставляем дату последнего просмотра чата
       //   channel.lastVisitDate = new Date();
       //   tasks.push(channelModel.update(channel.id, channel));
 
@@ -138,7 +138,7 @@ router.route('/channel/:id')
 		return utils.sendErrorResponse(res, 'UNSUPPORTED_METHOD');
 	})
 
-  // редактирование данных канала по его id
+  // редактирование данных чата по его id
   .put(function(req, res) {
     const data = {
       name: req.body.name,
@@ -158,7 +158,7 @@ router.route('/channel/:id')
       });
   })
 
-  // удаление канала по его id
+  // удаление чата по его id
   .delete(function(req, res) {
 
     const deleteTasks = [];

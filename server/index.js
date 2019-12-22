@@ -8,7 +8,7 @@ const config = require('./config');
 const mongoDbUtils = require('./utils/mongoDbUtils');
 const utils = require('./utils/baseUtils');
 const indexHTML = path.resolve('./front-end/public/index.html');
-const socket = require('./socket');
+const socket = require('./socket/initSocket');
 
 const app = express();
 const http = require('http').Server(app);
