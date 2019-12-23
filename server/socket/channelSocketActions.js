@@ -5,7 +5,7 @@ const actionTypes = require('../actionTypes');
 const channelModel = require('../mongoDB/models/channel');
 const messageUtils = require('../utils/messageUtils');
 
-// действия с использованием сокетов, связанные с чатами
+// отправление по сокетам действий, связанных с чатами
 const channelSocketActions = new function() {
 
 	// обновление чата

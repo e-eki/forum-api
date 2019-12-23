@@ -5,7 +5,7 @@ const actionTypes = require('../actionTypes');
 const privateChannelModel = require('../mongoDB/models/privateChannel');
 const messageUtils = require('../utils/messageUtils');
 
-// действия с использованием сокетов, связанные с приватными чатами
+// отправление по сокетам действий, связанных с приватными чатами
 const privateChannelSocketActions = new function() {
 
 	// обновление приватного чата

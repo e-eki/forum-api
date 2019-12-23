@@ -5,7 +5,7 @@ const actionTypes = require('../actionTypes');
 const subSectionModel = require('../mongoDB/models/subSection');
 const config = require('../config');
 
-// действия с использованием сокетов, связанные с подразделами
+// отправление по сокетам действий, связанных с подразделами
 const subSectionSocketActions = new function() {
 
 	// обновление подраздела

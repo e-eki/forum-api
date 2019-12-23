@@ -1,7 +1,7 @@
 'use strict';
 
 const Promise = require('bluebird');
-const actionTypes = require('./actionTypes');
+const actionTypes = require('../actionTypes');
 // const sectionModel = require('./mongoDB/models/section');
 // const subSectionModel = require('./mongoDB/models/subSection');
 // const channelModel = require('./mongoDB/models/channel');
@@ -9,7 +9,7 @@ const actionTypes = require('./actionTypes');
 // const privateChannelModel = require('./mongoDB/models/privateChannel');
 // const userInfoModel = require('./mongoDB/models/userInfo');
 //const config = require('./config');
-const utils = require('./utils/baseUtils');
+const utils = require('../utils/baseUtils');
 //const messageUtils = require('./utils/messageUtils');
 const sectionSocketActions = require('./sectionSocketActions');
 const subSectionSocketActions = require('./subSectionSocketActions');
