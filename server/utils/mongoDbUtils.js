@@ -4,7 +4,6 @@ const mongoose = require('mongoose');
 const config = require('../config');
 
 module.exports = {
-
 	// установка соединения с БД
 	setUpConnection: function() {
 		mongoose.connect(config.db.mongo.url, config.db.mongo.options, function (err) {

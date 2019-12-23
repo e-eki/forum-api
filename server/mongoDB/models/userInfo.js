@@ -16,13 +16,13 @@ module.exports = {
 				{$project: {
 							_id: 0, id: "$_id",
 							userId: 1,
-							nickName: 1,
+							login: 1,
 							name: 1,
 							birthDate: 1,
 							city: 1,
 							profession: 1,
 							hobby: 1,
-							citation: 1,
+							captionText: 1,
 				}}
 			]);
 		}	
@@ -31,13 +31,13 @@ module.exports = {
 			{$project: {
 				_id: 0, id: "$_id",
 				userId: 1,
-				nickName: 1,
+				login: 1,
 				name: 1,
 				birthDate: 1,
 				city: 1,
 				profession: 1,
 				hobby: 1,
-				citation: 1,
+				captionText: 1,
 			}}
 		]);
 	},
@@ -45,13 +45,13 @@ module.exports = {
 	create: function(data) {
 		const userInfo = new UserInfoModel({
 			userId: data.userId, 
-			nickName: data.nickName,
+			login: data.login,
 			name: data.name,
 			birthDate: data.birthDate,
 			city: data.city,
 			profession: data.profession,
 			hobby: data.hobby,
-			citation: data.citation,
+			captionText: data.captionText,
 		});
 	
 		return userInfo.save();
@@ -61,13 +61,13 @@ module.exports = {
 		const userInfo = new UserInfoModel({
 			_id: id,
 			userId: data.userId,   //??
-			nickName: data.nickName,
+			login: data.login,
 			name: data.name,
 			birthDate: data.birthDate,
 			city: data.city,
 			profession: data.profession,
 			hobby: data.hobby,
-			citation: data.citation,
+			captionText: data.captionText,
 		});
 
 		return UserInfoModel.findOneAndUpdate({_id: id}, userInfo, {new: true});

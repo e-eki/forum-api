@@ -10,8 +10,8 @@ const userModel = require('../models/user');
 
 let router = express.Router();
 
-//----- endpoint: /api/resetpassword/
-router.route('/resetpassword/')
+//----- endpoint: /api/auth/reset-password/
+router.route('/reset-password/')
 
 	.get(function(req, res) {
 		return utils.sendErrorResponse(res, 'UNSUPPORTED_METHOD');
@@ -147,8 +147,8 @@ router.route('/resetpassword/')
 	})
 ;
 
-//----- endpoint: /api/resetpassword/:uuid
-router.route('/resetpassword/:uuid')
+//----- endpoint: /api/auth/reset-password/:uuid
+router.route('/reset-password/:uuid')
 
 	// сюда приходит запрос на сброс пароля по ссылке из письма
 	.get(function(req, res) {

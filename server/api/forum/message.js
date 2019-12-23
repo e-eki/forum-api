@@ -9,7 +9,7 @@ const messageUtils = require('../../utils/messageUtils');
 
 let router = express.Router();
 
-//----- endpoint: /api/message/
+//----- endpoint: /api/forum/message/
 router.route('/message')
 
   // получение всех сообщений (для поиска по форуму)
@@ -65,7 +65,7 @@ router.route('/message')
 	})
 ;
 
-//----- endpoint: /api/message/:id
+//----- endpoint: /api/forum/message/:id
 router.route('/message/:id')
 
   // получение сообщения по его id

@@ -7,7 +7,7 @@ const tokenUtils = require('../utils/tokenUtils');
 
 let router = express.Router();
 
-//----- endpoint: /api/logout/
+//----- endpoint: /api/auth/logout/
 router.route('/logout')
 
 	.get(function(req, res) {

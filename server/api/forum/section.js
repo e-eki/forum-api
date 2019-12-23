@@ -10,7 +10,7 @@ const messageModel = require('../../mongoDB/models/message');
 
 let router = express.Router();
 
-//----- endpoint: /api/section/
+//----- endpoint: /api/forum/section/
 router.route('/section')
 
   // получение всех разделов
@@ -76,7 +76,7 @@ router.route('/section')
 	})
 ;
 
-//----- endpoint: /api/section/:id
+//----- endpoint: /api/forum/section/:id
 router.route('/section/:id')
 
   // получение раздела по его id

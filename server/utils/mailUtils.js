@@ -4,7 +4,7 @@ const Promise = require('bluebird');
 const nodemailer = require('nodemailer');
 const config = require('../../config');
 
-const mail = new function() {
+const mailUtils = new function() {
 
 	// отправка письма подтверждения имейла
 	this.sendConfirmEmailLetter = function(data) {
@@ -24,11 +24,10 @@ const mail = new function() {
 		return transport.sendMail({
 			from: config.mail_settings.from,
 			to: data.email,
-			subject: config.mail_settings.confirmEmailSubject,
+			tokenType: config.mail_settings.confirmEmailSubject,
 			html: letterHtml
 		})
             .then((result) => {
-				
                 transport.close();
                 return result;
             });
@@ -52,7 +51,7 @@ const mail = new function() {
 		return transport.sendMail({
 			from: config.mail_settings.from,
 			to: data.email,
-			subject: config.mail_settings.resetPasswordSubject,
+			tokenType: config.mail_settings.resetPasswordSubject,
 			html: letterHtml
 		})
             .then((result) => {
@@ -61,8 +60,6 @@ const mail = new function() {
                 return result;
             });
 	}
-
-
 };
 
-module.exports = mail;
+module.exports = mailUtils;

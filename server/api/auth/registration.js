@@ -8,7 +8,7 @@ const mail = require('../utils/mail');
 
 let router = express.Router();
 
-//----- endpoint: /api/registration/
+//----- endpoint: /api/auth/registration/
 router.route('/registration')
 
 	.get(function(req, res) {

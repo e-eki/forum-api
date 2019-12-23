@@ -11,7 +11,7 @@ const subSectionModel = require('../../mongoDB/models/subSection');
 
 let router = express.Router();
 
-//----- endpoint: /api/channel/
+//----- endpoint: /api/forum/channel/
 router.route('/channel')
 
   // получение всех чатов (для поиска по форуму)
@@ -67,7 +67,7 @@ router.route('/channel')
 	})
 ;
 
-//----- endpoint: /api/channel/:id
+//----- endpoint: /api/forum/channel/:id
 router.route('/channel/:id')
 
   // получение чата по его id

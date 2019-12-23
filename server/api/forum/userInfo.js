@@ -8,7 +8,7 @@ const ObjectId = require('mongoose').Types.ObjectId;
 
 let router = express.Router();
 
-//----- endpoint: /api/user-info/
+//----- endpoint: /api/forum/user-info/
 router.route('/user-info')
 
   // метод не поддерживается - информация о юзере доступна только по id
@@ -30,7 +30,7 @@ router.route('/user-info')
 	})
 ;
 
-//----- endpoint: /api/user-info/:id
+//----- endpoint: /api/forum/user-info/:id
 router.route('/user-info/:id')
 
   // получение информации о юзере по его id - todo???
@@ -39,13 +39,13 @@ router.route('/user-info/:id')
       .then((data) => {
         data = {
           id: new ObjectId(req.params.id),  //todo!
-          nickName: 'VASYA',
+          login: 'VASYA',
           // 	name: { type: String },
           birthDate: new Date(),
           city: 'Moscow',
           // 	profession: { type: String },
           // 	hobby: { type: String },
-          citation: 'All you need is love',
+          captionText: 'All you need is love',
         };
 
         return utils.sendResponse(res, data);

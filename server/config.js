@@ -31,19 +31,21 @@ module.exports = {
             user: 'checkers.game.online', 
             pass: 'qwerty12345_'
         }
-        , from: '"Игра в шашки онлайн." <checkers.game.online@gmail.com>'
-        , confirmEmailSubject: 'Подтверждение адреса электронной почты на сайте «Игра в шашки онлайн.»'
-        , resetPasswordSubject: 'Восстановление пароля на сайте «Игра в шашки онлайн.»'
+        , from: '"Форум." <forum@gmail.com>'
+        , confirmEmailSubject: 'Подтверждение адреса электронной почты на форуме «Сферический в вакууме»'
+        , resetPasswordSubject: 'Восстановление пароля на форуме «Сферический в вакууме»'
     }
 
     , token: {
-        secret: 'ZnVja2luZyBmdWNraW5nIGJvcnNjaA=='
+        secret: 'b2NjdXB5TWFycw=='
         , access: {
-            //expiresIn: 1200000   //20 мин = 20*60*1000
-            expiresIn: 7200000   //2 ч = 120*60*1000   //TODO!!
+            type: 'access',
+            expiresIn: 120000   //2 мин = 2*60*1000
+            //expiresIn: 7200000   //2 ч = 120*60*1000   //TODO!!
           },
         
           refresh: {
+            type: 'refresh',
             expiresIn: 3600000  //60 мин
           },
     }

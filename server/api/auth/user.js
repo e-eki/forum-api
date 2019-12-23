@@ -4,21 +4,16 @@ const express = require('express');
 const Promise = require('bluebird');
 const utils = require('../../utils/baseUtils');
 const userModel = require('../../mongoDB/models/user');
+const userInfoModel = require('../../mongoDB/models/userInfo');
+const userVisitDataModel = require('../../mongoDB/models/userVisitData');
 
 let router = express.Router();
 
-//----- endpoint: /api/user/
+//----- endpoint: /api/auth/user/
 router.route('/user')
 
-  // получение всех юзеров  //todo - ограничения??
   .get(function(req, res) { 
-    return userModel.query()
-      .then((data) => {
-        return utils.sendResponse(res, data);
-      })
-      .catch((error) => {
-				return utils.sendErrorResponse(res, error, 500);
-      });
+    return utils.sendErrorResponse(res, 'UNSUPPORTED_METHOD');
   })
 
   // метод не поддерживается - юзер может быть добавлен только через регистрацию
@@ -35,18 +30,12 @@ router.route('/user')
 	})
 ;
 
-//----- endpoint: /api/user/:id
+//----- endpoint: /api/auth/user/:id
 router.route('/user/:id')
 
   // получение юзера по его id
   .get(function(req, res) {      
-    return userModel.query({id: req.params.id})
-      .then((data) => {
-        return utils.sendResponse(res, data);
-      })
-      .catch((error) => {
-				return utils.sendErrorResponse(res, error);
-			});
+    return utils.sendErrorResponse(res, 'UNSUPPORTED_METHOD');
   })
 
   .post(function(req, res) {
@@ -61,8 +50,9 @@ router.route('/user/:id')
 			isEmailConfirmed: req.body.isEmailConfirmed,
 			password: req.body.password,
 			resetPasswordCode: req.body.resetPasswordCode,
-			role: req.body.role,
-    }
+      role: req.body.role,
+      inBlackList: req.body.inBlackList,
+    };
 
     return userModel.update(req.params.id, data)
       .then((data) => {
@@ -73,15 +63,24 @@ router.route('/user/:id')
       });
   })
 
-  // удаление юзера по его id
+  // метод не поддерживается - удалить юзера нельзя (можно внести в ЧС)
   .delete(function(req, res) {
-    return userModel.delete(req.params.id)
-      .then((data) => {
-        return utils.sendResponse(res, data);
-      })
-      .catch((error) => {
-        return utils.sendErrorResponse(res, error, 500);
-      })
+    return utils.sendErrorResponse(res, 'UNSUPPORTED_METHOD');
+
+    // const userId = req.params.id;
+    // const tasks = [];
+
+    // tasks.push(userModel.delete(userId));
+    // tasks.push(userInfo.delete(userId));
+    // tasks.push(userVisitDataModel.delete(userId));
+
+    // return Promise.all(tasks)
+    //   .then((data) => {
+    //     return utils.sendResponse(res, data);
+    //   })
+    //   .catch((error) => {
+    //     return utils.sendErrorResponse(res, error, 500);
+    //   })
   })
 ;
 

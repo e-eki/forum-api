@@ -8,8 +8,8 @@ const userModel = require('../models/user');
 
 let router = express.Router();
 
-//----- endpoint: /api/refreshtokens/
-router.route('/refreshtokens/')
+//----- endpoint: /api/auth/refresh-tokens/
+router.route('/refresh-tokens/')
 
 	.get(function(req, res) {
 		return utils.sendErrorResponse(res, 'UNSUPPORTED_METHOD');

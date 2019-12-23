@@ -84,7 +84,7 @@ const channelUtils = new function() {
 
 		return userInfoModel.query({id: recipientId})
 			.then(result => {
-				privateChannel.name = (result && result.length) ? result[0].nickName : null;
+				privateChannel.name = (result && result.length) ? result[0].login : null;
 
 				return privateChannel;
 			}) 
@@ -105,7 +105,7 @@ const channelUtils = new function() {
 			.then(userInfos => {
 				if (userInfos && userInfos.length) {
 					for (let i = 0; i < privateChannels.length; i++) {
-						privateChannels[i].name = (userInfos[i] && userInfos[i][0]) ? userInfos[i][0].nickName : null;
+						privateChannels[i].name = (userInfos[i] && userInfos[i][0]) ? userInfos[i][0].login : null;
 					}
 				}
 

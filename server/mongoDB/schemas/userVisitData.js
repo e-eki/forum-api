@@ -4,10 +4,10 @@ const mongoose = require('mongoose');
 
 const Schema = mongoose.Schema;
 
-const userChannelsVisitDataSchema = new Schema(
+const userVisitDataSchema = new Schema(
 	{
 		userId: {type: Schema.Types.ObjectId },
-		visitData: [
+		lastVisitData: [
 			{
 				channelId: Schema.Types.ObjectId,
 				date: Date
@@ -17,4 +17,4 @@ const userChannelsVisitDataSchema = new Schema(
 	{versionKey: false}
 );
 
-module.exports = userChannelsVisitDataSchema;
+module.exports = userVisitDataSchema;

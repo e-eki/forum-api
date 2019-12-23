@@ -11,7 +11,7 @@ const sectionModel = require('../../mongoDB/models/section');
 
 let router = express.Router();
 
-//----- endpoint: /api/subsection/
+//----- endpoint: /api/forum/subsection/
 router.route('/subsection')
 
   // получение всех подразделов
@@ -57,7 +57,7 @@ router.route('/subsection')
 	})
 ;
 
-//----- endpoint: /api/section/:id
+//----- endpoint: /api/forum/subsection/:id
 router.route('/subsection/:id')
 
   // получение подраздела по его id

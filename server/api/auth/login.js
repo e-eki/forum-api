@@ -8,7 +8,7 @@ const authUtils = require('../utils/authUtils');
 
 let router = express.Router();
 
-//----- endpoint: /api/login/
+//----- endpoint: /api/auth/login/
 router.route('/login')
 
 	// вход через vkontakte/facebook/google

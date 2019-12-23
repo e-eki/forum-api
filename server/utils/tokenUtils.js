@@ -11,15 +11,14 @@ const tokenUtils = new function() {
 
 	// генерит аксесс токен
 	this.getAccessToken = function(user) {
-		let payload = {
+		const payload = {
 			userId: user.id,
 			userRole: user.role,
 		};
 
-		let options = {
+		const options = {
 			algorithm: 'HS512',
-			expiresIn: config.token.access.expiresIn.toString(),
-			subject: 'access'
+			tokenType: config.token.access.type
 		};
 
 		return jwt.sign(payload, config.token.secret, options);
@@ -27,7 +26,7 @@ const tokenUtils = new function() {
 
 	// генерит время жизни аксесс токена
 	this.getAccessTokenExpiresIn = function() {
-		let now = new Date().getTime();
+		const now = new Date().getTime();
 		return (now + config.token.access.expiresIn);
 	};
 
@@ -40,7 +39,7 @@ const tokenUtils = new function() {
 		let options = {
 			algorithm: 'HS512',
 			expiresIn: config.token.refresh.expiresIn.toString(),
-			subject: 'refresh'
+			tokenType: 'refresh'
 		};
 
 		return jwt.sign(payload, config.token.secret, options);
@@ -81,10 +80,10 @@ const tokenUtils = new function() {
 
 	//проверяет токен (сигнатуру и срок действия) и возращает декодированный payload, если токен валидный
 	this.verifyToken = function(token, tokenType) {
-		//проверка на тип токена, записанный в subject
-		let subject = (tokenType == 'access') ? 'access' : 'refresh';
+		//проверка на тип токена, записанный в tokenType
+		let tokenType = (tokenType == 'access') ? 'access' : 'refresh';
 
-		return jwt.verify(token, config.token.secret, {subject: subject}, function(error, payload) {			
+		return jwt.verify(token, config.token.secret, {tokenType: tokenType}, function(error, payload) {			
 			if (error || tokenType == 'access') return {error: error, payload: payload};   // костыль для заворачивания в промис
 			
 			// ищем в БД рефреш токен для этого юзера

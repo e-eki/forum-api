@@ -7,13 +7,13 @@ const Schema = mongoose.Schema;
 const userInfoSchema = new Schema(
 	{
 		userId: {type: Schema.Types.ObjectId },
-		nickName: { type: String },
+		login: { type: String },
 		name: { type: String },
 		birthDate: { type: Date },
 		city: { type: String },
 		profession: { type: String },
 		hobby: { type: String },
-		citation: { type: String },
+		captionText: { type: String },
 	},
 	{versionKey: false}
 );

@@ -8,7 +8,7 @@ const userModel = require('../models/user');
 
 let router = express.Router();
 
-//----- endpoint: /api/emailconfirm/
+//----- endpoint: /api/auth/emailconfirm/
 router.route('/emailconfirm/')
 
 	.get(function(req, res) {
@@ -73,7 +73,7 @@ router.route('/emailconfirm/')
 	})
 ;
 
-//----- endpoint: /api/emailconfirm/:uuid
+//----- endpoint: /api/auth/emailconfirm/:uuid
 router.route('/emailconfirm/:uuid')
 
 	// сюда приходит запрос на подтверждение имейла по ссылке из письма

@@ -9,7 +9,7 @@ const channelUtils = require('../../utils/channelUtils');
 
 let router = express.Router();
 
-//----- endpoint: /api/private-channel/
+//----- endpoint: /api/forum/private-channel/
 router.route('/private-channel')
 
   .get(function(req, res) { 
@@ -114,7 +114,7 @@ router.route('/private-channel')
 	})
 ;
 
-//----- endpoint: /api/private-channel/:id
+//----- endpoint: /api/forum/private-channel/:id
 router.route('/private-channel/:id')
 
   // получение приватного чата по его id

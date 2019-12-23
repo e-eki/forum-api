@@ -31,7 +31,7 @@ const messageUtils = new function() {
 						const message = messages[i];
 
 						if (message) {
-							message.senderName = userInfos[i] ? userInfos[i].nickName : null;
+							message.senderName = userInfos[i] ? userInfos[i].login : null;
 						}
 					}
 				}
@@ -66,7 +66,7 @@ const messageUtils = new function() {
 
 			tasks.push(messageModel.query({
 				channelId: channel.id,
-				channelLastVisitDate: null,   //new Date("2019-11-26T12:46:27.235Z"),  //todo: userChannelsVisitData.query()!
+				channelLastVisitDate: null,   //new Date("2019-11-26T12:46:27.235Z"),  //todo: userVisitData.query()!
 				getNewMessagesCount: true
 			}));
 		}
@@ -79,7 +79,7 @@ const messageUtils = new function() {
 
 		return messageModel.query({
 			channelId: channel.id,
-			channelLastVisitDate: null,   //new Date("2019-11-26T12:46:27.235Z"),   //todo: userChannelsVisitData.query()!
+			channelLastVisitDate: null,   //new Date("2019-11-26T12:46:27.235Z"),   //todo: userVisitData.query()!
 			getNewMessagesCount: true
 		});		
 	};
