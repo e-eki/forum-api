@@ -1,6 +1,6 @@
 'use strict';
 
-const config = require('../../config');
+const config = require('../config');
 
 module.exports = new function() {
 
@@ -12,7 +12,7 @@ module.exports = new function() {
 			<html>
 				<head>
 					<meta charset="utf-8">
-					<title>Восстановление пароля на сайте «Игра в шашки онлайн.»</title>
+					<title>Восстановление пароля на форуме «${config.forumName}»</title>
 					<style type="text/css">
 						.wrapper {
 							margin: 5vmin;
@@ -23,7 +23,7 @@ module.exports = new function() {
 					<div class="wrapper">
 						<p>Здравствуйте, ${data.login}!</p>
 						<br/>Чтобы восстановить доступ к своему аккаунту, перейдите по <a href="${mainLink}/api/resetPassword/${data.resetPasswordCode}/">ссылке</a>.</p>
-						<p>Ваша «Игра в шашки онлайн».
+						<p>Ваш «${config.forumName}».
 						<br/><a href="${mainLink}">На главную страницу</a></p>
 					</div>
 				</body>

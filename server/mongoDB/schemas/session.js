@@ -7,8 +7,8 @@ const Schema = mongoose.Schema;
 const sessionSchema = new Schema(
 	{
 		userId: { type: Schema.Types.ObjectId },
-		refreshToken: { type: String },  //?
-		fingerprint: { type: String },   //?
+		refreshToken: { type: Schema.Types.ObjectId },  //?
+		fingerprint: { type: String },
 		expiresIn: {type: Number }
 	},
 	{versionKey: false}

@@ -2,9 +2,12 @@
 
 const express = require('express');
 const Promise = require('bluebird');
-const userModel = require('../models/user');
-const utils = require('../utils/baseUtils');
-const mail = require('../utils/mail');
+const uuidV4 = require('uuidv4');
+const regDataModel = require('../../mongoDB/models/registrationData');
+const utils = require('../../utils/baseUtils');
+const mailUtils = require('../../utils/mailUtils');
+const errors = require('../../utils/errors');
+const config = require('../../config');
 
 let router = express.Router();
 
@@ -16,13 +19,18 @@ router.route('/registration')
 	})
 
 	// регистрация на сайте
+	/* data = {
+		email,
+		login,
+		password,
+		fingerprint
+	}*/
   	.post(function(req, res) {
 
-		let userData;
 		return Promise.resolve(true)
 			.then(() => {
 				//validate req.body
-				let validationErrors = [];
+				const validationErrors = [];
 
 				if (!req.body.email || req.body.email == '') {
 					validationErrors.push('empty email');
@@ -33,8 +41,20 @@ router.route('/registration')
 				if (!req.body.password || req.body.password == '') {
 					validationErrors.push('empty password');
 				}
+				if (!req.body.fingerprint || req.body.fingerprint == '') {
+					validationErrors.push('empty device data');
+				}
 				if (validationErrors.length !== 0) {
-					throw utils.initError('VALIDATION_ERROR', validationErrors);
+					throw utils.initError(errors.VALIDATION_ERROR, validationErrors);
+				}
+
+				// проверяем количество уже сделанных попыток зарегистрироваться с этого устройства,
+				// если их количество = макс.допустимому, то все последующие не обрабатывать
+				return regDataModel.query({fingerprint: req.body.fingerprint, getCount: true});
+			})
+			.then(regDataModelsCount => {
+				if (regDataModelsCount >= config.security.regAttempsMaxCount) {
+					throw utils.initError(errors.VALIDATION_ERROR, 'Количество попыток зарегистрироваться с данного устройства больше допустимого. Обратитесь к администратору сайта.');
 				}
 
 				//check email & login duplicates
@@ -45,59 +65,52 @@ router.route('/registration')
 				return Promise.all(tasks);
 			})
 			.spread((emailDuplicates, loginDuplicates) => {
-				// если занят логин, то выбрасываем ошибку
+				const validationErrors = [];
+
+				// если занят логин или имейл, то выбрасываем ошибку
+				if (emailDuplicates.length) {
+					validationErrors.push('Пользователь с указанным имейлом уже существует');
+				}
 				if (loginDuplicates.length) {
-					throw utils.initError('VALIDATION_ERROR', 'login duplicate: Login exists in database');
+					validationErrors.push('Пользователь с указанным логином уже существует');
+				}
+				if (validationErrors.length !== 0) {
+					throw utils.initError(errors.VALIDATION_ERROR, validationErrors);
 				}
 
-				// если занято мыло, то проверяем - подтверждено ли, если да, то выбрасываем ошибку, что оно занято
-				// если нет, то выбрасываем ошибку, что оно занято - надо подтвердить
-				if (emailDuplicates.length) {			
-					if (emailDuplicates[0].isEmailConfirmed) {
-						throw utils.initError('VALIDATION_ERROR', 'email duplicate: Email exists in database');
-					}
-					else {
-						throw utils.initError('UNAUTHORIZED', 'email_duplicate: Email exists in database, but not confirmed');
-					}
-				}
-
+				// вычисляем хэш пароля
 				return utils.makePasswordHash(req.body.password);
 			})
 			.then((hash) => {
-				//для каждого юзера генерится уникальный код подтверждения и записывается в БД
+				//для каждого юзера генерится уникальный код подтверждения имейла
 				// (при повторной отправке подтверждения на имейл код подтверждения берется этот же)
-				const confirmEmailCode = utils.makeUId(req.body.login + req.body.email + Date.now());  
+				const emailConfirmCode = uuidV4.fromString(req.body.login + req.body.email + Date.now());   //? 
 
-				userData = {
-					login     : req.body.login,
-					email     : req.body.email,
-					confirmEmailCode: confirmEmailCode,
-					isEmailConfirmed: false,
-					password     : hash,
-					resetPasswordCode: '',
-					role: 'user',   //TODO??? роль юзеру
+				const regData = {
+					login: req.body.login,
+					email: req.body.email,
+					password: hash,
+					emailConfirmCode: emailConfirmCode,
+					fingerprint: req.body.fingerprint,
 				};
 
-				//save new user
-				return userModel.create(userData);
+				const tasks = [];
+				tasks.push(regData);
+
+				//save new regData
+				tasks.push(regDataModel.create(regData));
+
+				return Promise.all(tasks);
 			})
-			.then((dbResponse) => {
-				if (dbResponse.errors) {
-					// log errors
-					utils.logDbErrors(dbResponse.errors);
-				};
-
-				const data = {
-					login: userData.login,
-					email: userData.email,
-					confirmEmailCode: userData.confirmEmailCode
-				};
+			.spread((regData, dbResponse) => {
+				// log errors
+				utils.logDbErrors(dbResponse);
 
 				//отправляем письмо с кодом подтверждения на указанный имейл
-				return mail.sendConfirmEmailLetter(data)
+				return mailUtils.sendEmailConfirmLetter(regData)
 					.catch((error) => {
 						// возможная ошибка на этапе отправки письма
-						throw utils.initError('INVALID_INPUT_DATA', 'Email not exists');					
+						throw utils.initError(errors.INVALID_INPUT_DATA, 'Email not exists');					
 					})
 			})
 			.then((data) => {
@@ -107,7 +120,7 @@ router.route('/registration')
 				//res.set('Content-Type', 'text/html');
 				//return res.send(page);
 
-				return utils.sendResponse(res, 'user successfully register', 201);
+				return utils.sendResponse(res, 'Письмо с кодом подтверждения было отправлено на указанный имейл', 201);
 			})
 			.catch((error) => {
 				return utils.sendErrorResponse(res, error);

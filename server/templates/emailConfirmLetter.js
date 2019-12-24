@@ -1,6 +1,6 @@
 'use strict';
 
-const config = require('../../config');
+const config = require('../config');
 
 module.exports = new function() {
 
@@ -12,7 +12,7 @@ module.exports = new function() {
 			<html>
 				<head>
 					<meta charset="utf-8">
-					<title>Подтверждение адреса электронной почты на сайте «Игра в шашки онлайн.»</title>
+					<title>Подтверждение адреса электронной почты на форуме «${config.forumName}»</title>
 					<style type="text/css">
 						.wrapper {
 							margin: 5vmin;
@@ -22,9 +22,9 @@ module.exports = new function() {
 				<body>
 					<div class="wrapper">
 						<p>Здравствуйте, ${data.login}!</p>
-						<p>Мы рады приветствовать вас на нашем сайте!
-						<br/>Чтобы продолжить регистрацию, перейдите по <a href="${mainLink}/api/emailconfirm/${data.confirmEmailCode}/">ссылке</a>.</p>
-						<p>Ваша «Игра в шашки онлайн».
+						<p>Мы рады приветствовать вас на нашем форуме!
+						<br/>Чтобы продолжить регистрацию, перейдите по <a href="${mainLink}/api/emailconfirm/${data.emailConfirmCode}/">ссылке</a>.</p>
+						<p>Ваш «${config.forumName}».
 						<br/><a href="${mainLink}">На главную страницу</a></p>
 					</div>
 				</body>

@@ -58,7 +58,7 @@ const messageUtils = new function() {
 	};
 
 	// найти кол-во новых сообщений в каждом чате
-	this.getNewMessagesCountInChannels = function(channels) {
+	this.getCountInChannels = function(channels) {
 		const tasks = [];
 
 		for (let i = 0; i < channels.length; i++) {
@@ -67,7 +67,7 @@ const messageUtils = new function() {
 			tasks.push(messageModel.query({
 				channelId: channel.id,
 				channelLastVisitDate: null,   //new Date("2019-11-26T12:46:27.235Z"),  //todo: userVisitData.query()!
-				getNewMessagesCount: true
+				getCount: true
 			}));
 		}
 
@@ -75,12 +75,12 @@ const messageUtils = new function() {
 	};
 
 	// найти кол-во новых сообщений в чате
-	this.getNewMessagesCountInChannel = function(channel) {
+	this.getCountInChannel = function(channel) {
 
 		return messageModel.query({
 			channelId: channel.id,
 			channelLastVisitDate: null,   //new Date("2019-11-26T12:46:27.235Z"),   //todo: userVisitData.query()!
-			getNewMessagesCount: true
+			getCount: true
 		});		
 	};
 

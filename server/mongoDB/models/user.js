@@ -10,40 +10,50 @@ module.exports = {
 	
 	query: function(config) {
 		if (config) {
-			return UserModel.aggregate([
-				{$match: { '_id': new ObjectId(config.id)}},
-				{$project: {
-							_id: 0, id: "$_id",
-							email: 1,
-							confirmEmailCode: 1,
-							isEmailConfirmed: 1,
-							password: 1,
-							resetPasswordCode: 1,
-							role: 1,
-							inBlackList: 1,
-				}}
-			]);
+			if (config.id) {
+				return UserModel.aggregate([
+					{$match: { '_id': new ObjectId(config.id)}},
+					{$project: {
+						_id: 0, id: "$_id",
+						email: 1,
+						password: 1,
+						resetPasswordCode: 1,
+						role: 1,
+						inBlackList: 1,
+					}}
+				]);
+			}
+			else if (config.email) {
+				return UserModel.aggregate([
+					{$match: { 'email': new ObjectId(config.email)}},
+					{$project: {
+						_id: 0, id: "$_id",
+						email: 1,
+						password: 1,
+						resetPasswordCode: 1,
+						role: 1,
+						inBlackList: 1,
+					}}
+				]);
+			}
 		}	
 
-		return UserModel.aggregate([
-			{$project: {
-				_id: 0, id: "$_id",
-				email: 1,
-				confirmEmailCode: 1,
-				isEmailConfirmed: 1,
-				password: 1,
-				resetPasswordCode: 1,
-				role: 1,
-				inBlackList: 1,
-			}}
-		]);
+		return [];
+		// return UserModel.aggregate([
+		// 	{$project: {
+		// 		_id: 0, id: "$_id",
+		// 		email: 1,
+		// 		password: 1,
+		// 		resetPasswordCode: 1,
+		// 		role: 1,
+		// 		inBlackList: 1,
+		// 	}}
+		// ]);
 	},
 	
 	create: function(data) {
 		const user = new UserModel({
 			email: data.email,
-			confirmEmailCode: data.confirmEmailCode,
-			isEmailConfirmed: data.isEmailConfirmed,
 			password: data.password,
 			resetPasswordCode: data.resetPasswordCode,
 			role: data.role,
@@ -57,8 +67,6 @@ module.exports = {
 		const user = new UserModel({
 			_id: id,
 			email: data.email,
-			confirmEmailCode: data.confirmEmailCode,
-			isEmailConfirmed: data.isEmailConfirmed,
 			password: data.password,
 			resetPasswordCode: data.resetPasswordCode,
 			role: data.role,

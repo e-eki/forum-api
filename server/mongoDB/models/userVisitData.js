@@ -9,17 +9,18 @@ const UserVisitDataModel = mongoose.model('UserVisitData', userVisitDataSchema);
 module.exports = {
 	
 	query: function(config) {
-
-		if (config) {
+		if (config && config.id) {
 			return UserVisitDataModel.aggregate([
 				{$match: { '_id': new ObjectId(config.id)}},
 				{$project: {
-							_id: 0, id: "$_id",
-							userId: 1,
-							lastVisitData: 1,  //?
+					_id: 0, id: "$_id",
+					userId: 1,
+					lastVisitData: 1,  //?
 				}}
 			]);
 		}
+
+		return [];
 	},
 	
 	create: function(data) {

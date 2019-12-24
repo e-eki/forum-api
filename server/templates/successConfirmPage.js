@@ -1,6 +1,6 @@
 'use strict';
 
-const config = require('../../config');
+const config = require('../config');
 
 const mainLink = `${config.server.protocol}://${config.server.host}:${config.server.port}`;
   

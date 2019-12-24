@@ -111,7 +111,7 @@ router.route('/reset-password/')
 				const userData = {
 					login     : user.login,
 					email     : user.email,
-					confirmEmailCode: user.confirmEmailCode,
+					emailConfirmCode: user.emailConfirmCode,
 					isEmailConfirmed: user.isEmailConfirmed,
 					password     : hash,
 					resetPasswordCode: '',

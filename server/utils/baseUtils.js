@@ -91,11 +91,13 @@ const utils = new function() {
         return uuidv5(string, uuidv5.URL);   //??
     };
 
-    // логгирует ошибки БД
-    this.logDbErrors = function(dbErrors) {
-        dbErrors.forEach((error) => {
-            console.error('Database error: ' + error.message);
-        });
+    // логирует ошибки БД
+    this.logDbErrors = function(dbResponse) {
+        if (dbResponse.errors) {
+            dbErrors.forEach((error) => {
+                console.error('Database error: ' + error.message);   //todo: сделать логирование в файл
+            });
+        }
     };
     
 };

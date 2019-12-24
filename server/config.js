@@ -1,6 +1,7 @@
 'use strict';
 
 const NODE_ENV = process.env.NODE_ENV || 'development';
+const forumName = 'Сферический в вакууме';
 
 module.exports = {
     version: '1.0'
@@ -31,13 +32,17 @@ module.exports = {
             user: 'checkers.game.online', 
             pass: 'qwerty12345_'
         }
-        , from: '"Форум «Сферический в вакууме»." <forum@gmail.com>'
-        , confirmEmailSubject: 'Подтверждение адреса электронной почты на форуме «Сферический в вакууме»'
-        , resetPasswordSubject: 'Восстановление пароля на форуме «Сферический в вакууме»'
+        , from: `"Форум «${forumName}»." <forum@gmail.com>`
+        , confirmEmailSubject: `Подтверждение адреса электронной почты на форуме «${forumName}»`
+        , resetPasswordSubject: `Восстановление пароля на форуме «${forumName}»`
     }
     , security: {
-        // количество попыток регистрации (и отправления письма с кодом) - с одной машины (с одним fingerprint)
-        registrationAttempsCount: 10,
+        // количество попыток регистрации (и отправления письма с кодом) - с одного устройства (с одним fingerprint)
+        regAttempsMaxCount: 10,
+        // количество запросов на повторное подтверждение почты (м.б. разные имейлы) - с одного устройства (с одним fingerprint)
+        emailConfirmLettersCount: 5,
+        // количество сессий юзера (со скольких устройств юзер может быть залогинен единовременно)
+        userSessionsCount: 2,
     }
     , token: {
         secret: 'b2NjdXB5TWFycw=='
@@ -88,5 +93,5 @@ module.exports = {
 
     //-----
     , defaultRoomId: '0'
-
+    , forumName: forumName   //?
 };

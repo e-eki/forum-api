@@ -46,8 +46,6 @@ router.route('/user/:id')
   .put(function(req, res) {
     const data = {
 			email: req.body.email,
-			confirmEmailCode: req.body.confirmEmailCode,
-			isEmailConfirmed: req.body.isEmailConfirmed,
 			password: req.body.password,
 			resetPasswordCode: req.body.resetPasswordCode,
       role: req.body.role,

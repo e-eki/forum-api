@@ -2,14 +2,18 @@
 
 const express = require('express');
 const config = require('../../config');
-const utils = require('../utils/baseUtils');
-const mail = require('../utils/mail');
-const userModel = require('../models/user');
+const utils = require('../../utils/baseUtils');
+const mailUtils = require('../../utils/mailUtils');
+const regDataModel = require('../../mongoDB/models/registrationData');
+const userModel = require('../../mongoDB/models/user');
+const userInfoModel = require('../../mongoDB/models/userInfo');
+const errors = require('../../utils/errors');
+const confirmDataModel = require('../../mongoDB/models/emailConfirmData');
 
 let router = express.Router();
 
-//----- endpoint: /api/auth/emailconfirm/
-router.route('/emailconfirm/')
+//----- endpoint: /api/auth/email-confirm/
+router.route('/email-confirm/')
 
 	.get(function(req, res) {
 		return utils.sendErrorResponse(res, 'UNSUPPORTED_METHOD');
@@ -17,47 +21,62 @@ router.route('/emailconfirm/')
 
 	//запрос на повторное подтверждение почты пользователя
 	/* data = {
-		email: <email>
+		email,
+		fingerprint
 	}*/
 	.post(function(req, res) {
 
 		return Promise.resolve(true)
 			.then(() => {
 				//validate req.body
+				const validationErrors = [];
+
 				if (!req.body.email || req.body.email == '') {
-					throw utils.initError('VALIDATION_ERROR', 'empty email');
+					validationErrors.push('empty email');
+				}
+				if (!req.body.fingerprint || req.body.fingerprint == '') {
+					validationErrors.push('empty device data');
+				}
+				if (validationErrors.length !== 0) {
+					throw utils.initError(errors.VALIDATION_ERROR, validationErrors);
 				}
 
-				const email = req.body.email;
-				// ищем юзера с таким имейлом
-				return userModel.query({email: email});
+				// проверяем количество уже сделанных запросов на повторное подтверждение с этого устройства,
+				// если их количество = макс.допустимому, то все последующие не обрабатывать
+				return confirmDataModel.query({fingerprint: req.body.fingerprint, getCount: true});
 			})
-			.then((userData) => {
-				if (!userData.length) {
-					throw utils.initError('FORBIDDEN', 'no user with this email');
+			.then(confirmDataModelsCount => {
+				if (confirmDataModelsCount >= config.security.emailConfirmLettersCount) {
+					throw utils.initError(errors.VALIDATION_ERROR, 'Количество запросов на повторное подтверждение с данного устройства больше допустимого. Обратитесь к администратору сайта.');
+				}
+
+				// ищем уже зарегистрированного юзера с таким имейлом
+				return userModel.query({email: req.bode.email});
+			})
+			.then(results => {
+				if (results.length) {
+					throw utils.initError(errors.VALIDATION_ERROR, 'Указанный имейл уже подтвержден');
+				}
+
+				// ищем попытки регистрации с таким имейлом
+				return regDataModel.query({email: req.body.email});
+			})
+			.then(results => {
+				if (!results.length) {
+					throw utils.initError(errors.VALIDATION_ERROR, 'С указанным имейлом еще не было попыток регистрации');
 				}
 					
-				let user = userData[0];
-				if (user.isEmailConfirmed) return true; // если имейл уже подтвержден
-				
-				const data = {
-					login: user.login,
-					email: user.email,
-					confirmEmailCode: user.confirmEmailCode
-				};
+				const regData = results[0];
 
 				//отправляем письмо с кодом подтверждения на указанный имейл
-				return mail.sendConfirmEmailLetter(data)
+				return mail.sendEmailConfirmLetter(regData)
 					.catch((error) => {
 						// возможная ошибка на этапе отправки письма
-						throw utils.initError('INVALID_INPUT_DATA', 'Email not exists');					
+						throw utils.initError(errors.INVALID_INPUT_DATA, 'Email not exists');					
 					})
 			})
-			.then((data) => {
-				// если имейл уже подтвержден
-				if (data === true) return utils.sendResponse(res, 'Email already confirmed');
-
-				return utils.sendResponse(res, 'Confirm mail send again');
+			.then(data => {
+				return utils.sendResponse(res, 'Письмо с кодом подтверждения было отправлено на указанный имейл повторно');
 			})
 			.catch((error) => {
 				return utils.sendErrorResponse(res, error);
@@ -78,31 +97,46 @@ router.route('/emailconfirm/:uuid')
 
 	// сюда приходит запрос на подтверждение имейла по ссылке из письма
 	.get(function(req, res) {
-		// ищем юзеров с данным кодом подтверждения
-		return userModel.query({confirmEmailCode: req.params.uuid})
-			.then((users) => {
-				if (!users.length) {
-					throw utils.initError('FORBIDDEN', 'no user with this uuid');
+		// ищем попытки регистрации с данным кодом подтверждения
+		return regDataModel.query({emailConfirmCode: req.params.uuid})
+			.then(results => {
+				if (!results.length) {
+					// если нет попыток, но письмо с кодом было отправлено - значит, имейл уже подтвержден
+					// редиректим на главную
+					const mainLink = `${config.server.protocol}://${config.server.host}:${config.server.port}`;
+					return res.redirect(`${mainLink}`);
 				}
 
 				// по идее должен быть один юзер на один код подтверждения
-				const userData = users[0];
-				// если уже переходили по ссылке
-				if (userData.isEmailConfirmed) return true;
-				userData.isEmailConfirmed = true;
-				// проставляем юзеру флаг подтверждения имейла
-				return userModel.update(userData._id, userData);
-			})
-			.then((usedLink) => {
-				// если по ссылке уже переходили, то редиректим на главную
-				if (usedLink === true) {
+				const regData = results[0];
 
-					const mainLink = `${config.server.protocol}://${config.server.host}:${config.server.port}`;
-					return res.redirect(`${mainLink}`);
+				const userData = {
+					email: regData.email,
+					password: regData.password,
+					resetPasswordCode: null,
+					role: config.userRoles.user,  // сразу после регистрации роль юзер
+					inBlackList: false,
 				};
-				//если нет, то показываем страницу успешного подтверждения
+
+				return userModel.create(userData);
+			})
+			.then(dbResponse => {
+				utils.logDbErrors(dbResponse);
+				//todo: dbResponse.id???
+
+				const userInfoData = {
+					userId: dbResponse.id, 
+					login: dbResponse.login,
+				};
+
+				return userInfoModel.create(userInfoData);
+			})
+			.then(dbResponse => {
+				utils.logDbErrors(dbResponse);
+
+				//показываем страницу успешного подтверждения
 				//TODO: ?? как сделать редирект на главную через неск.секунд после показа страницы?
-				const page = require('../templates/successConfirmPage');
+				const page = require('../../templates/successConfirmPage');
 				res.set('Content-Type', 'text/html');
 				
 				return res.send(page);

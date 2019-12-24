@@ -21,15 +21,16 @@ module.exports = {
 			]);
 		}
 
-		return SessionModel.aggregate([
-			{$project: {
-				_id: 0, id: "$_id",
-				userId: 1,
-				refreshToken: 1,
-				fingerprint: 1,
-				expiresIn: 1,
-			}}
-		]);
+		return [];
+		// return SessionModel.aggregate([
+		// 	{$project: {
+		// 		_id: 0, id: "$_id",
+		// 		userId: 1,
+		// 		refreshToken: 1,
+		// 		fingerprint: 1,
+		// 		expiresIn: 1,
+		// 	}}
+		// ]);
 	},
 	
 	create: function(data) {

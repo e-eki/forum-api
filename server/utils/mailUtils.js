@@ -2,14 +2,13 @@
 
 const Promise = require('bluebird');
 const nodemailer = require('nodemailer');
-const config = require('../../config');
+const config = require('../config');
 
 const mailUtils = new function() {
 
 	// отправка письма подтверждения имейла
-	this.sendConfirmEmailLetter = function(data) {
-
-		let transport = nodemailer.createTransport({
+	this.sendEmailConfirmLetter = function(data) {
+		const transport = nodemailer.createTransport({
 			service: config.mail_settings.service, 
 			auth: { 
 				user: config.mail_settings.auth.user 
@@ -35,10 +34,9 @@ const mailUtils = new function() {
 
 	// отправка письма сброса пароля
 	this.sendResetPasswordLetter = function(data) {
-
-		let transport = nodemailer.createTransport({
+		const transport = nodemailer.createTransport({
 			service: config.mail_settings.service, 
-			auth: { 
+			auth: {
 				user: config.mail_settings.auth.user 
 				, pass: config.mail_settings.auth.pass
 			}
@@ -54,8 +52,7 @@ const mailUtils = new function() {
 			tokenType: config.mail_settings.resetPasswordSubject,
 			html: letterHtml
 		})
-            .then((result) => {
-				
+            .then((result) => {		
                 transport.close();
                 return result;
             });

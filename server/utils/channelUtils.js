@@ -18,7 +18,7 @@ const channelUtils = new function() {
 					channel.lastMessage = lastMessages ? lastMessages[i] : null;
 				}
 
-				return messageUtils.getNewMessagesCountInChannels(channels);
+				return messageUtils.getCountInChannels(channels);
 			})
 			// получить кол-во новых сообщений в каждом чате
 			.then((newMessagesCounts) => {
@@ -50,7 +50,7 @@ const channelUtils = new function() {
 			})
 			.then(channel => {
 				if (channel.messages.length) {
-					return messageUtils.getNewMessagesCountInChannel(channel)
+					return messageUtils.getCountInChannel(channel)
 				}
 				else {
 					return false;

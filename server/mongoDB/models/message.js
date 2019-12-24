@@ -52,7 +52,7 @@ module.exports = {
 						}}
 					]);
 				}
-				else if (config.getNewMessagesCount) {   //&& config.channelLastVisitDate?
+				else if (config.getCount) {   //&& config.channelLastVisitDate?
 					return MessageModel.count(
 						// db.collection.find( { a: { $gt: 5 }, b: 5 } ).count()
 						// db.collection.find( { a: 5, b: 5, c: 5 } ).count()
@@ -76,17 +76,19 @@ module.exports = {
 			}
 		}	
 
-		return MessageModel.aggregate([
-			{'$sort': {'date': 1}},  // по дате по возрастанию!
-			{$project: {
-				_id: 0, id: "$_id",
-				senderId: 1,
-				recipientId: 1,
-				channelId: 1,
-				date: 1,
-				text: 1,
-			}}
-		]);
+		return [];   //?
+
+		// return MessageModel.aggregate([
+		// 	{'$sort': {'date': 1}},  // по дате по возрастанию!
+		// 	{$project: {
+		// 		_id: 0, id: "$_id",
+		// 		senderId: 1,
+		// 		recipientId: 1,
+		// 		channelId: 1,
+		// 		date: 1,
+		// 		text: 1,
+		// 	}}
+		// ]);
 	},
 	
 	create: function(data) {
