@@ -1,6 +1,7 @@
 'use strict';
 
 const Promise = require('bluebird');
+const uuidV4 = require('uuidv4');
 const jwt = require('jsonwebtoken');
 const config = require('../../config');
 const refreshTokenModel = require('../models/refreshToken');
@@ -11,14 +12,17 @@ const tokenUtils = new function() {
 
 	// генерит аксесс токен
 	this.getAccessToken = function(user) {
+		const expiresIn = this.getAccessTokenExpiresIn();
+
 		const payload = {
+			tokenType: config.token.access.type, //?
+			expiresIn: expiresIn,   //! время жизни д.б. быть внутри аксесс токена, тк его нельзя изменить!
 			userId: user.id,
 			userRole: user.role,
 		};
 
 		const options = {
-			algorithm: 'HS512',
-			tokenType: config.token.access.type
+			algorithm: config.token.algorithm,
 		};
 
 		return jwt.sign(payload, config.token.secret, options);
@@ -31,25 +35,26 @@ const tokenUtils = new function() {
 	};
 
 	// генерит рефреш токен
-	this.getRefreshToken = function(user) {
-		let payload = {
-			userId: user.id,
-		};
-
-		let options = {
-			algorithm: 'HS512',
-			expiresIn: config.token.refresh.expiresIn.toString(),
-			tokenType: 'refresh'
-		};
-
-		return jwt.sign(payload, config.token.secret, options);
+	this.getRefreshToken = function() {
+		const token = uuidV4();
+		return token;
 	};
 
 	// генерит время жизни рефреш токена
-	/*this.getRefreshTokenExpiresIn = function() {
+	this.getRefreshTokenExpiresIn = function() {
 		let now = new Date().getTime();
 		return (now + config.token.refresh.expiresIn);
-	};*/
+	};
+
+	// расшифровка аксесс токена
+	this.decodeAccessToken = function(token) {
+		return jwt.verify(token, config.token.secret);
+	},
+
+	this.
+
+
+
 
 	// получает из заголовка ответа токен
 	this.getTokenFromHeader = function(headerAuthorization) {
@@ -59,14 +64,6 @@ const tokenUtils = new function() {
 
 		return accessToken;
 	};
-
-	/*this.decodeToken = function(token) {
-		let options = {
-			json: true,
-			complete: true,
-		};
-		return jwt.decode(token, options);
-	},*/
 
 	// проверяет access token
 	this.verifyAccessToken = function(token) {
