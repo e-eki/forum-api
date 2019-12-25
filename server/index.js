@@ -62,10 +62,11 @@ app.use(bodyParser.json({type: 'application/json'}));
 // запросы к api
 app.use('/api', require('./api/auth/registration'));
 app.use('/api', require('./api/auth/emailConfirm'));
-// app.use('/api', require('./api/auth/login'));
-// app.use('/api', require('./api/auth/logout'));
-// app.use('/api', require('./api/auth/resetPassword'));
-// app.use('/api', require('./api/auth/refreshTokens'));
+
+app.use('/api', require('./api/auth/login'));
+app.use('/api', require('./api/auth/logout'));
+app.use('/api', require('./api/auth/resetPassword'));
+app.use('/api', require('./api/auth/refreshTokens'));
 app.use('/api', require('./api/auth/user'));
 
 app.use('/api', require('./api/forum/section'));

@@ -2,9 +2,12 @@
 
 const express = require('express');
 const Promise = require('bluebird');
-const utils = require('../utils/baseUtils');
-const tokenUtils = require('../utils/tokenUtils');
-const authUtils = require('../utils/authUtils');
+const utils = require('../../utils/baseUtils');
+const sessionUtils = require('../../utils/sessionUtils');
+const authUtils = require('../../utils/authUtils');
+const errors = require('../../utils/errors');
+const socialLoginDataModel = require('../../mongoDB/models/socialLoginData');
+const userModel = require('../../mongoDB/models/user');
 
 let router = express.Router();
 
@@ -13,10 +16,10 @@ router.route('/login')
 
 	// вход через vkontakte/facebook/google
 	/*data = {
-		service: <vk | fb | g>, code: <code>
+		service: <vk | fb | g>,
+		code,
 	}*/
 	.get(function(req, res) {
-
 		return Promise.resolve(true)
 			.then(() => {	
 				let validationErrors = [];
@@ -31,20 +34,49 @@ router.route('/login')
 					validationErrors.push('incorrect social login data: empty code');
 				}
 				if (validationErrors.length !== 0) {
-					throw utils.initError('FORBIDDEN', validationErrors);
+					throw utils.initError(errors.FORBIDDEN, validationErrors);
 				}
 
 				const service = req.query.state ? req.query.state : 'google';
-				//const redirectUri = config.server.host + ':' + config.server.host + '/api' + req.route.path;  //???
 
 				const data = {
 					code: req.query.code,	
 				};
 
-				return loginAction(service, data);
+				return getUser(service, data);
 			})
-			.then((tokensData) => {
-				return utils.sendResponse(res, tokensData);
+			.then(user => {
+				// для завершения входа нужен еще fingerprint устройства юзера,
+				// пока что сохраняем id юзера и отправляем клиенту id сохраненных данных
+				// в ответ клиент отправляет id сохраненных данных и fingerprint - через PUT,
+				// где завершается процедура входа на сайт
+
+				// сначала удаляем уже существующие данные входа через соцсеть для данного юзера
+				return socialLoginDataModel.query({userId: user.id});
+			})
+			.then(results => {
+				const tasks = [];
+
+				// добавляем новую запись
+				tasks.push(socialLoginDataModel.create({userId: user.id}));
+
+				// удаляем все старые
+				if (results.length) {
+					results.forEach(item => {
+						tasks.push(socialLoginDataModel.delete({id: item.id}));
+					})
+				}
+			})
+			.spread(dbResponses => {
+				if (dbResponses.length) {   //todo: вынести 
+					dbResponses.forEach(item => {
+						utils.logDbErrors(dbResponse);
+					})
+				}
+
+				const socialLoginDataId = dbResponses[0]._doc._id;  //?
+
+				return utils.sendResponse(res, socialLoginDataId);   //!!
 			})
 			.catch((error) => {
 				return utils.sendErrorResponse(res, error);
@@ -53,10 +85,11 @@ router.route('/login')
 
 	//вход через сайт
 	/*data = {
-		email: <email>, password: <password> 
+		email,
+		password,
+		fingerprint 
 	}*/
   	.post(function(req, res) {
-
 		return Promise.resolve(true)
 			.then(() => {	
 				let validationErrors = [];			
@@ -67,8 +100,11 @@ router.route('/login')
 				else if (!req.body.password || req.body.password == '') {
 					validationErrors.push('empty password');
 				}
+				else if (!req.body.fingerprint || req.body.fingerprint == '') {
+					validationErrors.push('empty device data');
+				}
 				if (validationErrors.length !== 0) {
-					throw utils.initError('VALIDATION_ERROR', validationErrors);
+					throw utils.initError(errors.FORBIDDEN, validationErrors);
 				}
 
 				const data = {
@@ -76,9 +112,12 @@ router.route('/login')
 					password: req.body.password
 				};
 
-				return loginAction('site', data);
+				return getUser('site', data);
 			})
-			.then((tokensData) => {
+			.then(user => {
+				return sessionUtils.addNewSessionAndGetTokensData(user, req.body.fingerprint);
+			})
+			.then(tokensData => {
 				return utils.sendResponse(res, tokensData);  
 			})
 			.catch((error) => {
@@ -86,8 +125,66 @@ router.route('/login')
 			});
 	})
 
+	// данные с сайта для завершения входа через соцсеть
+	/*data = {
+		userId,
+		fingerprint
+	}*/
 	.put(function(req, res) {
-		return utils.sendErrorResponse(res, 'UNSUPPORTED_METHOD');
+		return Promise.resolve(true)
+			.then(() => {	
+				let validationErrors = [];			
+				//validate req.body
+				if (!req.body.userId || req.body.userId == '') {
+					validationErrors.push('empty social login data');
+				}
+				else if (!req.body.fingerprint || req.body.fingerprint == '') {
+					validationErrors.push('empty device data');
+				}
+				if (validationErrors.length !== 0) {
+					throw utils.initError(errors.FORBIDDEN, validationErrors);
+				}
+
+				return socialLoginDataModel.query({userId: req.body.userId});
+			})
+			.then(results => {
+				if (!results.length) {
+					throw utils.initError(errors.FORBIDDEN);
+				}
+
+				const tasks = [];
+
+				// удаляем данные о входе через соцсеть для этого юзера
+				results.forEach(item => {
+					tasks.push(socialLoginDataModel.delete({id: item.id}));
+				})
+
+				return Promise.all(tasks);
+			})
+			.then(dbResponses => {
+				if (dbResponses.length) {   //todo: вынести 
+					dbResponses.forEach(item => {
+						utils.logDbErrors(dbResponse);
+					})
+				}
+
+				return userModel.query({id: req.body.userId});
+			})
+			.then(results => {
+				if (!results.length) {
+					throw utils.initError(errors.FORBIDDEN);
+				}
+
+				const user = results[0];
+
+				return sessionUtils.addNewSessionAndGetTokensData(user, req.body.fingerprint);
+			})
+			.then(tokensData => {
+				return utils.sendResponse(res, tokensData);  
+			})
+			.catch((error) => {
+				return utils.sendErrorResponse(res, error);
+			});
 	})
 
 	.delete(function(req, res) {
@@ -103,49 +200,76 @@ router.route('/login')
 	*		site | vk | fb	
 	* },
     * data = {
-    *       email: <email>, password: <password>    
+    *       email, password   
     *       или
-    *       code: <code>
+    *       code
     * }
     */
 
-let loginAction = function(service, data) {
+   const getUser = function(service, data) {  //?let
+		return Promise.resolve(true)
+			.then(() => {
+				let task;
 
-	return Promise.resolve(true)
-		.then(() => {
-			let _promise;
+				//TODO: fb
+				switch (service) {
+					case 'site':
+						task = authUtils.getUserBySiteAuth(data.email, data.password);
+						break;
+					case 'vk':
+						task = authUtils.getUserByVkAuth(data.code);
+						break;
+					case 'google':
+						task = authUtils.getUserByGoogleAuth(data.code);
+						break;
+					default:
+						throw utils.initError(errors.INTERNAL_SERVER_ERROR);
+				}
 
-			//TODO: fb
-			switch (service) {
-				case 'site':
-					_promise = authUtils.getUserBySiteAuth(data.email, data.password);
-					break;
-				case 'vk':
-					_promise = authUtils.getUserByVkAuth(data.code);
-					break;
-				case 'google':
-					_promise = authUtils.getUserByGoogleAuth(data.code);
-					break;
-				default:
-					throw utils.initError('INTERNAL_SERVER_ERROR');
-			}
-
-			return _promise;
-		})
-		.then((user) => {
-			let tasks = [];
-			tasks.push(user);
-			//удаляем все рефреш токены для данного юзера - можно залогиниться только на одном устройстве, 
-			// на других в это время разлогинивается
-			tasks.push(tokenUtils.deleteAllRefreshTokens(user.id));
-
-			return Promise.all(tasks);
-		})
-		.spread((user, data) => {
-			// получаем новую пару токенов
-			return tokenUtils.getRefreshTokensAndSaveToDB(user);
-		})
+				return task;
+			})
 };
+
+// const loginAction = function(service, data) {  //?let
+// 	return Promise.resolve(true)
+// 		.then(() => {
+// 			let task;
+
+// 			//TODO: fb
+// 			switch (service) {
+// 				case 'site':
+// 					task = authUtils.getUserBySiteAuth(data.email, data.password);
+// 					break;
+// 				case 'vk':
+// 					task = authUtils.getUserByVkAuth(data.code);
+// 					break;
+// 				case 'google':
+// 					task = authUtils.getUserByGoogleAuth(data.code);
+// 					break;
+// 				default:
+// 					throw utils.initError(errors.INTERNAL_SERVER_ERROR);
+// 			}
+
+// 			return task;
+// 		})
+// 		.then(user => {
+// 			let tasks = [];
+
+// 			tasks.push(user);
+
+
+
+// 			//удаляем все рефреш токены для данного юзера - можно залогиниться только на одном устройстве, 
+// 			// на других в это время разлогинивается
+// 			tasks.push(tokenUtils.deleteAllRefreshTokens(user.id));
+
+// 			return Promise.all(tasks);
+// 		})
+// 		.spread((user, data) => {
+// 			// получаем новую пару токенов
+// 			return tokenUtils.getRefreshTokensAndSaveToDB(user);
+// 		})
+// };
 
 module.exports = router;
 

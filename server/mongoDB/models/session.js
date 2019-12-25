@@ -9,16 +9,30 @@ module.exports = {
 	
 	query: function(config) {
 		if (config) {
-			return SessionModel.aggregate([
-				{$match: { '_id': new ObjectId(config.id)}},
-				{$project: {
-					_id: 0, id: "$_id",
-					userId: 1,
-					refreshToken: 1,
-					fingerprint: 1,
-					expiresIn: 1,
-				}}
-			]);
+			if (config.id) {
+				return SessionModel.aggregate([
+					{$match: { '_id': new ObjectId(config.id)}},
+					{$project: {
+						_id: 0, id: "$_id",
+						userId: 1,
+						refreshToken: 1,
+						fingerprint: 1,
+						expiresIn: 1,
+					}}
+				]);
+			}
+			else if (config.userId) {
+				return SessionModel.aggregate([
+					{$match: { 'userId': new ObjectId(config.userId)}},
+					{$project: {
+						_id: 0, id: "$_id",
+						// userId: 1,
+						// refreshToken: 1,
+						// fingerprint: 1,
+						// expiresIn: 1,
+					}}
+				]);
+			}
 		}
 
 		return [];

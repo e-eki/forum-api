@@ -2,8 +2,9 @@
 
 const express = require('express');
 const Promise = require('bluebird');
-const utils = require('../utils/baseUtils');
-const tokenUtils = require('../utils/tokenUtils');
+const utils = require('../../utils/baseUtils');
+const tokenUtils = require('../../utils/tokenUtils');
+const sessionUtils = require('../../utils/sessionUtils');
 
 let router = express.Router();
 
@@ -24,26 +25,24 @@ router.route('/logout')
 
 	//разлогинивание пользователя
 	/*data = {
-		accessToken: <access_token>
+		accessToken
 	}*/
-	.delete(function(req, res) {
-		
+	.delete(function(req, res) {	
 		return Promise.resolve(true)
 			.then(() => {
 				//get token from header
 				const headerAuthorization = req.header('Authorization') || '';
-				const accessToken = tokenUtils.getTokenFromHeader(headerAuthorization);
+				const accessToken = tokenUtils.getAccessTokenFromHeader(headerAuthorization);
 				
-				//validate & decode token
-				return tokenUtils.verifyAccessToken(accessToken);
+				//validate token
+				return tokenUtils.isAccessTokenValid(accessToken);  //todo: get userId
 			})
-			.then((result) => {
-				// validate result
-				if (result.error || !result.payload) {
-					throw utils.initError('FORBIDDEN', 'token error: invalid access token: ' + result.error.message);
-				}
+			.spread(isValid => {  //?then
+				const tasks = [];
 
-				return tokenUtils.deleteAllRefreshTokens(result.payload.userId);
+				if (isValid) {
+					tasks.push(sessionUtils.deleteAllUserSessions())
+				}
 			})
 			.then((data) => {
 				return utils.sendResponse(res, 'User is logged out', 204);

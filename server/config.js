@@ -40,9 +40,9 @@ module.exports = {
         // количество попыток регистрации (и отправления письма с кодом) - с одного устройства (с одним fingerprint)
         regAttempsMaxCount: 10,
         // количество запросов на повторное подтверждение почты (м.б. разные имейлы) - с одного устройства (с одним fingerprint)
-        emailConfirmLettersCount: 5,
+        emailConfirmLettersMaxCount: 5,
         // количество сессий юзера (со скольких устройств юзер может быть залогинен единовременно)
-        userSessionsCount: 2,
+        userSessionsMaxCount: 2,
     }
     , token: {
         secret: 'b2NjdXB5TWFycw=='

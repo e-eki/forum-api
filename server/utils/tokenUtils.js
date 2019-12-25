@@ -4,7 +4,7 @@ const Promise = require('bluebird');
 const uuidV4 = require('uuidv4');
 const jwt = require('jsonwebtoken');
 const config = require('../config');
-//const utils = require('./baseUtils');
+const utils = require('./baseUtils');
 
 const tokenUtils = new function() {
 
@@ -51,7 +51,7 @@ const tokenUtils = new function() {
 	};
 
 	// проверка аксесс токена на валидность
-	this.isAccessTokenValid = function(token, userRole = config.userRoles.user) {
+	this.isAccessTokenValid = function(token, userRole) {
 		return this.decodeAccessToken(token)
 			.then(result => {  //?
 				if (result.error || !result.payload ||
@@ -60,15 +60,34 @@ const tokenUtils = new function() {
 				}
 
 				if ((result.payload.tokenType !== config.token.access.type) ||
-					(result.payload.userRole !== userRole) ||
+					(userRole && (result.payload.userRole !== userRole)) ||
 					(result.payload.expiresIn < new Date().getTime())) {
 						return false;
 				}
 
-				return true;
+				return true; //todo: get userId
 			})
 	}
 
+	// получить новый аксесс, рефреш токен и время жизни рефреша
+	this.getTokensData = function(user) {
+		const tasks = [];
+
+		tasks.push(this.getAccessToken(user));
+		tasks.push(this.getRefreshToken());
+		tasks.push(this.getRefreshTokenExpiresIn());
+
+		return Promise.all(tasks)
+			.spread((accessToken, refreshToken, refreshTokenExpiresIn) => {
+				const tokensData = {
+					accessToken: accessToken,
+					refreshToken: refreshToken,
+					expiresIn: refreshTokenExpiresIn,  //время жизни сессии = времени жизни рефреш токена
+				};
+
+				return tokensData;
+			})
+	}
 
 	// получает из заголовка ответа аксесс токен
 	this.getAccessTokenFromHeader = function(headerAuthorization) {

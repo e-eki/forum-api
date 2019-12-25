@@ -46,7 +46,7 @@ router.route('/email-confirm/')
 				return confirmDataModel.query({fingerprint: req.body.fingerprint, getCount: true});
 			})
 			.then(confirmDataModelsCount => {
-				if (confirmDataModelsCount >= config.security.emailConfirmLettersCount) {
+				if (confirmDataModelsCount >= config.security.emailConfirmLettersMaxCount) {
 					throw utils.initError(errors.VALIDATION_ERROR, 'Количество запросов на повторное подтверждение почты с данного устройства больше допустимого. Обратитесь к администратору сайта.');
 				}
 

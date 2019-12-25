@@ -23,6 +23,7 @@ module.exports = {
 						login: 1,
 						email: 1,
 						password: 1,
+						emailConfirmCode: 1,
 					}}
 				]);
 			}
@@ -34,6 +35,7 @@ module.exports = {
 						login: 1,
 						email: 1,
 						password: 1,
+						emailConfirmCode: 1,
 					}}
 				]);
 			}

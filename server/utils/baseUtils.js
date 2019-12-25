@@ -93,7 +93,7 @@ const utils = new function() {
 
     // логирует ошибки БД
     this.logDbErrors = function(dbResponse) {
-        if (dbResponse.errors) {
+        if (dbResponse && dbResponse.errors) {
             dbErrors.forEach((error) => {
                 console.error('Database error: ' + error.message);   //todo: сделать логирование в файл
             });
