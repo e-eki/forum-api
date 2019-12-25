@@ -4,6 +4,7 @@ const express = require('express');
 const Promise = require('bluebird');
 const uuidV4 = require('uuidv4');
 const regDataModel = require('../../mongoDB/models/registrationData');
+const userModel = require('../../mongoDB/models/user');
 const utils = require('../../utils/baseUtils');
 const mailUtils = require('../../utils/mailUtils');
 const errors = require('../../utils/errors');
@@ -84,13 +85,13 @@ router.route('/registration')
 			.then((hash) => {
 				//для каждого юзера генерится уникальный код подтверждения имейла
 				// (при повторной отправке подтверждения на имейл код подтверждения берется этот же)
-				const emailConfirmCode = uuidV4.fromString(req.body.login + req.body.email + Date.now());   //? 
+				const emailConfirmCode = uuidV4.uuid();
 
 				const regData = {
 					login: req.body.login,
 					email: req.body.email,
 					password: hash,
-					emailConfirmCode: emailConfirmCode,
+					emailConfirmCode: emailConfirmCode.toString(),
 					fingerprint: req.body.fingerprint,
 				};
 
@@ -113,7 +114,7 @@ router.route('/registration')
 						throw utils.initError(errors.INVALID_INPUT_DATA, 'Email not exists');					
 					})
 			})
-			.then((data) => {
+			.then(data => {
 				//показываем страницу успешной регистрации
 				//TODO: ?? как сделать редирект на главную через неск.секунд после показа страницы?
 				//const page = require('../templates/successRegisterPage');

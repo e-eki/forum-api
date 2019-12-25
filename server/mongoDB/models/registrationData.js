@@ -12,12 +12,12 @@ module.exports = {
 		if (config) {
 			if (config.fingerprint && config.getCount) {
 				return RegDataModel.count(
-					{ 'fingerprint': new ObjectId(config.fingerprint)}		
+					{ 'fingerprint': config.fingerprint}		
 				);
 			}
 			else if (config.email) {
 				return RegDataModel.aggregate([
-					{$match: { 'email': new ObjectId(config.email)}},
+					{$match: { 'email': config.email}},
 					{$project: {
 						_id: 0, id: "$_id",
 						login: 1,
@@ -28,7 +28,7 @@ module.exports = {
 			}
 			else if (config.emailConfirmCode) {
 				return RegDataModel.aggregate([
-					{$match: { 'emailConfirmCode': new ObjectId(config.emailConfirmCode)}},
+					{$match: { 'emailConfirmCode': config.emailConfirmCode}},
 					{$project: {
 						_id: 0, id: "$_id",
 						login: 1,

@@ -23,7 +23,7 @@ const mailUtils = new function() {
 		return transport.sendMail({
 			from: config.mail_settings.from,
 			to: data.email,
-			tokenType: config.mail_settings.confirmEmailSubject,
+			subject: config.mail_settings.confirmEmailSubject,
 			html: letterHtml
 		})
             .then((result) => {

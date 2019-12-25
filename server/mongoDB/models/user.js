@@ -25,7 +25,7 @@ module.exports = {
 			}
 			else if (config.email) {
 				return UserModel.aggregate([
-					{$match: { 'email': new ObjectId(config.email)}},
+					{$match: { 'email': config.email}},
 					{$project: {
 						_id: 0, id: "$_id",
 						email: 1,

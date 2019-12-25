@@ -12,8 +12,18 @@ module.exports = {
 		if (config) {
 			if (config.fingerprint && config.getCount) {
 				return ConfirmDataModel.count(
-					{ 'fingerprint': new ObjectId(config.fingerprint)}		
+					{ 'fingerprint': config.fingerprint}		
 				);
+			}
+			else if (config.email) {
+				return ConfirmDataModel.aggregate([
+					{$match: { 'email': config.email}},
+					{$project: {
+						_id: 0, id: "$_id",
+						email: 1,
+						fingerprint: 1,
+					}}
+				]);
 			}
 		}	
 

@@ -32,7 +32,7 @@ module.exports = {
             user: 'checkers.game.online', 
             pass: 'qwerty12345_'
         }
-        , from: `"Форум «${forumName}»." <forum@gmail.com>`
+        , from: `"Форум «${forumName}»." <checkers.game.online@gmail.com>`
         , confirmEmailSubject: `Подтверждение адреса электронной почты на форуме «${forumName}»`
         , resetPasswordSubject: `Восстановление пароля на форуме «${forumName}»`
     }
@@ -94,4 +94,20 @@ module.exports = {
     //-----
     , defaultRoomId: '0'
     , forumName: forumName   //?
+    , apiRoutes: {
+        registration: 'registration',
+        emailConfirm: 'email-confirm',
+        login: 'login',
+        logout: 'logout',
+        resetPassword: 'reset-password',
+        refreshTokens: 'refresh-tokens',
+        user: 'user',
+
+        section: 'section',
+        subSection: 'subSection',
+        channel: 'channel',
+        privateChannel: 'private-channel',
+        message: 'message',
+        userInfo: 'user-info'
+    }
 };

@@ -8,7 +8,7 @@ const registrationDataSchema = new Schema(
 	{
 		login: { type: String },
 		email: { type: String },
-		emailConfirmCode: { type: Schema.Types.ObjectId },   //?
+		emailConfirmCode: { type: String },
 		password: { type: String },
 		fingerprint: { type: String },
 	},

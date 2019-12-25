@@ -23,8 +23,8 @@ module.exports = new function() {
 					<div class="wrapper">
 						<p>Здравствуйте, ${data.login}!</p>
 						<p>Мы рады приветствовать вас на нашем форуме!
-						<br/>Чтобы продолжить регистрацию, перейдите по <a href="${mainLink}/api/emailconfirm/${data.emailConfirmCode}/">ссылке</a>.</p>
-						<p>Ваш «${config.forumName}».
+						<br/>Чтобы продолжить регистрацию, перейдите по <a href="${mainLink}/api/${config.apiRoutes.emailConfirm}/${data.emailConfirmCode}">ссылке</a>.</p>
+						<p>Ваш форум «${config.forumName}».
 						<br/><a href="${mainLink}">На главную страницу</a></p>
 					</div>
 				</body>

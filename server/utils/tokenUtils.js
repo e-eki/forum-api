@@ -3,7 +3,7 @@
 const Promise = require('bluebird');
 const uuidV4 = require('uuidv4');
 const jwt = require('jsonwebtoken');
-const config = require('../../config');
+const config = require('../config');
 //const utils = require('./baseUtils');
 
 const tokenUtils = new function() {
@@ -34,7 +34,7 @@ const tokenUtils = new function() {
 
 	// генерит рефреш токен
 	this.getRefreshToken = function() {
-		const token = uuidV4();
+		const token = uuidV4.uuid();
 		return token;
 	};
 
