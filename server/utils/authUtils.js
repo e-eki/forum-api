@@ -16,7 +16,7 @@ const authUtils = new function() {
 		return Promise.resolve(userModel.query({email: email}))
 			.then(results => {	
 				if (!results.length) {
-					throw utils.initError(errors.UNAUTHORIZED, 'No user with this email');
+					throw utils.initError(errors.VALIDATION_ERROR, 'No user with this email');
 				}
 
 				const user = results[0];

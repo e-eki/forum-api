@@ -82,7 +82,7 @@ router.route('/registration')
 				// вычисляем хэш пароля
 				return utils.makePasswordHash(req.body.password);
 			})
-			.then((hash) => {
+			.then(hash => {
 				//для каждого юзера генерится уникальный код подтверждения имейла
 				// (при повторной отправке подтверждения на имейл код подтверждения берется этот же)
 				const emailConfirmCode = uuidV4.uuid();

@@ -33,6 +33,18 @@ module.exports = {
 					}}
 				]);
 			}
+			else if (config.refreshToken) {
+				return SessionModel.aggregate([
+					{$match: { 'refreshToken': config.refreshToken}},
+					{$project: {
+						_id: 0, id: "$_id",
+						userId: 1,
+						refreshToken: 1,
+						fingerprint: 1,
+						expiresIn: 1,
+					}}
+				]);
+			}
 		}
 
 		return [];

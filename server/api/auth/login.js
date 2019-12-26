@@ -22,7 +22,7 @@ router.route('/login')
 	.get(function(req, res) {
 		return Promise.resolve(true)
 			.then(() => {	
-				let validationErrors = [];
+				const validationErrors = [];
 
 				//validate req.query
 				// (code & state sends by vk as GET-parameter)
@@ -30,11 +30,11 @@ router.route('/login')
 				if ((!req.query.state || req.query.state == '') && (!req.query.scope || req.query.scope == '')) {
 					validationErrors.push('incorrect social login data: empty service name');
 				}
-				else if (!req.query.code || req.query.code == '') {
+				if (!req.query.code || req.query.code == '') {
 					validationErrors.push('incorrect social login data: empty code');
 				}
 				if (validationErrors.length !== 0) {
-					throw utils.initError(errors.FORBIDDEN, validationErrors);
+					throw utils.initError(errors.VALIDATION_ERROR, validationErrors);
 				}
 
 				const service = req.query.state ? req.query.state : 'google';
@@ -68,11 +68,7 @@ router.route('/login')
 				}
 			})
 			.spread(dbResponses => {
-				if (dbResponses.length) {   //todo: вынести 
-					dbResponses.forEach(item => {
-						utils.logDbErrors(dbResponse);
-					})
-				}
+				utils.logDbErrors(dbResponses);
 
 				const socialLoginDataId = dbResponses[0]._doc._id;  //?
 
@@ -92,19 +88,20 @@ router.route('/login')
   	.post(function(req, res) {
 		return Promise.resolve(true)
 			.then(() => {	
-				let validationErrors = [];			
+				const validationErrors = [];
+
 				//validate req.body
 				if (!req.body.email || req.body.email == '') {
 					validationErrors.push('empty email');
 				}
-				else if (!req.body.password || req.body.password == '') {
+				if (!req.body.password || req.body.password == '') {
 					validationErrors.push('empty password');
 				}
-				else if (!req.body.fingerprint || req.body.fingerprint == '') {
+				if (!req.body.fingerprint || req.body.fingerprint == '') {
 					validationErrors.push('empty device data');
 				}
 				if (validationErrors.length !== 0) {
-					throw utils.initError(errors.FORBIDDEN, validationErrors);
+					throw utils.initError(errors.VALIDATION_ERROR, validationErrors);
 				}
 
 				const data = {
@@ -118,7 +115,7 @@ router.route('/login')
 				return sessionUtils.addNewSessionAndGetTokensData(user, req.body.fingerprint);
 			})
 			.then(tokensData => {
-				return utils.sendResponse(res, tokensData);  
+				return utils.sendResponse(res, tokensData, 201);  
 			})
 			.catch((error) => {
 				return utils.sendErrorResponse(res, error);
@@ -133,12 +130,13 @@ router.route('/login')
 	.put(function(req, res) {
 		return Promise.resolve(true)
 			.then(() => {	
-				let validationErrors = [];			
+				const validationErrors = [];
+
 				//validate req.body
 				if (!req.body.userId || req.body.userId == '') {
 					validationErrors.push('empty social login data');
 				}
-				else if (!req.body.fingerprint || req.body.fingerprint == '') {
+				if (!req.body.fingerprint || req.body.fingerprint == '') {
 					validationErrors.push('empty device data');
 				}
 				if (validationErrors.length !== 0) {
@@ -154,7 +152,7 @@ router.route('/login')
 
 				const tasks = [];
 
-				// удаляем данные о входе через соцсеть для этого юзера
+				// удаляем все данные о входе через соцсеть для этого юзера
 				results.forEach(item => {
 					tasks.push(socialLoginDataModel.delete({id: item.id}));
 				})
@@ -162,11 +160,7 @@ router.route('/login')
 				return Promise.all(tasks);
 			})
 			.then(dbResponses => {
-				if (dbResponses.length) {   //todo: вынести 
-					dbResponses.forEach(item => {
-						utils.logDbErrors(dbResponse);
-					})
-				}
+				utils.logDbErrors(dbResponses);
 
 				return userModel.query({id: req.body.userId});
 			})
@@ -180,7 +174,7 @@ router.route('/login')
 				return sessionUtils.addNewSessionAndGetTokensData(user, req.body.fingerprint);
 			})
 			.then(tokensData => {
-				return utils.sendResponse(res, tokensData);  
+				return utils.sendResponse(res, tokensData, 201);  
 			})
 			.catch((error) => {
 				return utils.sendErrorResponse(res, error);
@@ -229,47 +223,6 @@ router.route('/login')
 				return task;
 			})
 };
-
-// const loginAction = function(service, data) {  //?let
-// 	return Promise.resolve(true)
-// 		.then(() => {
-// 			let task;
-
-// 			//TODO: fb
-// 			switch (service) {
-// 				case 'site':
-// 					task = authUtils.getUserBySiteAuth(data.email, data.password);
-// 					break;
-// 				case 'vk':
-// 					task = authUtils.getUserByVkAuth(data.code);
-// 					break;
-// 				case 'google':
-// 					task = authUtils.getUserByGoogleAuth(data.code);
-// 					break;
-// 				default:
-// 					throw utils.initError(errors.INTERNAL_SERVER_ERROR);
-// 			}
-
-// 			return task;
-// 		})
-// 		.then(user => {
-// 			let tasks = [];
-
-// 			tasks.push(user);
-
-
-
-// 			//удаляем все рефреш токены для данного юзера - можно залогиниться только на одном устройстве, 
-// 			// на других в это время разлогинивается
-// 			tasks.push(tokenUtils.deleteAllRefreshTokens(user.id));
-
-// 			return Promise.all(tasks);
-// 		})
-// 		.spread((user, data) => {
-// 			// получаем новую пару токенов
-// 			return tokenUtils.getRefreshTokensAndSaveToDB(user);
-// 		})
-// };
 
 module.exports = router;
 

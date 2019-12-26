@@ -5,6 +5,7 @@ const uuidV4 = require('uuidv4');
 const jwt = require('jsonwebtoken');
 const config = require('../config');
 const utils = require('./baseUtils');
+const userModel = require('../mongoDB/models/user');
 
 const tokenUtils = new function() {
 
@@ -46,28 +47,44 @@ const tokenUtils = new function() {
 
 	// расшифровка аксесс токена
 	this.decodeAccessToken = function(token) {
-		return jwt.verify(token, config.token.secret, function(error, payload) {			
-			if (error || tokenType == 'access') return {error: error, payload: payload}});
+		return jwt.verify(token, config.token.secret);
+		// return jwt.verify(token, config.token.secret, function(error, payload) {			
+		// 	return {error: error, payload: payload}});
 	};
 
-	// проверка аксесс токена на валидность
-	this.isAccessTokenValid = function(token, userRole) {
-		return this.decodeAccessToken(token)
-			.then(result => {  //?
-				if (result.error || !result.payload ||
-					!result.payload.tokenType || !result.payload.expiresIn || !result.payload.userId || !result.payload.userRole) {
-					return false;
-				}
+	// проверка payload аксесс токена на валидность
+	this.isAccessTokenValid = function(payload, userRole) {
+		if (!payload.tokenType || !payload.expiresIn || !payload.userId || !payload.userRole) {
+			return false;
+		}
 
-				if ((result.payload.tokenType !== config.token.access.type) ||
-					(userRole && (result.payload.userRole !== userRole)) ||
-					(result.payload.expiresIn < new Date().getTime())) {
-						return false;
-				}
+		if ((payload.tokenType !== config.token.access.type) ||
+			(userRole && (payload.userRole !== userRole)) ||
+			(payload.expiresIn < new Date().getTime())) {
+				return false;
+		}
 
-				return true; //todo: get userId
-			})
+		return true;
 	}
+
+	// // проверка аксесс токена на валидность
+	// this.isAccessTokenValid = function(token, userRole) {
+	// 	return this.decodeAccessToken(token)
+	// 		.then(result => {  //?
+	// 			if (result.error || !result.payload ||
+	// 				!result.payload.tokenType || !result.payload.expiresIn || !result.payload.userId || !result.payload.userRole) {
+	// 				return false;
+	// 			}
+
+	// 			if ((result.payload.tokenType !== config.token.access.type) ||
+	// 				(userRole && (result.payload.userRole !== userRole)) ||
+	// 				(result.payload.expiresIn < new Date().getTime())) {
+	// 					return false;
+	// 			}
+
+	// 			return true; //todo: get userId
+	// 		})
+	// }
 
 	// получить новый аксесс, рефреш токен и время жизни рефреша
 	this.getTokensData = function(user) {
@@ -98,32 +115,42 @@ const tokenUtils = new function() {
 		return accessToken;
 	};
 
+	// проверяет аксесс токен и находит по нему юзера
+	this.checkAccessTokenAndGetUser = function(accessToken) {
+		return Promise.resolve(true)
+			.then(() => {
+				//decode token
+				return this.decodeAccessToken(accessToken)
+			})
+			.then(result => {					
+				if (result.error || !result.payload) {
+					throw utils.initError(errors.FORBIDDEN, 'invalid access token');
+				}
 
-	// // проверяет аксесс токен и находит по нему юзера
-	// this.findUserByAccessToken = function(accessToken) {
+				const tasks = [];
+				tasks.push(result.payload.userId);
 
-	// 	return Promise.resolve(true)
-	// 		.then(() => {
-	// 			//validate & decode token
-	// 			return this.verifyAccessToken(accessToken)
-	// 		})
-	// 		.then((result) => {					
-	// 			if (result.error || !result.payload) {
-	// 				throw utils.initError('FORBIDDEN', 'token error: invalid access token: ' + result.error.message);
-	// 			}
+				tasks.push(this.isAccessTokenValid(result.payload));
 
-	// 			// get user
-	// 			return userModel.query({_id: result.payload.userId});
-	// 		})
-	// 		.then((userData) => {
-	// 			if (!userData.length)  {
-	// 				throw utils.initError('FORBIDDEN', 'no user with this access token');
-	// 			}
+				return Promise.all(tasks);
+			})
+			.spread((userId, isValid) => {
+				if (!isValid) {
+					throw utils.initError(errors.FORBIDDEN, 'invalid access token');
+				}
 
-	// 			const user = userData[0];
-	// 			return user;
-	// 		})
-	// };
+				// get user
+				return userModel.query({id: result.payload.userId});
+			})
+			.then(results => {
+				if (!results.length)  {
+					throw utils.initError('FORBIDDEN', 'invalid access token');
+				}
+
+				const user = results[0];
+				return user;
+			})
+	};
 };
 
 module.exports = tokenUtils;

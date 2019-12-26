@@ -2,7 +2,7 @@
 
 const bcrypt = require('bcryptjs');
 const Promise = require('bluebird');
-const uuidv5 = require('uuid/v5');
+// const uuidv5 = require('uuid/v5');
 const config = require('../config');
 const errors = require('./errors');
 
@@ -86,17 +86,23 @@ const utils = new function() {
         return Promise.resolve(bcrypt.compare(password, hash));
     };
 
-    //генерирует уникальный идентификатор
-    this.makeUId = function(string) {
-        return uuidv5(string, uuidv5.URL);   //??
-    };
+    // //генерирует уникальный идентификатор
+    // this.makeUId = function(string) {
+    //     return uuidv5(string, uuidv5.URL);   //??
+    // };
 
     // логирует ошибки БД
-    this.logDbErrors = function(dbResponse) {
-        if (dbResponse && dbResponse.errors) {
-            dbErrors.forEach((error) => {
-                console.error('Database error: ' + error.message);   //todo: сделать логирование в файл
-            });
+    this.logDbErrors = function(data) {
+        if (data) {
+            const dbResponses = data.length ? data : [data];  //?
+
+            dbResponses.forEach(dbResponse => {
+                if (dbResponse && dbResponse.errors) {
+                    dbErrors.forEach((error) => {
+                        console.error('Database error: ' + error.message);   //todo: сделать логирование в файл
+                    });
+                }
+            })
         }
     };
     

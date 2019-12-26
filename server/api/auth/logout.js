@@ -5,6 +5,7 @@ const Promise = require('bluebird');
 const utils = require('../../utils/baseUtils');
 const tokenUtils = require('../../utils/tokenUtils');
 const sessionUtils = require('../../utils/sessionUtils');
+const errors = require('../../utils/errors');
 
 let router = express.Router();
 
@@ -32,19 +33,14 @@ router.route('/logout')
 			.then(() => {
 				//get token from header
 				const headerAuthorization = req.header('Authorization') || '';
-				const accessToken = tokenUtils.getAccessTokenFromHeader(headerAuthorization);
+				const accessToken = tokenUtils.getAccessTokenFromHeader(headerAuthorization);  //todo: check if no token!
 				
-				//validate token
-				return tokenUtils.isAccessTokenValid(accessToken);  //todo: get userId
+				return tokenUtils.checkAccessTokenAndGetUser(accessToken);
 			})
-			.spread(isValid => {  //?then
-				const tasks = [];
-
-				if (isValid) {
-					tasks.push(sessionUtils.deleteAllUserSessions())
-				}
+			.then(user => {	
+				return sessionUtils.deleteAllUserSessions(user.id);
 			})
-			.then((data) => {
+			.then(result => {
 				return utils.sendResponse(res, 'User is logged out', 204);
 			})
 			.catch((error) => {

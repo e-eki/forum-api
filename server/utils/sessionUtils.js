@@ -15,7 +15,7 @@ const sessionUtils = new function() {
 				const tasks = [];
 
 				// если количество сессий у юзера больше допустимого, то все удаляем
-				// у него останется только одна сессия - новая
+				// и у него останется только одна сессия - новая
 				if (results.length >= config.security.userSessionsMaxCount) {
 					results.forEach(item => {
 						tasks.push(sessionModel.delete(item.id));
@@ -28,15 +28,11 @@ const sessionUtils = new function() {
 				return Promise.all(tasks);
 			})
 			.then(dbResponses => {
-				if (dbResponses.length) {   //todo: вынести 
-					dbResponses.forEach(item => {
-						utils.logDbErrors(dbResponse);
-					})
-				}
+				utils.logDbErrors(dbResponses);
 
 				return tokenUtils.getTokensData(user);
 			})
-			.spread(tokensData => {  //?then
+			.then(tokensData => {
 				const tasks = [];
 
 				tasks.push(tokensData);
@@ -57,7 +53,6 @@ const sessionUtils = new function() {
 				utils.logDbErrors(dbResponse);
 
 				delete tokensData.expiresIn;  //?
-
 				return tokensData;
 			})
 	};
@@ -80,11 +75,7 @@ const sessionUtils = new function() {
 				return Promise.all(tasks);
 			})
 			.then(dbResponses => {
-				if (dbResponses && dbResponses.length) {   //todo: вынести 
-					dbResponses.forEach(item => {
-						utils.logDbErrors(dbResponse);
-					})
-				}
+				utils.logDbErrors(dbResponses);
 
 				return true;
 			})

@@ -45,8 +45,8 @@ router.route('/email-confirm/')
 				// если их количество = макс.допустимому, то все последующие не обрабатывать
 				return confirmDataModel.query({fingerprint: req.body.fingerprint, getCount: true});
 			})
-			.then(confirmDataModelsCount => {
-				if (confirmDataModelsCount >= config.security.emailConfirmLettersMaxCount) {
+			.then(confirmDataCount => {
+				if (confirmDataCount >= config.security.emailConfirmLettersMaxCount) {
 					throw utils.initError(errors.VALIDATION_ERROR, 'Количество запросов на повторное подтверждение почты с данного устройства больше допустимого. Обратитесь к администратору сайта.');
 				}
 
@@ -70,7 +70,7 @@ router.route('/email-confirm/')
 
 				//отправляем письмо с кодом подтверждения на указанный имейл
 				return mailUtils.sendEmailConfirmLetter(regData)
-					.catch((error) => {
+					.catch(error => {
 						// возможная ошибка на этапе отправки письма
 						throw utils.initError(errors.INVALID_INPUT_DATA, 'Email not exists');					
 					})
@@ -84,7 +84,9 @@ router.route('/email-confirm/')
 
 				return confirmDataModel.create(confirmData);
 			})
-			.then(data => {
+			.then(dbResponse => {
+				utils.logDbErrors(dbResponse);
+
 				return utils.sendResponse(res, 'Письмо с кодом подтверждения было отправлено на указанный имейл повторно');
 			})
 			.catch((error) => {
@@ -162,7 +164,7 @@ router.route('/email-confirm/:uuid')
 			.spread((regDataResults, confirmDataResults) => {
 				const tasks = [];
 
-				// ищем все данные о попытках регистрации и запросах повторного подтверждения для данного имейла
+				// удаляем все данные о попытках регистрации и запросах повторного подтверждения для данного имейла
 				if (regDataResults.length) {
 					regDataResults.forEach(item => {
 						tasks.push(regDataModel.delete(item.id));
@@ -177,11 +179,7 @@ router.route('/email-confirm/:uuid')
 				return Promise.all(tasks);
 			})
 			.then(dbResponses => {
-				if (dbResponses && dbResponses.length) {
-					dbResponses.forEach(item => {
-						utils.logDbErrors(item);
-					})
-				}
+				utils.logDbErrors(dbResponses);
 
 				//показываем страницу успешного подтверждения
 				//TODO: ?? как сделать редирект на главную через неск.секунд после показа страницы?
