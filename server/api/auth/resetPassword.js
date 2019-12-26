@@ -11,7 +11,6 @@ const sessionUtils = require('../../utils/sessionUtils');
 const userModel = require('../../mongoDB/models/user');
 const resetDataModel = require('../../mongoDB/models/resetPasswordData');
 const errors = require('../../utils/errors');
-const config = require('../../config');
 
 let router = express.Router();
 
@@ -81,11 +80,23 @@ router.route('/reset-password/')
 					})
 			})
 			.then(result => {
-				// если письмо отправилось без ошибок - то записываем код сброса пароля в БД
-				return userModel.update(user.id, user);
+				const tasks = [];
+
+				// создаем данные о запросе письма со сбросом пароля
+				const resetData = {
+					email: req.body.email,
+					fingerprint: req.body.fingerprint,
+				};
+
+				tasks.push(resetDataModel.create(resetData));
+
+				// если письмо отправилось - записываем код сброса пароля в user
+				tasks.push(userModel.update(user.id, user));
+
+				return Promise.all(tasks);
 			})
-			.then(dbResponse => {
-				utils.logDbErrors(dbResponse);
+			.then(dbResponses => {
+				utils.logDbErrors(dbResponses);
 
 				return utils.sendResponse(res, 'Письмо с инструкциями по сбросу пароля отправлено на указанный имейл');
 			})
@@ -98,7 +109,7 @@ router.route('/reset-password/')
 	/*data = {
 		accessToken,
 		password,
-		oldPassword //todo!
+		oldPassword     //todo!
 	}*/
 	.put(function(req, res) {
 		return Promise.resolve(true)
@@ -154,15 +165,35 @@ router.route('/reset-password/')
 				};
 
 				let tasks = [];
-				tasks.push(user.id);
+				tasks.push(user);
 				tasks.push(userModel.update(user.id, userData));
 
 				return Promise.all(tasks);
 			})
-			.spread((userId, dbResponse) => {
+			.spread((user, dbResponse) => {
 				utils.logDbErrors(dbResponse);
 
-				// todo: надо ли удалять все данные о запросах юзером письма с кодом сброса пароля?
+				const tasks = [];
+				tasks.push(user.id);
+
+				tasks.push(resetDataModel.query({email: user.email}));
+
+				return Promise.all(tasks);
+			})
+			.spread((userId, resetDatas) => {
+				const tasks = [];
+
+				// удаляем все данные о запросах юзером письма с кодом сброса пароля
+				if (resetDatas.length) {
+					resetDatas.forEach(item => {
+						tasks.push(resetDataModel.delete(item.id));
+					})
+				}
+
+				return Promise.all(tasks);
+			})
+			.then(dbResponses => {
+				utils.logDbErrors(dbResponses);
 
 				// удаляем все сессии юзера, а срок действия его access токена закончится сам
 				// после смены пароля надо заново логиниться
@@ -187,45 +218,58 @@ router.route('/reset-password/:uuid')
 
 	// сюда приходит запрос на сброс пароля по ссылке из письма
 	.get(function(req, res) {
+		let user;
+		let fingerprint;
+
 		// ищем юзеров с данным кодом сброса пароля
 		return Promise.resolve(userModel.query({resetPasswordCode: req.params.uuid}))
 			.then((users) => {
 				if (!users.length) {
-					throw utils.initError('FORBIDDEN', 'no user with this uuid');
+					throw utils.initError('FORBIDDEN');
 				}
 
 				// по идее должен быть один юзер на один код сброса пароля
-				const user = users[0];
-				user.resetPasswordCode = '';
+				user = users[0];
+				user.resetPasswordCode = null;
 
-				let tasks = [];
-				tasks.push(user);
-				tasks.push(userModel.update(user._id, user));
+				const tasks = [];
+
+				tasks.push(userModel.update(user.id, user));
+
+				tasks.push(resetDataModel.query({email: user.email}));
 
 				return Promise.all(tasks);
 			})
-			.spread((user, dbResponse) => {
+			.spread((dbResponse, resetDatas) => {
 				utils.logDbErrors(dbResponse);
-				
-				// редиректим на страницу сброса пароля
-				//const mainLink = `${config.server.protocol}://${config.server.host}:${config.server.port}/resetPassword`;
-				//return res.redirect(`${mainLink}`);
 
-				// --------- выдаем токены юзеру (редиректит фронт-энд)
-				let tasks = [];
-				tasks.push(user);
+				if (!resetDatas.length) {
+					throw utils.initError('FORBIDDEN');
+				}
 
-				//удаляем все рефреш токены для данного юзера - можно залогиниться только на одном устройстве, 
-				// на других в это время разлогинивается
-				tasks.push(tokenUtils.deleteAllRefreshTokens(user.id));
+				fingerprint = resetDatas[resetDatas.length - 1].fingerprint;   //?
+
+				const tasks = [];
+
+				// удаляем все данные о запросах юзером письма с кодом сброса пароля
+				resetDatas.forEach(item => {
+					tasks.push(item.id);
+				})
 
 				return Promise.all(tasks);
 			})
-			.spread((user, data) => {
-				// получаем новую пару токенов
-				return tokenUtils.getRefreshTokensAndSaveToDB(user);
+			.then(dbResponses => {
+				utils.logDbErrors(dbResponse);
+
+				// удаляем все сессии юзера
+				return sessionUtils.deleteAllUserSessions(user.id);
 			})
-			.then((tokensData) => {
+			.then(result => {
+				// для создания сессии нужен fingerprint - берем его из последних данных о запросе письма с кодом сброса пароля (?)
+				// создаем новую сессию
+				return sessionUtils.addNewSessionAndGetTokensData(user, fingerprint);
+			})
+			.then(tokensData => {
 				// как передать токены, одновременно открыв страницу сброса пароля:
 				// передаем аксесс токен как параметр в ссылке, фронт-энд этот параметр извлекает 
 				// и использует для запроса на сброс пароля
@@ -233,7 +277,7 @@ router.route('/reset-password/:uuid')
 				// протухнет ссылка, и новую можно получить только в новом письме.
 
 				// редиректим на страницу сброса пароля
-				const link = `${config.server.protocol}://${config.server.host}:${config.server.port}/resetPassword/${tokensData.accessToken}`;
+				const link = `${config.server.protocol}://${config.server.host}:${config.server.port}/${config.apiRoutes.resetPassword}/${tokensData.accessToken}`;
 				return res.redirect(`${link}`);
 			})
 			.catch((error) => {

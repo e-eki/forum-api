@@ -1,6 +1,7 @@
 'use strict';
 
 const mongoose = require('mongoose');
+const ObjectId = require('mongoose').Types.ObjectId;
 const sessionSchema = require('../schemas/session');
 
 const SessionModel = mongoose.model('Session', sessionSchema);
@@ -60,7 +61,7 @@ module.exports = {
 	},
 	
 	create: function(data) {
-		const session = new UserModel({
+		const session = new SessionModel({
 			userId: data.userId,
 			refreshToken: data.refreshToken,
 			fingerprint: data.fingerprint,
@@ -71,7 +72,7 @@ module.exports = {
 	},
 
 	update: function(id, data) {
-		const session = new UserModel({
+		const session = new SessionModel({
 			_id: id,
 			userId: data.userId,
 			refreshToken: data.refreshToken,

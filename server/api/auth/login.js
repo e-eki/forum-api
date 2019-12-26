@@ -115,7 +115,7 @@ router.route('/login')
 				return sessionUtils.addNewSessionAndGetTokensData(user, req.body.fingerprint);
 			})
 			.then(tokensData => {
-				return utils.sendResponse(res, tokensData, 201);  
+				return utils.sendResponse(res, tokensData, 201);
 			})
 			.catch((error) => {
 				return utils.sendErrorResponse(res, error);

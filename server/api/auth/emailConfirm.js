@@ -76,7 +76,7 @@ router.route('/email-confirm/')
 					})
 			})
 			.then(data => {
-				// создаем данные о запросе на повторное подтверждение
+				// создаем данные о запросе письма с повторным подтверждением
 				const confirmData = {
 					email: req.body.email,
 					fingerprint: req.body.fingerprint,
