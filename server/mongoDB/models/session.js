@@ -27,10 +27,10 @@ module.exports = {
 					{$match: { 'userId': new ObjectId(config.userId)}},
 					{$project: {
 						_id: 0, id: "$_id",
-						// userId: 1,
-						// refreshToken: 1,
-						// fingerprint: 1,
-						// expiresIn: 1,
+						userId: 1,
+						refreshToken: 1,
+						fingerprint: 1,
+						expiresIn: 1,
 					}}
 				]);
 			}

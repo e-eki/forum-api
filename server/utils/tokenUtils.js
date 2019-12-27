@@ -6,6 +6,7 @@ const jwt = require('jsonwebtoken');
 const config = require('../config');
 const utils = require('./baseUtils');
 const userModel = require('../mongoDB/models/user');
+const errors = require('../utils/errors');
 
 const tokenUtils = new function() {
 
@@ -47,9 +48,10 @@ const tokenUtils = new function() {
 
 	// расшифровка аксесс токена
 	this.decodeAccessToken = function(token) {
-		return jwt.verify(token, config.token.secret);
-		// return jwt.verify(token, config.token.secret, function(error, payload) {			
-		// 	return {error: error, payload: payload}});
+		return jwt.verify(token, config.token.secret, 
+			function(error, payload) {			
+				return {error: error, payload: payload};   // костыль для заворачивания в промис);
+		})
 	};
 
 	// проверка payload аксесс токена на валидность
@@ -120,7 +122,7 @@ const tokenUtils = new function() {
 		return Promise.resolve(true)
 			.then(() => {
 				//decode token
-				return this.decodeAccessToken(accessToken)
+				return this.decodeAccessToken(accessToken);
 			})
 			.then(result => {					
 				if (result.error || !result.payload) {

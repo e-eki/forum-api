@@ -12,12 +12,26 @@ const sessionUtils = new function() {
 	this.addNewSessionAndGetTokensData = function(user, fingerprint) {
 		return Promise.resolve(sessionModel.query({userId: user.id}))
 			.then(results => {
-				const tasks = [];
+				let tasks = [];
+				let sessions = results;
+
+				// если есть сессия с тем же fingerprint - удаляем ее
+				if (results.length) {
+					const newSessionDuplicate = results.find(item => item.fingerprint === fingerprint);
+
+					if (newSessionDuplicate) {
+						tasks.push(sessionModel.delete(newSessionDuplicate.id));
+
+						sessions = results.filter(item => item.id !== newSessionDuplicate.id);
+					}
+				}
 
 				// если количество сессий у юзера больше допустимого, то все удаляем
 				// и у него останется только одна сессия - новая
-				if (results.length >= config.security.userSessionsMaxCount) {
-					results.forEach(item => {
+				if (sessions.length >= config.security.userSessionsMaxCount) {
+					tasks = [];
+
+					sessions.forEach(item => {
 						tasks.push(sessionModel.delete(item.id));
 					})
 				}
