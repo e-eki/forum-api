@@ -142,7 +142,7 @@ const tokenUtils = new function() {
 				}
 
 				// get user
-				return userModel.query({id: result.payload.userId});
+				return userModel.query({id: userId});
 			})
 			.then(results => {
 				if (!results.length)  {

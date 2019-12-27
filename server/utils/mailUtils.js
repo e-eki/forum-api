@@ -49,7 +49,7 @@ const mailUtils = new function() {
 		return transport.sendMail({
 			from: config.mail_settings.from,
 			to: data.email,
-			tokenType: config.mail_settings.resetPasswordSubject,
+			subject: config.mail_settings.resetPasswordSubject,
 			html: letterHtml
 		})
             .then((result) => {		

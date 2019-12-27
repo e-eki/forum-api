@@ -9,6 +9,7 @@ const mailUtils = require('../../utils/mailUtils');
 const tokenUtils = require('../../utils/tokenUtils');
 const sessionUtils = require('../../utils/sessionUtils');
 const userModel = require('../../mongoDB/models/user');
+const userInfoModel = require('../../mongoDB/models/userInfo');
 const resetDataModel = require('../../mongoDB/models/resetPasswordData');
 const errors = require('../../utils/errors');
 
@@ -64,10 +65,21 @@ router.route('/reset-password/')
 				user = results[0];
 				//для каждого юзера генерится уникальный код сброса пароля и записывается в БД
 				const resetPasswordCode = uuidV4.uuid();
-				user.resetPasswordCode = resetPasswordCode; 
+				user.resetPasswordCode = resetPasswordCode;
+
+				const tasks = [];
+
+				tasks.push(user);
+
+				tasks.push(userInfoModel.query({userId : user.id}));
+
+				return Promise.all(tasks);
+			})
+			.spread((user, results) => {
+				const login = results.length ? results[0].login : '';
 
 				const data = {
-					login: user.login,
+					login: login,
 					email: user.email,
 					resetPasswordCode: user.resetPasswordCode
 				};
@@ -213,8 +225,8 @@ router.route('/reset-password/')
 	})
 ;
 
-//----- endpoint: /api/auth/reset-password/:uuid
-router.route('/reset-password/:uuid')
+//----- endpoint: /api/auth/reset-password/:code
+router.route('/reset-password/:code')
 
 	// сюда приходит запрос на сброс пароля по ссылке из письма
 	.get(function(req, res) {
@@ -222,7 +234,7 @@ router.route('/reset-password/:uuid')
 		let fingerprint;
 
 		// ищем юзеров с данным кодом сброса пароля
-		return Promise.resolve(userModel.query({resetPasswordCode: req.params.uuid}))
+		return Promise.resolve(userModel.query({resetPasswordCode: req.params.code}))
 			.then((users) => {
 				if (!users.length) {
 					throw utils.initError('FORBIDDEN');

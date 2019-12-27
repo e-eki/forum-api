@@ -53,18 +53,20 @@ router.route('/refresh-tokens/')
 
 				// удаляем сессию с этим рефреш токеном
 				tasks.push(sessionModel.delete(session.id));
+
+				return Promise.all(tasks);
 			})
 			.spread((session, dbResponse) => {
 				utils.logDbErrors(dbResponse);
 
 				// проверяем сессию на валидность:
 				// не истекло ли время жизни, и соответствия fingerprint
-				if (session.expiresIn >= new Date().getTime() ||
+				if (session.expiresIn < new Date().getTime() ||
 					session.fingerprint !== req.body.fingerprint) {
 						throw utils.initError(errors.FORBIDDEN, 'invalid refresh token');
 				}
 
-				return userModel({id: session.userId});
+				return userModel.query({id: session.userId});
 			})
 			.then(results => {
 				if (!results.length) {

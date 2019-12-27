@@ -9,21 +9,39 @@ const UserInfoModel = mongoose.model('UserInfo', userInfoSchema);
 module.exports = {
 	
 	query: function(config) {
-		if (config && config.id) {
-			return UserInfoModel.aggregate([
-				{$match: { '_id': new ObjectId(config.id)}},
-				{$project: {
-					_id: 0, id: "$_id",
-					userId: 1,
-					login: 1,
-					name: 1,
-					birthDate: 1,
-					city: 1,
-					profession: 1,
-					hobby: 1,
-					captionText: 1,
-				}}
-			]);
+		if (config) {
+			if (config.id) {
+				return UserInfoModel.aggregate([
+					{$match: { '_id': new ObjectId(config.id)}},
+					{$project: {
+						_id: 0, id: "$_id",
+						userId: 1,
+						login: 1,
+						name: 1,
+						birthDate: 1,
+						city: 1,
+						profession: 1,
+						hobby: 1,
+						captionText: 1,
+					}}
+				]);
+			}
+			else if (config.userId) {
+				return UserInfoModel.aggregate([
+					{$match: { 'userId': new ObjectId(config.userId)}},
+					{$project: {
+						_id: 0, id: "$_id",
+						userId: 1,
+						login: 1,
+						name: 1,
+						birthDate: 1,
+						city: 1,
+						profession: 1,
+						hobby: 1,
+						captionText: 1,
+					}}
+				]);
+			}
 		}	
 
 		return [];
