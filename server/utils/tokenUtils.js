@@ -99,7 +99,7 @@ const tokenUtils = new function() {
 	};
 
 	// проверяет аксесс токен и находит по нему юзера
-	this.checkAccessTokenAndGetUser = function(accessToken) {
+	this.checkAccessTokenAndGetUser = function(accessToken, userRole = null) {
 		return Promise.resolve(true)
 			.then(() => {
 				//decode token
@@ -113,7 +113,7 @@ const tokenUtils = new function() {
 				const tasks = [];
 				tasks.push(result.payload.userId);
 
-				tasks.push(this.isAccessTokenValid(result.payload));
+				tasks.push(this.isAccessTokenValid(result.payload, userRole));
 
 				return Promise.all(tasks);
 			})

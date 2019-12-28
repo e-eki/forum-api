@@ -6,6 +6,9 @@ const utils = require('../../utils/baseUtils');
 const userModel = require('../../mongoDB/models/user');
 const userInfoModel = require('../../mongoDB/models/userInfo');
 const userVisitDataModel = require('../../mongoDB/models/userVisitData');
+const tokenUtils = require('../../utils/tokenUtils');
+const config = require('../../config');
+const errors = require('../../utils/errors');
 
 let router = express.Router();
 
@@ -44,15 +47,35 @@ router.route('/user/:id')
 
   // редактирование данных юзера по его id
   .put(function(req, res) {
-    const data = {
-			email: req.body.email,
-			password: req.body.password,
-			resetPasswordCode: req.body.resetPasswordCode,
-      role: req.body.role,
-      inBlackList: req.body.inBlackList,
-    };
+    return Promise.resolve(true)
+			.then(() => {
+				//get token from header
+				const headerAuthorization = req.header('Authorization') || '';
+				const accessToken = tokenUtils.getAccessTokenFromHeader(headerAuthorization);
+				
+				return tokenUtils.checkAccessTokenAndGetUser(accessToken);
+			})
+			.then(user => {
+        // проверяем права для данных изменений
+        // изменить ЧС могут админ и модератор
+        if (user.role !== config.userRoles.admin && user.role !== config.userRoles.moderator) {
+          throw utils.initError(errors.FORBIDDEN);
+        }
+        // изменить роль может админ
+        else if (req.body.role && user.role !== config.userRoles.admin) {
+          throw utils.initError(errors.FORBIDDEN);
+        }
+        
+        const data = {
+          // email: req.body.email,
+          // password: req.body.password,
+          // resetPasswordCode: req.body.resetPasswordCode,   //todo: check!
+          role: req.body.role,
+          inBlackList: req.body.inBlackList,
+        };
 
-    return userModel.update(req.params.id, data)
+        return userModel.update(req.params.id, data);
+      })
       .then((data) => {
         return utils.sendResponse(res, data);
       })

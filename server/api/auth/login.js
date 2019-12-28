@@ -244,7 +244,7 @@ router.route('/login')
 
 				if (results.length) {
 					results.forEach(item => {
-						tasks.push(socialLoginDataModel.delete({id: item.id}));
+						tasks.push(socialLoginDataModel.delete(item.id));
 					})
 				}
 				else {

@@ -15,7 +15,7 @@ const sessionUtils = new function() {
 				let tasks = [];
 				let sessions = results;
 
-				// если есть сессия с тем же fingerprint - удаляем ее
+				// если есть сессия с тем же fingerprint - удаляем ее (???)
 				if (results.length) {
 					const newSessionDuplicate = results.find(item => item.fingerprint === fingerprint);
 
