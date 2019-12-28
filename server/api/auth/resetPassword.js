@@ -140,7 +140,7 @@ router.route('/reset-password/')
 				}
 
 				const headerAuthorization = req.header('Authorization') || '';
-				const accessToken = tokenUtils.getTokenFromHeader(headerAuthorization);
+				const accessToken = tokenUtils.getAccessTokenFromHeader(headerAuthorization);
 
 				return tokenUtils.checkAccessTokenAndGetUser(accessToken);
 			})
@@ -194,8 +194,9 @@ router.route('/reset-password/')
 			})
 			.spread((userId, resetDatas) => {
 				const tasks = [];
+				tasks.push(userId);
 
-				// удаляем все данные о запросах юзером письма с кодом сброса пароля
+				// удаляем все данные о запросах юзером письма с кодом сброса пароля  (надо ли???)
 				if (resetDatas.length) {
 					resetDatas.forEach(item => {
 						tasks.push(resetDataModel.delete(item.id));
@@ -204,7 +205,7 @@ router.route('/reset-password/')
 
 				return Promise.all(tasks);
 			})
-			.then(dbResponses => {
+			.spread((userId, dbResponses) => {
 				utils.logDbErrors(dbResponses);
 
 				// удаляем все сессии юзера, а срок действия его access токена закончится сам
@@ -259,19 +260,21 @@ router.route('/reset-password/:code')
 					throw utils.initError('FORBIDDEN');
 				}
 
+				// для создания сессии нужен fingerprint -
+				// берем его из последних данных о запросе письма с кодом сброса пароля (?)
 				fingerprint = resetDatas[resetDatas.length - 1].fingerprint;   //?
 
 				const tasks = [];
 
 				// удаляем все данные о запросах юзером письма с кодом сброса пароля
 				resetDatas.forEach(item => {
-					tasks.push(item.id);
+					tasks.push(resetDataModel.delete(item.id));
 				})
 
 				return Promise.all(tasks);
 			})
 			.then(dbResponses => {
-				utils.logDbErrors(dbResponse);
+				utils.logDbErrors(dbResponses);
 
 				// удаляем все сессии юзера
 				return sessionUtils.deleteAllUserSessions(user.id);
@@ -289,6 +292,7 @@ router.route('/reset-password/:code')
 				// протухнет ссылка, и новую можно получить только в новом письме.
 
 				// редиректим на страницу сброса пароля
+				//todo!
 				const link = `${config.server.protocol}://${config.server.host}:${config.server.port}/${config.apiRoutes.resetPassword}/${tokensData.accessToken}`;
 				return res.redirect(`${link}`);
 			})

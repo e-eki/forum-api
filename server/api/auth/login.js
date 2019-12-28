@@ -46,19 +46,28 @@ router.route('/login')
 				return getUser(service, data);
 			})
 			.then(user => {
+				const tasks = [];
+				tasks.push(user);
+
 				// для завершения входа нужен еще fingerprint устройства юзера,
 				// пока что сохраняем id юзера и отправляем клиенту id сохраненных данных
 				// в ответ клиент отправляет id сохраненных данных и fingerprint - через PUT,
 				// где завершается процедура входа на сайт
 
 				// сначала удаляем уже существующие данные входа через соцсеть для данного юзера
-				return socialLoginDataModel.query({userId: user.id});
+				tasks.push(socialLoginDataModel.query({userId: user.id}));
+
+				return Promise.all(tasks);
 			})
-			.then(results => {
+			.spread((user, results) => {
 				const tasks = [];
 
+				const socialLoginData = {
+					userId: user.id.toString()
+				};
+
 				// добавляем новую запись
-				tasks.push(socialLoginDataModel.create({userId: user.id}));
+				tasks.push(socialLoginDataModel.create(socialLoginData));
 
 				// удаляем все старые
 				if (results.length) {
@@ -66,11 +75,17 @@ router.route('/login')
 						tasks.push(socialLoginDataModel.delete({id: item.id}));
 					})
 				}
+
+				return Promise.all(tasks);
 			})
-			.spread(dbResponses => {
+			.then(dbResponses => {
 				utils.logDbErrors(dbResponses);
 
-				const socialLoginDataId = dbResponses[0]._doc._id;  //?
+				if (!dbResponses.length) {
+					throw utils.initError(errors.FORBIDDEN);
+				}
+
+				const socialLoginDataId = dbResponses[0]._doc._id;
 
 				return utils.sendResponse(res, socialLoginDataId);   //!!
 			})

@@ -6,7 +6,7 @@ const Schema = mongoose.Schema;
 
 const socialLoginDataSchema = new Schema(
 	{
-		userId: { type: Schema.Types.ObjectId },
+		userId: Schema.Types.ObjectId,
 	},
 	{versionKey: false}
 );

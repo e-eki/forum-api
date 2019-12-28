@@ -59,12 +59,12 @@ const authUtils = new function() {
 				const userEmail = response.data.email;
 				return userModel.query({email: userEmail});
 			})
-			.then(userData => {
-				if (!userData.length) {
+			.then(results => {
+				if (!results.length) {
 					throw utils.initError(errors.FORBIDDEN, 'incorrect vk auth data: no user with this email');
 				}
 
-				const user = userData[0];
+				const user = results[0];
 
 				return user;
 			})

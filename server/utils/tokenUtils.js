@@ -69,25 +69,6 @@ const tokenUtils = new function() {
 		return true;
 	}
 
-	// // проверка аксесс токена на валидность
-	// this.isAccessTokenValid = function(token, userRole) {
-	// 	return this.decodeAccessToken(token)
-	// 		.then(result => {  //?
-	// 			if (result.error || !result.payload ||
-	// 				!result.payload.tokenType || !result.payload.expiresIn || !result.payload.userId || !result.payload.userRole) {
-	// 				return false;
-	// 			}
-
-	// 			if ((result.payload.tokenType !== config.token.access.type) ||
-	// 				(userRole && (result.payload.userRole !== userRole)) ||
-	// 				(result.payload.expiresIn < new Date().getTime())) {
-	// 					return false;
-	// 			}
-
-	// 			return true; //todo: get userId
-	// 		})
-	// }
-
 	// получить новый аксесс, рефреш токен и время жизни рефреша
 	this.getTokensData = function(user) {
 		const tasks = [];

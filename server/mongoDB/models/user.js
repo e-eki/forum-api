@@ -36,6 +36,19 @@ module.exports = {
 					}}
 				]);
 			}
+			else if (config.resetPasswordCode) {
+				return UserModel.aggregate([
+					{$match: { 'resetPasswordCode': config.resetPasswordCode}},
+					{$project: {
+						_id: 0, id: "$_id",
+						email: 1,
+						password: 1,
+						resetPasswordCode: 1,
+						role: 1,
+						inBlackList: 1,
+					}}
+				]);
+			}
 		}	
 
 		return [];

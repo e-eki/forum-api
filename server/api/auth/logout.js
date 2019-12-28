@@ -33,7 +33,7 @@ router.route('/logout')
 			.then(() => {
 				//get token from header
 				const headerAuthorization = req.header('Authorization') || '';
-				const accessToken = tokenUtils.getAccessTokenFromHeader(headerAuthorization);  //todo: check if no token!
+				const accessToken = tokenUtils.getAccessTokenFromHeader(headerAuthorization);
 				
 				return tokenUtils.checkAccessTokenAndGetUser(accessToken);
 			})
