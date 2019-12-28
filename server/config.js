@@ -38,13 +38,15 @@ module.exports = {
     }
     , security: {
         // количество попыток регистрации (и отправления письма с кодом) - с одного устройства (с одним fingerprint)
-        regAttempsMaxCount: 10,
+        regAttemptsMaxCount: 10,
         // количество запросов на повторное подтверждение почты (м.б. разные имейлы) - с одного устройства (с одним fingerprint)
         emailConfirmLettersMaxCount: 5,
         // количество запросов на сброс пароля (м.б. разные имейлы) - с одного устройства (с одним fingerprint)
         resetPasswordLettersMaxCount: 5,
         // количество сессий юзера (со скольких устройств юзер может быть залогинен единовременно)
         userSessionsMaxCount: 2,
+        // количество попыток юзера залогиниться через соцсети (подряд)
+        socialLoginAttemptsMaxCount: 20,   //?
     }
     , token: {
         secret: 'b2NjdXB5TWFycw=='

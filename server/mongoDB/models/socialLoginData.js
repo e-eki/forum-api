@@ -10,7 +10,16 @@ module.exports = {
 
 	query: function(config) {
 		if (config) {
-			if (config.userId) {
+			if (config.id) {
+				return LoginDataModel.aggregate([
+					{$match: { '_id': new ObjectId(config.id)}},
+					{$project: {
+						_id: 0, id: "$_id",
+						userId: 1,
+					}}
+				]);
+			}
+			else if (config.userId) {
 				return LoginDataModel.aggregate([
 					{$match: { 'userId': new ObjectId(config.userId)}},
 					{$project: {

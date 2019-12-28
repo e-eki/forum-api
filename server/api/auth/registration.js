@@ -54,7 +54,7 @@ router.route('/registration')
 				return regDataModel.query({fingerprint: req.body.fingerprint, getCount: true});
 			})
 			.then(regDataModelsCount => {
-				if (regDataModelsCount >= config.security.regAttempsMaxCount) {
+				if (regDataModelsCount >= config.security.regAttemptsMaxCount) {
 					throw utils.initError(errors.VALIDATION_ERROR, 'Количество попыток зарегистрироваться с данного устройства больше допустимого. Обратитесь к администратору сайта.');
 				}
 

@@ -8,6 +8,7 @@ const authUtils = require('../../utils/authUtils');
 const errors = require('../../utils/errors');
 const socialLoginDataModel = require('../../mongoDB/models/socialLoginData');
 const userModel = require('../../mongoDB/models/user');
+const config = require('../../config');
 
 let router = express.Router();
 
@@ -54,38 +55,26 @@ router.route('/login')
 				// в ответ клиент отправляет id сохраненных данных и fingerprint - через PUT,
 				// где завершается процедура входа на сайт
 
-				// сначала удаляем уже существующие данные входа через соцсеть для данного юзера
 				tasks.push(socialLoginDataModel.query({userId: user.id}));
 
 				return Promise.all(tasks);
 			})
 			.spread((user, results) => {
-				const tasks = [];
+				if (results.length && (results.length >= config.security.socialLoginAttemptsMaxCount)) {
+					throw utils.initError(errors.VALIDATION_ERROR, 'Количество запросов на вход через соцсеть больше допустимого. Заходите через сайт. Или обратитесь к администратору сайта.');
+				}
 
 				const socialLoginData = {
 					userId: user.id.toString()
 				};
 
 				// добавляем новую запись
-				tasks.push(socialLoginDataModel.create(socialLoginData));
-
-				// удаляем все старые
-				if (results.length) {
-					results.forEach(item => {
-						tasks.push(socialLoginDataModel.delete({id: item.id}));
-					})
-				}
-
-				return Promise.all(tasks);
+				return socialLoginDataModel.create(socialLoginData);
 			})
-			.then(dbResponses => {
-				utils.logDbErrors(dbResponses);
+			.then(dbResponse => {
+				utils.logDbErrors(dbResponse);
 
-				if (!dbResponses.length) {
-					throw utils.initError(errors.FORBIDDEN);
-				}
-
-				const socialLoginDataId = dbResponses[0]._doc._id;
+				const socialLoginDataId = dbResponse._doc._id;
 
 				return utils.sendResponse(res, socialLoginDataId);   //!!
 			})
@@ -127,6 +116,15 @@ router.route('/login')
 				return getUser('site', data);
 			})
 			.then(user => {
+				const tasks = [];
+				tasks.push(user);
+
+				// удаляем все данные о входе через соцсеть для этого юзера
+				tasks.push(deleteUserSocialLoginData(user.id));
+
+				return Promise.all(tasks);
+			})
+			.spread((user, result) => {
 				return sessionUtils.addNewSessionAndGetTokensData(user, req.body.fingerprint);
 			})
 			.then(tokensData => {
@@ -139,7 +137,7 @@ router.route('/login')
 
 	// данные с сайта для завершения входа через соцсеть
 	/*data = {
-		userId,
+		socialLoginDataId,
 		fingerprint
 	}*/
 	.put(function(req, res) {
@@ -148,7 +146,7 @@ router.route('/login')
 				const validationErrors = [];
 
 				//validate req.body
-				if (!req.body.userId || req.body.userId == '') {
+				if (!req.body.socialLoginDataId || req.body.socialLoginDataId == '') {
 					validationErrors.push('empty social login data');
 				}
 				if (!req.body.fingerprint || req.body.fingerprint == '') {
@@ -158,26 +156,25 @@ router.route('/login')
 					throw utils.initError(errors.FORBIDDEN, validationErrors);
 				}
 
-				return socialLoginDataModel.query({userId: req.body.userId});
+				return socialLoginDataModel.query({id: req.body.socialLoginDataId});
 			})
 			.then(results => {
 				if (!results.length) {
 					throw utils.initError(errors.FORBIDDEN);
 				}
 
+				const socialLoginData = results[0];
+
 				const tasks = [];
+				tasks.push(socialLoginData.userId);
 
 				// удаляем все данные о входе через соцсеть для этого юзера
-				results.forEach(item => {
-					tasks.push(socialLoginDataModel.delete({id: item.id}));
-				})
+				tasks.push(deleteUserSocialLoginData(socialLoginData.userId.toString()));
 
 				return Promise.all(tasks);
 			})
-			.then(dbResponses => {
-				utils.logDbErrors(dbResponses);
-
-				return userModel.query({id: req.body.userId});
+			.spread((userId, result) => {
+				return userModel.query({id: userId});
 			})
 			.then(results => {
 				if (!results.length) {
@@ -237,7 +234,31 @@ router.route('/login')
 
 				return task;
 			})
-};
+	};
+
+	// удалить все данные о входе через соцсеть для этого юзера
+	const deleteUserSocialLoginData = function(userId) {
+		return socialLoginDataModel.query({userId: userId})
+			.then(results => {
+				const tasks = [];
+
+				if (results.length) {
+					results.forEach(item => {
+						tasks.push(socialLoginDataModel.delete({id: item.id}));
+					})
+				}
+				else {
+					tasks.push(false);
+				}
+
+				return Promise.all(tasks);
+			})
+			.then(dbResponses => {
+				utils.logDbErrors(dbResponses);
+
+				return true;
+			})
+	}
 
 module.exports = router;
 
