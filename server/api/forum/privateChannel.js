@@ -7,29 +7,36 @@ const privateChannelModel = require('../../mongoDB/models/privateChannel');
 const messageModel = require('../../mongoDB/models/message');
 const channelUtils = require('../../utils/channelUtils');
 const rightsUtils = require('../../utils/rigthsUtils');
+const errors = require('../../utils/errors');
 
 let router = express.Router();
 
 //----- endpoint: /api/forum/private-channel/
 router.route('/private-channel')
 
-  .get(function(req, res) { 
-    const userId = '5dd6d4c6d0412d25e4895fad'; //todo
-    let config = {};
+  /*data = {
+		recipientId
+	}*/
+  .get(function(req, res) {
+    return Promise.resolve(true)
+			.then(() => {
+				//get token from header
+				const headerAuthorization = req.header('Authorization') || '';
+				const accessToken = tokenUtils.getAccessTokenFromHeader(headerAuthorization);
+				
+				return tokenUtils.checkAccessTokenAndGetUser(accessToken);
+			})
+			.then(user => {
+        const config = {
+          userId: user.id,
+        };
 
-    if (userId && req.query.recipientId) {
-      config = {
-        recipientId: req.query.recipientId,
-        userId: userId,
-      };
-    }
-    else if (userId) {
-      config = {
-        userId: userId,
-      };
-    }
+        if (req.query.recipientId) {
+          config.recipientId = req.query.recipientId;
+        }
 
-    return Promise.resolve(privateChannelModel.query(config))
+        return Promise.resolve(privateChannelModel.query(config));
+      })
       .then(privateChannels => {
         const tasks = [];
 
@@ -88,15 +95,35 @@ router.route('/private-channel')
   })
 
   // создание нового приватного чата
+  /*data = {
+		recipientId
+	}*/
   .post(function(req, res) {
-    const data = {
-      recipientId: req.body.recipientId,
-      senderId: req.body.senderId,    //todo: senderId!!
-      //lastVisitDate: new Date(),  //?
-    };
+    return Promise.resolve(true)
+			.then(() => {
+				//get token from header
+				const headerAuthorization = req.header('Authorization') || '';
+				const accessToken = tokenUtils.getAccessTokenFromHeader(headerAuthorization);
+				
+				return tokenUtils.checkAccessTokenAndGetUser(accessToken);
+			})
+			.then(user => {
+        // проверяем права
+        if (!rightsUtils.isRightsValid(user)) {
+          throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
+        }
 
-    return privateChannelModel.create(data)
+        const data = {
+          recipientId: req.body.recipientId,
+          senderId: user.id
+          //lastVisitDate: new Date(),  //?
+        };
+
+        return privateChannelModel.create(data);
+      })
       .then((dbResponse) => {
+        utils.logDbErrors(dbResponse);
+
 				const id = (dbResponse._doc && dbResponse._doc._id) ? dbResponse._doc._id.toString() : null;
 
 				return utils.sendResponse(res, {text: 'successfully saved', id: id}, 201);
@@ -107,11 +134,11 @@ router.route('/private-channel')
   })
   
   .put(function(req, res) {
-		return utils.sendErrorResponse(res, 'UNSUPPORTED_METHOD');
+		return utils.sendErrorResponse(res, errors.UNSUPPORTED_METHOD);
   })
   
   .delete(function(req, res) {
-		return utils.sendErrorResponse(res, 'UNSUPPORTED_METHOD');
+		return utils.sendErrorResponse(res, errors.UNSUPPORTED_METHOD);
 	})
 ;
 
@@ -161,7 +188,7 @@ router.route('/private-channel/:id')
   })
 
   .post(function(req, res) {
-		return utils.sendErrorResponse(res, 'UNSUPPORTED_METHOD');
+		return utils.sendErrorResponse(res, errors.UNSUPPORTED_METHOD);
 	})
 
   // редактирование данных приватного чата по его id
@@ -173,8 +200,10 @@ router.route('/private-channel/:id')
     };
 
     return privateChannelModel.update(req.params.id, data)
-      .then((data) => {
-        return utils.sendResponse(res, data);
+      .then(dbResponse => {
+        utils.logDbErrors(dbResponse);
+
+        return utils.sendResponse(res, 201);
       })
       .catch((error) => {
 				return utils.sendErrorResponse(res, error, 500);
@@ -199,6 +228,8 @@ router.route('/private-channel/:id')
         return Promise.all(deleteTasks);
       })
       .then((dbResponse) => {
+        utils.logDbErrors(dbResponse);
+        
         return utils.sendResponse(res);  //??data
       })
       .catch((error) => {

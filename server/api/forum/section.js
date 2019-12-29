@@ -8,6 +8,7 @@ const subSectionModel = require('../../mongoDB/models/subSection');
 const channelModel = require('../../mongoDB/models/channel');
 const messageModel = require('../../mongoDB/models/message');
 const rightsUtils = require('../../utils/rigthsUtils');
+const errors = require('../../utils/errors');
 
 let router = express.Router();
 
@@ -59,6 +60,8 @@ router.route('/section')
 
     return sectionModel.create(data)
       .then((dbResponse) => {
+        utils.logDbErrors(dbResponse);
+
         const id = (dbResponse._doc && dbResponse._doc._id) ? dbResponse._doc._id.toString() : null;
 
 				return utils.sendResponse(res, {text: 'successfully saved', id: id}, 201);
@@ -69,11 +72,11 @@ router.route('/section')
   })
   
   .put(function(req, res) {
-		return utils.sendErrorResponse(res, 'UNSUPPORTED_METHOD');
+		return utils.sendErrorResponse(res, errors.UNSUPPORTED_METHOD);
   })
   
   .delete(function(req, res) {
-		return utils.sendErrorResponse(res, 'UNSUPPORTED_METHOD');
+		return utils.sendErrorResponse(res, errors.UNSUPPORTED_METHOD);
 	})
 ;
 
@@ -104,7 +107,7 @@ router.route('/section/:id')
   })
 
   .post(function(req, res) {
-		return utils.sendErrorResponse(res, 'UNSUPPORTED_METHOD');
+		return utils.sendErrorResponse(res, errors.UNSUPPORTED_METHOD);
 	})
 
   // редактирование данных раздела по его id
@@ -117,8 +120,10 @@ router.route('/section/:id')
     };
 
     return sectionModel.update(req.params.id, data)
-      .then((data) => {
-        return utils.sendResponse(res, data);
+      .then(dbResponse => {
+        utils.logDbErrors(dbResponse);
+
+        return utils.sendResponse(res, dbResponse, 201);
       })
       .catch((error) => {
 				return utils.sendErrorResponse(res, error, 500);
@@ -196,10 +201,14 @@ router.route('/section/:id')
 
         return Promise.all(deleteTasks);
       })
-      .then(dbResponse => {
+      .then(dbResponses => {
+        utils.logDbErrors(dbResponses);
+
         return Promise.all(sectionsUpdateTasks);
       })
-      .then(dbResponse => {
+      .then(dbResponses => {
+        utils.logDbErrors(dbResponses);
+
         return utils.sendResponse(res);  //??data
       })
       .catch((error) => {

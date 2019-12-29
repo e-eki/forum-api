@@ -16,7 +16,7 @@ let router = express.Router();
 router.route('/registration')
 
 	.get(function(req, res) {
-		return utils.sendErrorResponse(res, 'UNSUPPORTED_METHOD');
+		return utils.sendErrorResponse(res, errors.UNSUPPORTED_METHOD);
 	})
 
 	// регистрация на сайте
@@ -129,11 +129,11 @@ router.route('/registration')
 	})
 
 	.put(function(req, res) {
-		return utils.sendErrorResponse(res, 'UNSUPPORTED_METHOD');
+		return utils.sendErrorResponse(res, errors.UNSUPPORTED_METHOD);
 	})
 
 	.delete(function(req, res) {
-		return utils.sendErrorResponse(res, 'UNSUPPORTED_METHOD');
+		return utils.sendErrorResponse(res, errors.UNSUPPORTED_METHOD);
 	})
 ;
 

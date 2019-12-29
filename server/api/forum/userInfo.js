@@ -6,6 +6,7 @@ const utils = require('../../utils/baseUtils');
 const userInfoModel = require('../../mongoDB/models/userInfo');
 const ObjectId = require('mongoose').Types.ObjectId;
 const rightsUtils = require('../../utils/rigthsUtils');
+const errors = require('../../utils/errors');
 
 let router = express.Router();
 
@@ -14,20 +15,20 @@ router.route('/user-info')
 
   // метод не поддерживается - информация о юзере доступна только по id
   .get(function(req, res) { 
-    return utils.sendErrorResponse(res, 'UNSUPPORTED_METHOD');
+    return utils.sendErrorResponse(res, errors.UNSUPPORTED_METHOD);
   })
 
   // метод не поддерживается - todo???
   .post(function(req, res) {
-    return utils.sendErrorResponse(res, 'UNSUPPORTED_METHOD');
+    return utils.sendErrorResponse(res, errors.UNSUPPORTED_METHOD);
   })
   
   .put(function(req, res) {
-		return utils.sendErrorResponse(res, 'UNSUPPORTED_METHOD');
+		return utils.sendErrorResponse(res, errors.UNSUPPORTED_METHOD);
   })
   
   .delete(function(req, res) {
-		return utils.sendErrorResponse(res, 'UNSUPPORTED_METHOD');
+		return utils.sendErrorResponse(res, errors.UNSUPPORTED_METHOD);
 	})
 ;
 
@@ -57,17 +58,17 @@ router.route('/user-info/:id')
   })
 
   .post(function(req, res) {
-		return utils.sendErrorResponse(res, 'UNSUPPORTED_METHOD');
+		return utils.sendErrorResponse(res, errors.UNSUPPORTED_METHOD);
 	})
 
   // редактирование информации юзера по его id - todo??
   .put(function(req, res) {
-    return utils.sendErrorResponse(res, 'UNSUPPORTED_METHOD');
+    return utils.sendErrorResponse(res, errors.UNSUPPORTED_METHOD);
   })
 
   // удаление информации юзера по его id - todo??
   .delete(function(req, res) {
-    return utils.sendErrorResponse(res, 'UNSUPPORTED_METHOD');
+    return utils.sendErrorResponse(res, errors.UNSUPPORTED_METHOD);
   })
 ;
 

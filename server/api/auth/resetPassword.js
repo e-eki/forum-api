@@ -20,7 +20,7 @@ let router = express.Router();
 router.route('/reset-password/')
 
 	.get(function(req, res) {
-		return utils.sendErrorResponse(res, 'UNSUPPORTED_METHOD');
+		return utils.sendErrorResponse(res, errors.UNSUPPORTED_METHOD);
 	})
 
 	//запрос письма с кодом сброса пароля 
@@ -234,7 +234,7 @@ router.route('/reset-password/')
 	})
 
 	.delete(function(req, res) {
-		return utils.sendErrorResponse(res, 'UNSUPPORTED_METHOD');
+		return utils.sendErrorResponse(res, errors.UNSUPPORTED_METHOD);
 	})
 ;
 
@@ -260,7 +260,7 @@ router.route('/reset-password/:code')
 				if (!rightsUtils.isRightsValid(user)) {
 					throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
 				}
-				
+
 				user.resetPasswordCode = null;
 
 				const tasks = [];
@@ -320,15 +320,15 @@ router.route('/reset-password/:code')
 	})
 
 	.post(function(req, res) {
-		return utils.sendErrorResponse(res, 'UNSUPPORTED_METHOD');
+		return utils.sendErrorResponse(res, errors.UNSUPPORTED_METHOD);
 	})
 
 	.put(function(req, res) {
-		return utils.sendErrorResponse(res, 'UNSUPPORTED_METHOD');
+		return utils.sendErrorResponse(res, errors.UNSUPPORTED_METHOD);
 	})
 
 	.delete(function(req, res) {
-		return utils.sendErrorResponse(res, 'UNSUPPORTED_METHOD');
+		return utils.sendErrorResponse(res, errors.UNSUPPORTED_METHOD);
 	})
 ;
 

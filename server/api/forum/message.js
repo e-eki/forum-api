@@ -7,6 +7,7 @@ const channelModel = require('../../mongoDB/models/channel');
 const messageModel = require('../../mongoDB/models/message');
 const messageUtils = require('../../utils/messageUtils');
 const rightsUtils = require('../../utils/rigthsUtils');
+const errors = require('../../utils/errors');
 
 let router = express.Router();
 
@@ -75,11 +76,11 @@ router.route('/message')
   })
   
   .put(function(req, res) {
-		return utils.sendErrorResponse(res, 'UNSUPPORTED_METHOD');
+		return utils.sendErrorResponse(res, errors.UNSUPPORTED_METHOD);
   })
   
   .delete(function(req, res) {
-		return utils.sendErrorResponse(res, 'UNSUPPORTED_METHOD');
+		return utils.sendErrorResponse(res, errors.UNSUPPORTED_METHOD);
 	})
 ;
 
@@ -103,7 +104,7 @@ router.route('/message/:id')
   })
 
   .post(function(req, res) {
-		return utils.sendErrorResponse(res, 'UNSUPPORTED_METHOD');
+		return utils.sendErrorResponse(res, errors.UNSUPPORTED_METHOD);
 	})
 
   // редактирование данных сообщения по его id
@@ -136,7 +137,7 @@ router.route('/message/:id')
       .then(dbResponse => {
         utils.logDbErrors(dbResponse);
 
-        return utils.sendResponse(res, data);
+        return utils.sendResponse(res, dbResponse, 201);
       })
       .catch((error) => {
 				return utils.sendErrorResponse(res, error, 500);
@@ -161,22 +162,26 @@ router.route('/message/:id')
 			})
 			.spread((user, results) => {
         if (!results.length) {
-          
+          throw utils.initError(errors.FORBIDDEN);
         }
+
+        const message = results[0];
 
         // проверяем права
         if (!rightsUtils.isRightsValid(user) ||
-            (req.body.senderId !== user.id)) {   //todo: check!
+            (message.senderId !== user.id)) {   //todo: check!
               throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
         }
 
-    const tasks = [];
+        const tasks = [];
 
-    tasks.push(messageModel.delete(req.params.id));
-    tasks.push(channelModel.query({descriptionMessageId: req.params.id}));
+        tasks.push(messageModel.delete(req.params.id));
+        tasks.push(channelModel.query({descriptionMessageId: req.params.id}));
 
-    return Promise.all(tasks)
+        return Promise.all(tasks);
+      })
       .spread((dbResponse, result) => {
+        utils.logDbErrors(dbResponse);
 
         if (result && result.length) {
           const channel = result[0];
@@ -189,6 +194,8 @@ router.route('/message/:id')
         }
       })
       .then(dbResponse => {
+        utils.logDbErrors(dbResponse);
+
         return utils.sendResponse(res);  //??data
       })
       .catch((error) => {

@@ -17,20 +17,20 @@ let router = express.Router();
 router.route('/user')
 
   .get(function(req, res) { 
-    return utils.sendErrorResponse(res, 'UNSUPPORTED_METHOD');
+    return utils.sendErrorResponse(res, errors.UNSUPPORTED_METHOD);
   })
 
   // метод не поддерживается - юзер может быть добавлен только через регистрацию
   .post(function(req, res) {
-    return utils.sendErrorResponse(res, 'UNSUPPORTED_METHOD');
+    return utils.sendErrorResponse(res, errors.UNSUPPORTED_METHOD);
   })
   
   .put(function(req, res) {
-		return utils.sendErrorResponse(res, 'UNSUPPORTED_METHOD');
+		return utils.sendErrorResponse(res, errors.UNSUPPORTED_METHOD);
   })
   
   .delete(function(req, res) {
-		return utils.sendErrorResponse(res, 'UNSUPPORTED_METHOD');
+		return utils.sendErrorResponse(res, errors.UNSUPPORTED_METHOD);
 	})
 ;
 
@@ -39,11 +39,11 @@ router.route('/user/:id')
 
   // получение юзера по его id
   .get(function(req, res) {      
-    return utils.sendErrorResponse(res, 'UNSUPPORTED_METHOD');
+    return utils.sendErrorResponse(res, errors.UNSUPPORTED_METHOD);
   })
 
   .post(function(req, res) {
-		return utils.sendErrorResponse(res, 'UNSUPPORTED_METHOD');
+		return utils.sendErrorResponse(res, errors.UNSUPPORTED_METHOD);
 	})
 
   // редактирование данных юзера по его id
@@ -74,7 +74,7 @@ router.route('/user/:id')
       .then(dbResponse => {
         utils.logDbErrors(dbResponse);
 
-        return utils.sendResponse(res, 'user updated successfully');
+        return utils.sendResponse(res, 'user updated successfully', 201);
       })
       .catch((error) => {
 				return utils.sendErrorResponse(res, error);
@@ -83,7 +83,7 @@ router.route('/user/:id')
 
   // метод не поддерживается - удалить юзера нельзя (можно внести в ЧС)
   .delete(function(req, res) {
-    return utils.sendErrorResponse(res, 'UNSUPPORTED_METHOD');
+    return utils.sendErrorResponse(res, errors.UNSUPPORTED_METHOD);
 
     // const userId = req.params.id;
     // const tasks = [];

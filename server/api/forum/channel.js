@@ -9,6 +9,7 @@ const channelUtils = require('../../utils/channelUtils');
 const sectionModel = require('../../mongoDB/models/section');
 const subSectionModel = require('../../mongoDB/models/subSection');
 const rightsUtils = require('../../utils/rigthsUtils');
+const errors = require('../../utils/errors');
 
 let router = express.Router();
 
@@ -65,6 +66,8 @@ router.route('/channel')
         return channelModel.create(data);
       })
       .then((dbResponse) => {
+        utils.logDbErrors(dbResponse);
+
 				const id = (dbResponse._doc && dbResponse._doc._id) ? dbResponse._doc._id.toString() : null;
 
 				return utils.sendResponse(res, {text: 'successfully saved', id: id}, 201);
@@ -75,11 +78,11 @@ router.route('/channel')
   })
   
   .put(function(req, res) {
-		return utils.sendErrorResponse(res, 'UNSUPPORTED_METHOD');
+		return utils.sendErrorResponse(res, errors.UNSUPPORTED_METHOD);
   })
   
   .delete(function(req, res) {
-		return utils.sendErrorResponse(res, 'UNSUPPORTED_METHOD');
+		return utils.sendErrorResponse(res, errors.UNSUPPORTED_METHOD);
 	})
 ;
 
@@ -151,7 +154,7 @@ router.route('/channel/:id')
   })
 
   .post(function(req, res) {
-		return utils.sendErrorResponse(res, 'UNSUPPORTED_METHOD');
+		return utils.sendErrorResponse(res, errors.UNSUPPORTED_METHOD);
 	})
 
   // редактирование данных чата по его id
@@ -185,7 +188,7 @@ router.route('/channel/:id')
       .then(dbResponse => {
         utils.logDbErrors(dbResponse);
 
-        return utils.sendResponse(res, data);
+        return utils.sendResponse(res, dbResponse, 201);
       })
       .catch((error) => {
 				return utils.sendErrorResponse(res, error, 500);
