@@ -12,6 +12,7 @@ const userModel = require('../../mongoDB/models/user');
 const userInfoModel = require('../../mongoDB/models/userInfo');
 const resetDataModel = require('../../mongoDB/models/resetPasswordData');
 const errors = require('../../utils/errors');
+const rightsUtils = require('../../utils/rigthsUtils');
 
 let router = express.Router();
 
@@ -63,6 +64,12 @@ router.route('/reset-password/')
 				}
 				
 				user = results[0];
+
+				// проверяем права
+				if (!rightsUtils.isRightsValid(user)) {
+					throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
+				}
+
 				//для каждого юзера генерится уникальный код сброса пароля и записывается в БД
 				const resetPasswordCode = uuidV4.uuid();
 				user.resetPasswordCode = resetPasswordCode;
@@ -145,6 +152,11 @@ router.route('/reset-password/')
 				return tokenUtils.checkAccessTokenAndGetUser(accessToken);
 			})
 			.then(user => {
+				// проверяем права
+				if (!rightsUtils.isRightsValid(user)) {
+					throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
+				}
+
 				const tasks = [];
 				tasks.push(user);
 
@@ -243,6 +255,12 @@ router.route('/reset-password/:code')
 
 				// по идее должен быть один юзер на один код сброса пароля
 				user = users[0];
+
+				// проверяем права
+				if (!rightsUtils.isRightsValid(user)) {
+					throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
+				}
+				
 				user.resetPasswordCode = null;
 
 				const tasks = [];

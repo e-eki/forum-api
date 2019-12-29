@@ -6,6 +6,7 @@ const utils = require('../../utils/baseUtils');
 const privateChannelModel = require('../../mongoDB/models/privateChannel');
 const messageModel = require('../../mongoDB/models/message');
 const channelUtils = require('../../utils/channelUtils');
+const rightsUtils = require('../../utils/rigthsUtils');
 
 let router = express.Router();
 

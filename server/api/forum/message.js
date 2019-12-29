@@ -6,6 +6,7 @@ const utils = require('../../utils/baseUtils');
 const channelModel = require('../../mongoDB/models/channel');
 const messageModel = require('../../mongoDB/models/message');
 const messageUtils = require('../../utils/messageUtils');
+const rightsUtils = require('../../utils/rigthsUtils');
 
 let router = express.Router();
 
@@ -37,16 +38,33 @@ router.route('/message')
 
   // создание нового сообщения
   .post(function(req, res) {
-    const data = {
-      date: req.body.date,
-			text: req.body.text,
-			senderId: req.body.senderId,
-			recipientId: req.body.recipientId,
-			channelId: req.body.channelId,
-    };
+    return Promise.resolve(true)
+			.then(() => {
+				//get token from header
+				const headerAuthorization = req.header('Authorization') || '';
+				const accessToken = tokenUtils.getAccessTokenFromHeader(headerAuthorization);
+				
+				return tokenUtils.checkAccessTokenAndGetUser(accessToken);
+			})
+			.then(user => {
+        // проверяем права
+        if (!rightsUtils.isRightsValid(user)) {
+          throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
+        }
 
-    return messageModel.create(data)
-      .then((dbResponse) => {
+        const data = {
+          date: req.body.date,
+          text: req.body.text,
+          senderId: req.body.senderId,
+          recipientId: req.body.recipientId,
+          channelId: req.body.channelId,
+        };
+
+        return messageModel.create(data);
+      })
+      .then(dbResponse => {
+        utils.logDbErrors(dbResponse);
+
 				const id = (dbResponse._doc && dbResponse._doc._id) ? dbResponse._doc._id.toString() : null;
 
 				return utils.sendResponse(res, {text: 'successfully saved', id: id}, 201);
@@ -90,16 +108,34 @@ router.route('/message/:id')
 
   // редактирование данных сообщения по его id
   .put(function(req, res) {
-    const data = {
-      date: req.body.date,
-			text: req.body.text,
-			senderId: req.body.senderId,
-			recipientId: req.body.recipientId,
-			channelId: req.body.channelId,
-    };
+    return Promise.resolve(true)
+			.then(() => {
+				//get token from header
+				const headerAuthorization = req.header('Authorization') || '';
+				const accessToken = tokenUtils.getAccessTokenFromHeader(headerAuthorization);
+				
+				return tokenUtils.checkAccessTokenAndGetUser(accessToken);
+			})
+			.then(user => {
+        // проверяем права
+        if (!rightsUtils.isRightsValid(user) ||
+            (req.body.senderId !== user.id)) {   //todo: check!
+              throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
+        }
 
-    return messageModel.update(req.params.id, data)
-      .then((data) => {
+        const data = {
+          date: req.body.date,
+          text: req.body.text,
+          senderId: req.body.senderId,
+          recipientId: req.body.recipientId,
+          channelId: req.body.channelId,
+        };
+
+        return messageModel.update(req.params.id, data);
+      })
+      .then(dbResponse => {
+        utils.logDbErrors(dbResponse);
+
         return utils.sendResponse(res, data);
       })
       .catch((error) => {
@@ -109,6 +145,30 @@ router.route('/message/:id')
 
   // удаление сообщения по его id
   .delete(function(req, res) {
+    return Promise.resolve(true)
+			.then(() => {
+				//get token from header
+				const headerAuthorization = req.header('Authorization') || '';
+				const accessToken = tokenUtils.getAccessTokenFromHeader(headerAuthorization);
+        
+        const tasks = [];
+
+        tasks.push(tokenUtils.checkAccessTokenAndGetUser(accessToken));
+
+        tasks.push(messageModel.query({id: req.params.id}));
+        
+        return Promise.all(tasks);
+			})
+			.spread((user, results) => {
+        if (!results.length) {
+          
+        }
+
+        // проверяем права
+        if (!rightsUtils.isRightsValid(user) ||
+            (req.body.senderId !== user.id)) {   //todo: check!
+              throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
+        }
 
     const tasks = [];
 

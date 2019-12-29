@@ -9,6 +9,7 @@ const userVisitDataModel = require('../../mongoDB/models/userVisitData');
 const tokenUtils = require('../../utils/tokenUtils');
 const config = require('../../config');
 const errors = require('../../utils/errors');
+const rightsUtils = require('../../utils/rigthsUtils');
 
 let router = express.Router();
 
@@ -56,31 +57,27 @@ router.route('/user/:id')
 				return tokenUtils.checkAccessTokenAndGetUser(accessToken);
 			})
 			.then(user => {
-        // проверяем права для данных изменений
-        // изменить ЧС могут админ и модератор
-        if (user.role !== config.userRoles.admin && user.role !== config.userRoles.moderator) {
-          throw utils.initError(errors.FORBIDDEN);
-        }
-        // изменить роль может админ
-        else if (req.body.role && user.role !== config.userRoles.admin) {
-          throw utils.initError(errors.FORBIDDEN);
+        // проверяем права
+        if (!rightsUtils.isRightsValid(user) ||
+            (req.body.inBlackList && !rightsUtils.isRightsValidForBlackList(user)) ||
+            (req.body.role && !rightsUtils.isRightsValidForRole(user))) {
+              throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
         }
         
         const data = {
-          // email: req.body.email,
-          // password: req.body.password,
-          // resetPasswordCode: req.body.resetPasswordCode,   //todo: check!
           role: req.body.role,
           inBlackList: req.body.inBlackList,
         };
 
         return userModel.update(req.params.id, data);
       })
-      .then((data) => {
-        return utils.sendResponse(res, data);
+      .then(dbResponse => {
+        utils.logDbErrors(dbResponse);
+
+        return utils.sendResponse(res, 'user updated successfully');
       })
       .catch((error) => {
-				return utils.sendErrorResponse(res, error, 500);
+				return utils.sendErrorResponse(res, error);
       });
   })
 

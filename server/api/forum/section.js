@@ -7,6 +7,7 @@ const sectionModel = require('../../mongoDB/models/section');
 const subSectionModel = require('../../mongoDB/models/subSection');
 const channelModel = require('../../mongoDB/models/channel');
 const messageModel = require('../../mongoDB/models/message');
+const rightsUtils = require('../../utils/rigthsUtils');
 
 let router = express.Router();
 

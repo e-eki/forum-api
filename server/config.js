@@ -53,13 +53,14 @@ module.exports = {
         , algorithm: 'HS512'
         , access: {
             type: 'access',
-            expiresIn: 1200000   //20 мин = 20*60*1000
-            //expiresIn: 7200000   //2 ч = 120*60*1000   //TODO!!
+           //expiresIn: 1200000   //20 мин = 20*60*1000
+            expiresIn: 7200000    //2 ч = 120*60*1000   //TODO!!
           },
         
           refresh: {
             type: 'refresh',
-            expiresIn: 3600000  //60 мин
+            //expiresIn: 3600000  //60 мин
+            expiresIn: 86400000   //24 ч
           },
     }
     ,userRoles: {

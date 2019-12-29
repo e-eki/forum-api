@@ -8,6 +8,7 @@ const messageModel = require('../../mongoDB/models/message');
 const channelUtils = require('../../utils/channelUtils');
 const sectionModel = require('../../mongoDB/models/section');
 const subSectionModel = require('../../mongoDB/models/subSection');
+const rightsUtils = require('../../utils/rigthsUtils');
 
 let router = express.Router();
 
@@ -38,16 +39,31 @@ router.route('/channel')
 
   // создание нового чата
   .post(function(req, res) {
-    const data = {
-      name: req.body.name,
-      description: req.body.description,
-      senderId: req.body.senderId,
-      subSectionId: req.body.subSectionId,
-      descriptionMessageId: req.body.descriptionMessageId,
-      //lastVisitDate: new Date(),  //?
-    };
+    return Promise.resolve(true)
+			.then(() => {
+				//get token from header
+				const headerAuthorization = req.header('Authorization') || '';
+				const accessToken = tokenUtils.getAccessTokenFromHeader(headerAuthorization);
+				
+				return tokenUtils.checkAccessTokenAndGetUser(accessToken);
+			})
+			.then(user => {
+        // проверяем права
+        if (!rightsUtils.isRightsValid(user)) {
+              throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
+        }
 
-    return channelModel.create(data)
+        const data = {
+          name: req.body.name,
+          description: req.body.description,
+          senderId: req.body.senderId,
+          subSectionId: req.body.subSectionId,
+          descriptionMessageId: req.body.descriptionMessageId,
+          //lastVisitDate: new Date(),  //?
+        };
+
+        return channelModel.create(data);
+      })
       .then((dbResponse) => {
 				const id = (dbResponse._doc && dbResponse._doc._id) ? dbResponse._doc._id.toString() : null;
 
@@ -140,17 +156,35 @@ router.route('/channel/:id')
 
   // редактирование данных чата по его id
   .put(function(req, res) {
-    const data = {
-      name: req.body.name,
-      description: req.body.description,
-      senderId: req.body.senderId,
-      subSectionId: req.body.subSectionId,
-      descriptionMessageId: req.body.descriptionMessageId,
-      //lastVisitDate: req.body.lastVisitDate,  //?
-    };
+    return Promise.resolve(true)
+			.then(() => {
+				//get token from header
+				const headerAuthorization = req.header('Authorization') || '';
+				const accessToken = tokenUtils.getAccessTokenFromHeader(headerAuthorization);
+				
+				return tokenUtils.checkAccessTokenAndGetUser(accessToken);
+			})
+			.then(user => {
+        // проверяем права
+        if (!rightsUtils.isRightsValid(user) ||
+            (req.body.senderId !== user.id)) {   //todo: check!
+              throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
+        }
 
-    return channelModel.update(req.params.id, data)
-      .then((data) => {
+        const data = {
+          name: req.body.name,
+          description: req.body.description,
+          senderId: req.body.senderId,
+          subSectionId: req.body.subSectionId,
+          descriptionMessageId: req.body.descriptionMessageId,
+          //lastVisitDate: req.body.lastVisitDate,  //?
+        };
+
+        return channelModel.update(req.params.id, data);
+      })
+      .then(dbResponse => {
+        utils.logDbErrors(dbResponse);
+
         return utils.sendResponse(res, data);
       })
       .catch((error) => {
@@ -160,14 +194,28 @@ router.route('/channel/:id')
 
   // удаление чата по его id
   .delete(function(req, res) {
+    return Promise.resolve(true)
+			.then(() => {
+				//get token from header
+				const headerAuthorization = req.header('Authorization') || '';
+				const accessToken = tokenUtils.getAccessTokenFromHeader(headerAuthorization);
+				
+				return tokenUtils.checkAccessTokenAndGetUser(accessToken);
+			})
+			.then(user => {
+        // проверяем права
+        if (!rightsUtils.isRightsValid(user) ||
+            (!rightsUtils.isRightsValidForDeleteChannel(user))) {
+              throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
+        }
 
-    const deleteTasks = [];
+        const deleteTasks = [];
 
-    deleteTasks.push(channelModel.delete(req.params.id));
+        deleteTasks.push(channelModel.delete(req.params.id));
 
-    return messageModel.query({channelId: req.params.id})
+        return messageModel.query({channelId: req.params.id});
+      })
       .then(messages => {
-
         if (messages && messages.length) {
           messages.forEach(item => {
             deleteTasks.push(messageModel.delete(item.id));
@@ -176,7 +224,9 @@ router.route('/channel/:id')
 
         return Promise.all(deleteTasks);
       })
-      .then((dbResponse) => {
+      .then(dbResponse => {
+        utils.logDbErrors(dbResponse);
+
         return utils.sendResponse(res);  //??data
       })
       .catch((error) => {

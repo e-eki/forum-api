@@ -40,9 +40,6 @@ module.exports = {
 	
 		return loginData.save();
 	},
-
-	// update: function(id, data) {
-	// },
 	
 	delete: function(id) {
 		return LoginDataModel.findOneAndRemove({_id: id});

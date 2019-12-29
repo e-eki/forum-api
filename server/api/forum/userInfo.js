@@ -5,6 +5,7 @@ const Promise = require('bluebird');
 const utils = require('../../utils/baseUtils');
 const userInfoModel = require('../../mongoDB/models/userInfo');
 const ObjectId = require('mongoose').Types.ObjectId;
+const rightsUtils = require('../../utils/rigthsUtils');
 
 let router = express.Router();
 
