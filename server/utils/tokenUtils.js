@@ -16,7 +16,9 @@ const tokenUtils = new function() {
 
 		const payload = {
 			tokenType: config.token.access.type, //?
-			expiresIn: expiresIn,   //! время жизни д.б. быть внутри аксесс токена, тк его нельзя изменить!
+			//! время жизни аксесс токена должно быть внутри аксесс токена - для проверки на сервере,
+			// и отдельно - для проверки на фронте
+			expiresIn: expiresIn,   
 			userId: user.id,
 			userRole: user.role,
 		};
@@ -74,15 +76,17 @@ const tokenUtils = new function() {
 		const tasks = [];
 
 		tasks.push(this.getAccessToken(user));
+		tasks.push(this.getAccessTokenExpiresIn());
 		tasks.push(this.getRefreshToken());
 		tasks.push(this.getRefreshTokenExpiresIn());
 
 		return Promise.all(tasks)
-			.spread((accessToken, refreshToken, refreshTokenExpiresIn) => {
+			.spread((accessToken, accessTokenExpiresIn, refreshToken, refreshTokenExpiresIn) => {
 				const tokensData = {
 					accessToken: accessToken,
 					refreshToken: refreshToken,
-					expiresIn: refreshTokenExpiresIn,  //время жизни сессии = времени жизни рефреш токена
+					accessTokenExpiresIn: accessTokenExpiresIn,
+					refreshTokenExpiresIn: refreshTokenExpiresIn,  //время жизни сессии = времени жизни рефреш токена
 				};
 
 				return tokensData;

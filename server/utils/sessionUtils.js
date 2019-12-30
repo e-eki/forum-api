@@ -56,7 +56,7 @@ const sessionUtils = new function() {
 					userId: user.id,
 					fingerprint: fingerprint,
 					refreshToken: tokensData.refreshToken,
-					expiresIn: tokensData.expiresIn,
+					expiresIn: tokensData.refreshTokenExpiresIn,
 				};
 
 				tasks.push(sessionModel.create(session));
@@ -66,7 +66,7 @@ const sessionUtils = new function() {
 			.spread((tokensData, dbResponse) => {
 				utils.logDbErrors(dbResponse);
 
-				delete tokensData.expiresIn;  //?
+				delete tokensData.refreshTokenExpiresIn;
 				return tokensData;
 			})
 	};
