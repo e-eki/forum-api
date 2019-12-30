@@ -50,16 +50,50 @@ router.route('/section')
   })
 
   // создание нового раздела
+  /*data = {
+		name,
+    description,
+    orderNumber
+	}*/
   .post(function(req, res) {
-    const data = {
-      name: req.body.name,
-      description: req.body.description,
-      senderId: req.body.senderId,
-      orderNumber: req.body.orderNumber,
-    };
+    return Promise.resolve(true)
+			.then(() => {
+        const validationErrors = [];
 
-    return sectionModel.create(data)
-      .then((dbResponse) => {
+				//validate req.body
+				if (!req.body.name || req.body.name == '') {
+					validationErrors.push('empty name');
+				}
+				if (!req.body.orderNumber || req.body.orderNumber == '') {
+					validationErrors.push('empty orderNumber');
+				}
+				if (validationErrors.length !== 0) {
+					throw utils.initError(errors.FORBIDDEN, validationErrors);
+        }
+
+				//get token from header
+				const headerAuthorization = req.header('Authorization') || '';
+				const accessToken = tokenUtils.getAccessTokenFromHeader(headerAuthorization);
+				
+				return tokenUtils.checkAccessTokenAndGetUser(accessToken);
+			})
+			.then(user => {
+        // проверяем права
+        if (!rightsUtils.isRightsValid(user) ||
+            !rightsUtils.isRightsValidForSection(user)) {
+              throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
+        }
+
+        const data = {
+          name: req.body.name,
+          description: req.body.description,
+          senderId: user.id,
+          orderNumber: req.body.orderNumber,
+        };
+
+        return sectionModel.create(data);
+      })
+      .then(dbResponse => {
         utils.logDbErrors(dbResponse);
 
         const id = (dbResponse._doc && dbResponse._doc._id) ? dbResponse._doc._id.toString() : null;
@@ -85,7 +119,7 @@ router.route('/section/:id')
 
   // получение раздела по его id
   .get(function(req, res) {      
-    return Promise.resolve(sectionModel.query({id: req.params.id}))   //({_id: req.params.id})
+    return Promise.resolve(sectionModel.query({id: req.params.id}))
       .then(results => {
         const section = results[0];
         const tasks = [];
@@ -111,15 +145,36 @@ router.route('/section/:id')
 	})
 
   // редактирование данных раздела по его id
+  /*data = {
+		name,
+    description,
+    orderNumber
+	}*/
   .put(function(req, res) {
-    const data = {
-      name: req.body.name,
-      description: req.body.description,
-      senderId: req.body.senderId,
-      orderNumber: req.body.orderNumber,
-    };
+    return Promise.resolve(true)
+			.then(() => {
+				//get token from header
+				const headerAuthorization = req.header('Authorization') || '';
+				const accessToken = tokenUtils.getAccessTokenFromHeader(headerAuthorization);
+				
+				return tokenUtils.checkAccessTokenAndGetUser(accessToken);
+			})
+			.then(user => {
+        // проверяем права
+        if (!rightsUtils.isRightsValid(user) ||
+            !rightsUtils.isRightsValidForSection(user)) {
+              throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
+        }
 
-    return sectionModel.update(req.params.id, data)
+        const data = {
+          name: req.body.name,
+          description: req.body.description,
+          senderId: user.id,  //todo? updaterId
+          orderNumber: req.body.orderNumber,
+        };
+
+        return sectionModel.update(req.params.id, data);
+      })
       .then(dbResponse => {
         utils.logDbErrors(dbResponse);
 
@@ -137,7 +192,23 @@ router.route('/section/:id')
     const sectionsUpdateTasks = [];
     const deleteTasks = [];
 
-    return sectionModel.query()
+    return Promise.resolve(true)
+			.then(() => {
+				//get token from header
+				const headerAuthorization = req.header('Authorization') || '';
+				const accessToken = tokenUtils.getAccessTokenFromHeader(headerAuthorization);
+				
+				return tokenUtils.checkAccessTokenAndGetUser(accessToken);
+			})
+			.then(user => {
+        // проверяем права
+        if (!rightsUtils.isRightsValid(user) ||
+            !rightsUtils.isRightsValidForSection(user)) {
+              throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
+        }
+
+        return sectionModel.query();
+      })
       .then(sections => {
         // корректируем номер порядка у всех элементов, следующих за удаляемым
         if (sections && sections.length) {

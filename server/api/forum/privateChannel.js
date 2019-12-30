@@ -14,8 +14,8 @@ let router = express.Router();
 //----- endpoint: /api/forum/private-channel/
 router.route('/private-channel')
 
-  /*data = {
-		recipientId
+  /*query = {
+		  recipientId
 	}*/
   .get(function(req, res) {
     return Promise.resolve(true)
@@ -101,6 +101,16 @@ router.route('/private-channel')
   .post(function(req, res) {
     return Promise.resolve(true)
 			.then(() => {
+        const validationErrors = [];
+
+				//validate req.body
+				if (!req.body.recipientId || req.body.recipientId == '') {
+					validationErrors.push('empty recipientId');
+				}
+				if (validationErrors.length !== 0) {
+					throw utils.initError(errors.FORBIDDEN, validationErrors);
+        }
+
 				//get token from header
 				const headerAuthorization = req.header('Authorization') || '';
 				const accessToken = tokenUtils.getAccessTokenFromHeader(headerAuthorization);
@@ -147,26 +157,36 @@ router.route('/private-channel/:id')
 
   // получение приватного чата по его id
   .get(function(req, res) { 
-    const userId = '5dd6d4c6d0412d25e4895fad'; //todo
+    return Promise.resolve(true)
+			.then(() => {
+				//get token from header
+				const headerAuthorization = req.header('Authorization') || '';
+        const accessToken = tokenUtils.getAccessTokenFromHeader(headerAuthorization);
+        
+        const tasks = [];
+				
+        tasks.push(tokenUtils.checkAccessTokenAndGetUser(accessToken));
+        
+        tasks.push(privateChannelModel.query({id: req.params.id}));
 
-    return Promise.resolve(privateChannelModel.query({id: req.params.id}))
-      .then(results => {
-        if (results && results.length) {
-          const privateChannel = results[0];
+        return Promise.all(tasks);
+			})
+			.spread((user, results) => {
+        if (!results.length) {
+          throw utils.initError(errors.FORBIDDEN);
+        }
 
-          return channelUtils.getNameForPrivateChannel(privateChannel, userId);
+        const privateChannel = results[0];
+
+        // проверяем права
+        if (user.id !== privateChannel.senderId && user.id !== privateChannel.recipientId) {  //todo: check!
+              throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
         }
-        else {
-          return false;
-        }
+
+        return channelUtils.getNameForPrivateChannel(privateChannel, userId);
       })
       .then(privateChannel => {
-        if (privateChannel) {
-          return channelUtils.getMessagesDataForChannel(privateChannel);
-        }
-        else {
-          return false;
-        }
+        return channelUtils.getMessagesDataForChannel(privateChannel);
       })
       .then((privateChannel) => {
       //   const tasks = [];
@@ -192,14 +212,45 @@ router.route('/private-channel/:id')
 	})
 
   // редактирование данных приватного чата по его id
+  /*data = {
+		  descriptionMessageId
+	}*/
   .put(function(req, res) {
-    const data = {
-      senderId: req.body.senderId,
-      descriptionMessageId: req.body.descriptionMessageId,
-      //lastVisitDate: req.body.lastVisitDate,  //?
-    };
+    return Promise.resolve(true)
+			.then(() => {
+				//get token from header
+				const headerAuthorization = req.header('Authorization') || '';
+        const accessToken = tokenUtils.getAccessTokenFromHeader(headerAuthorization);
+        
+        const tasks = [];
+				
+        tasks.push(tokenUtils.checkAccessTokenAndGetUser(accessToken));
+        
+        tasks.push(privateChannelModel.query({id: req.params.id}));
 
-    return privateChannelModel.update(req.params.id, data)
+        return Promise.all(tasks);
+			})
+			.spread((user, results) => {
+        if (!results.length) {
+          throw utils.initError(errors.FORBIDDEN);
+        }
+
+        const privateChannel = results[0];
+
+        // проверяем права
+        if (!rightsUtils.isRightsValid(user) ||
+            (user.id !== privateChannel.senderId && user.id !== privateChannel.recipientId)) {  //todo: check!
+              throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
+        }
+
+        const data = {
+          //senderId: req.body.senderId,
+          descriptionMessageId: req.body.descriptionMessageId,
+          //lastVisitDate: req.body.lastVisitDate,  //?
+        };
+
+        return privateChannelModel.update(req.params.id, data);
+      })
       .then(dbResponse => {
         utils.logDbErrors(dbResponse);
 
@@ -214,9 +265,37 @@ router.route('/private-channel/:id')
   .delete(function(req, res) {
     const deleteTasks = [];
 
-    deleteTasks.push(privateChannelModel.delete(req.params.id));
+    return Promise.resolve(true)
+			.then(() => {
+				//get token from header
+				const headerAuthorization = req.header('Authorization') || '';
+        const accessToken = tokenUtils.getAccessTokenFromHeader(headerAuthorization);
+        
+        const tasks = [];
+				
+        tasks.push(tokenUtils.checkAccessTokenAndGetUser(accessToken));
+        
+        tasks.push(privateChannelModel.query({id: req.params.id}));
 
-    return messageModel.query({channelId: req.params.id})
+        return Promise.all(tasks);
+			})
+			.spread((user, results) => {
+        if (!results.length) {
+          throw utils.initError(errors.FORBIDDEN);
+        }
+
+        const privateChannel = results[0];
+
+        // проверяем права
+        if (!rightsUtils.isRightsValid(user) ||
+            (user.id !== privateChannel.senderId && user.id !== privateChannel.recipientId)) {  //todo: check!
+              throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
+        }
+
+        deleteTasks.push(privateChannelModel.delete(req.params.id));
+
+        return messageModel.query({channelId: req.params.id});
+      })
       .then(messages => {
 
         if (messages && messages.length) {
@@ -227,7 +306,7 @@ router.route('/private-channel/:id')
 
         return Promise.all(deleteTasks);
       })
-      .then((dbResponse) => {
+      .then(dbResponse => {
         utils.logDbErrors(dbResponse);
         
         return utils.sendResponse(res);  //??data

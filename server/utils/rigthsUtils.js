@@ -32,6 +32,20 @@ const rightsUtils = new function() {
 		// удалить чат могут админ и модератор
         return (user.role === config.userRoles.admin || user.role === config.userRoles.moderator);
 	};
+
+	//---- section
+
+	// есть ли права у юзера добавить/изменить/удалить раздел
+	this.isRightsValidForSection = function(user) {
+        return (user.role === config.userRoles.admin);
+	};
+
+	//---- subSection
+
+	// есть ли права у юзера добавить/изменить/удалить подраздел
+	this.isRightsValidForSubSection = function(user) {
+        return (user.role === config.userRoles.admin);
+	};
 };
 
 module.exports = rightsUtils;

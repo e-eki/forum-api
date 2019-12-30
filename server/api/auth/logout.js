@@ -40,7 +40,9 @@ router.route('/logout')
 			.then(user => {	
 				return sessionUtils.deleteAllUserSessions(user.id);
 			})
-			.then(result => {
+			.then(dbResponses => {
+				utils.logDbErrors(dbResponses);
+				
 				return utils.sendResponse(res, 'User is logged out', 204);
 			})
 			.catch((error) => {

@@ -4,7 +4,6 @@ const express = require('express');
 const Promise = require('bluebird');
 const utils = require('../../utils/baseUtils');
 const userInfoModel = require('../../mongoDB/models/userInfo');
-const ObjectId = require('mongoose').Types.ObjectId;
 const rightsUtils = require('../../utils/rigthsUtils');
 const errors = require('../../utils/errors');
 
@@ -13,12 +12,11 @@ let router = express.Router();
 //----- endpoint: /api/forum/user-info/
 router.route('/user-info')
 
-  // метод не поддерживается - информация о юзере доступна только по id
   .get(function(req, res) { 
     return utils.sendErrorResponse(res, errors.UNSUPPORTED_METHOD);
   })
 
-  // метод не поддерживается - todo???
+  // userInfo создается вместе с user при регистрации
   .post(function(req, res) {
     return utils.sendErrorResponse(res, errors.UNSUPPORTED_METHOD);
   })
@@ -35,22 +33,17 @@ router.route('/user-info')
 //----- endpoint: /api/forum/user-info/:id
 router.route('/user-info/:id')
 
-  // получение информации о юзере по его id - todo???
+  // получение информации о юзере по его id
   .get(function(req, res) {      
     return userInfoModel.query({id: req.params.id})
-      .then((data) => {
-        data = {
-          id: new ObjectId(req.params.id),  //todo!
-          login: 'VASYA',
-          // 	name: { type: String },
-          birthDate: new Date(),
-          city: 'Moscow',
-          // 	profession: { type: String },
-          // 	hobby: { type: String },
-          captionText: 'All you need is love',
-        };
+      .then(results => {
+        if (!results.length) {
+          throw utils.initError(errors.FORBIDDEN);
+        }
 
-        return utils.sendResponse(res, data);
+        const userInfo = results[0];
+
+        return utils.sendResponse(res, userInfo);
       })
       .catch((error) => {
 				return utils.sendErrorResponse(res, error);
@@ -61,9 +54,52 @@ router.route('/user-info/:id')
 		return utils.sendErrorResponse(res, errors.UNSUPPORTED_METHOD);
 	})
 
-  // редактирование информации юзера по его id - todo??
+  // редактирование информации юзера по его id
+  /*data = {
+		login,
+    name,
+    birthDate,
+    city,
+    profession,
+    hobby,
+    captionText
+	}*/
   .put(function(req, res) {
-    return utils.sendErrorResponse(res, errors.UNSUPPORTED_METHOD);
+    return Promise.resolve(true)
+			.then(() => {
+				//get token from header
+				const headerAuthorization = req.header('Authorization') || '';
+				const accessToken = tokenUtils.getAccessTokenFromHeader(headerAuthorization);
+				
+				return tokenUtils.checkAccessTokenAndGetUser(accessToken);
+			})
+			.then(user => {
+        // проверяем права
+        if (!rightsUtils.isRightsValid(user) ||
+            (user.id !== req.params.id)) {
+              throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
+        }
+
+        const data = {
+          login: req.body.login,
+          name: req.body.name,
+          birthDate: req.body.birthDate,
+          city: req.body.city,
+          profession: req.body.profession,
+          hobby: req.body.hobby,
+          captionText: req.body.captionText,
+        };
+
+        return userInfoModel.update(req.params.id, data);
+      })
+      .then(dbResponse => {
+        utils.logDbErrors(dbResponse);
+
+        return utils.sendResponse(res, dbResponse, 201);
+      })
+      .catch((error) => {
+        return utils.sendErrorResponse(res, error, 500);
+      });
   })
 
   // удаление информации юзера по его id - todo??

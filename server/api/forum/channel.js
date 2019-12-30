@@ -39,9 +39,28 @@ router.route('/channel')
   })
 
   // создание нового чата
+  /*data = {
+		name,
+    description,
+    subSectionId,
+    descriptionMessageId
+	}*/
   .post(function(req, res) {
     return Promise.resolve(true)
 			.then(() => {
+        const validationErrors = [];
+
+				//validate req.body
+				if (!req.body.name || req.body.name == '') {
+					validationErrors.push('empty name');
+				}
+				if (!req.body.subSectionId || req.body.subSectionId == '') {
+					validationErrors.push('empty subSectionId');
+				}
+				if (validationErrors.length !== 0) {
+					throw utils.initError(errors.FORBIDDEN, validationErrors);
+        }
+        
 				//get token from header
 				const headerAuthorization = req.header('Authorization') || '';
 				const accessToken = tokenUtils.getAccessTokenFromHeader(headerAuthorization);
@@ -57,7 +76,7 @@ router.route('/channel')
         const data = {
           name: req.body.name,
           description: req.body.description,
-          senderId: req.body.senderId,
+          senderId: user.id,
           subSectionId: req.body.subSectionId,
           descriptionMessageId: req.body.descriptionMessageId,
           //lastVisitDate: new Date(),  //?
@@ -158,6 +177,12 @@ router.route('/channel/:id')
 	})
 
   // редактирование данных чата по его id
+  /*data = {
+		name,
+    description,
+    subSectionId,
+    descriptionMessageId
+	}*/
   .put(function(req, res) {
     return Promise.resolve(true)
 			.then(() => {
@@ -177,7 +202,7 @@ router.route('/channel/:id')
         const data = {
           name: req.body.name,
           description: req.body.description,
-          senderId: req.body.senderId,
+          senderId: user.id,  //todo? updaterId
           subSectionId: req.body.subSectionId,
           descriptionMessageId: req.body.descriptionMessageId,
           //lastVisitDate: req.body.lastVisitDate,  //?
@@ -227,8 +252,8 @@ router.route('/channel/:id')
 
         return Promise.all(deleteTasks);
       })
-      .then(dbResponse => {
-        utils.logDbErrors(dbResponse);
+      .then(dbResponses => {
+        utils.logDbErrors(dbResponses);
 
         return utils.sendResponse(res);  //??data
       })

@@ -30,17 +30,55 @@ router.route('/subsection')
   })
 
   // создание нового подраздела
+  /*data = {
+		name,
+    description,
+    sectionId,
+    orderNumber
+	}*/
   .post(function(req, res) {
-    const data = {
-      name: req.body.name,
-      description: req.body.description,
-      senderId: req.body.senderId,
-      sectionId: req.body.sectionId,
-      orderNumber: req.body.orderNumber,
-    };
+    return Promise.resolve(true)
+			.then(() => {
+        const validationErrors = [];
 
-    return subSectionModel.create(data)
-      .then((dbResponse) => {
+				//validate req.body
+				if (!req.body.name || req.body.name == '') {
+					validationErrors.push('empty name');
+				}
+				if (!req.body.sectionId || req.body.sectionId == '') {
+					validationErrors.push('empty sectionId');
+        }
+        if (!req.body.orderNumber || req.body.orderNumber == '') {
+					validationErrors.push('empty orderNumber');
+				}
+				if (validationErrors.length !== 0) {
+					throw utils.initError(errors.FORBIDDEN, validationErrors);
+        }
+
+				//get token from header
+				const headerAuthorization = req.header('Authorization') || '';
+				const accessToken = tokenUtils.getAccessTokenFromHeader(headerAuthorization);
+				
+				return tokenUtils.checkAccessTokenAndGetUser(accessToken);
+			})
+			.then(user => {
+        // проверяем права
+        if (!rightsUtils.isRightsValid(user) ||
+            !rightsUtils.isRightsValidForSubSection(user)) {
+              throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
+        }
+
+        const data = {
+          name: req.body.name,
+          description: req.body.description,
+          senderId: user.id,
+          sectionId: req.body.sectionId,
+          orderNumber: req.body.orderNumber,
+        };
+
+        return subSectionModel.create(data);
+      })
+      .then(dbResponse => {
         utils.logDbErrors(dbResponse);
 
 				const id = (dbResponse._doc && dbResponse._doc._id) ? dbResponse._doc._id.toString() : null;
@@ -65,7 +103,7 @@ router.route('/subsection')
 router.route('/subsection/:id')
 
   // получение подраздела по его id
-  .get(function(req, res) {      
+  .get(function(req, res) {   
     return Promise.resolve(subSectionModel.query({id: req.params.id}))
       .then(results => {
         const subSection = results[0];
@@ -129,16 +167,38 @@ router.route('/subsection/:id')
 	})
 
   // редактирование данных подраздела по его id
+  /*data = {
+		name,
+    description,
+    sectionId,
+    orderNumber
+	}*/
   .put(function(req, res) {
-    const data = {
-      name: req.body.name,
-      description: req.body.description,
-      senderId: req.body.senderId,
-      sectionId: req.body.sectionId,
-      orderNumber: req.body.orderNumber,
-    };
+    return Promise.resolve(true)
+			.then(() => {
+				//get token from header
+				const headerAuthorization = req.header('Authorization') || '';
+				const accessToken = tokenUtils.getAccessTokenFromHeader(headerAuthorization);
+				
+				return tokenUtils.checkAccessTokenAndGetUser(accessToken);
+			})
+			.then(user => {
+        // проверяем права
+        if (!rightsUtils.isRightsValid(user) ||
+            !rightsUtils.isRightsValidForSubSection(user)) {
+              throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
+        }
 
-    return subSectionModel.update(req.params.id, data)
+        const data = {
+          name: req.body.name,
+          description: req.body.description,
+          senderId: user.id,   //todo? updaterId
+          sectionId: req.body.sectionId,
+          orderNumber: req.body.orderNumber,
+        };
+
+        return subSectionModel.update(req.params.id, data);
+      })
       .then(dbResponse => {
         utils.logDbErrors(dbResponse);
 
@@ -156,7 +216,23 @@ router.route('/subsection/:id')
     const subSectionsUpdateTasks = [];
     const deleteTasks = [];
 
-    return subSectionModel.query()
+    return Promise.resolve(true)
+			.then(() => {
+				//get token from header
+				const headerAuthorization = req.header('Authorization') || '';
+				const accessToken = tokenUtils.getAccessTokenFromHeader(headerAuthorization);
+				
+				return tokenUtils.checkAccessTokenAndGetUser(accessToken);
+			})
+			.then(user => {
+        // проверяем права
+        if (!rightsUtils.isRightsValid(user) ||
+            !rightsUtils.isRightsValidForSubSection(user)) {
+              throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
+        }
+
+        return subSectionModel.query();
+      })
       .then(subSections => {
         // корректируем номер порядка у всех элементов, следующих за удаляемым
         if (subSections && subSections.length) {

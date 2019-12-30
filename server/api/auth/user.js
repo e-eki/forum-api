@@ -47,6 +47,10 @@ router.route('/user/:id')
 	})
 
   // редактирование данных юзера по его id
+	/*data = {
+		role,
+		inBlackList
+	}*/
   .put(function(req, res) {
     return Promise.resolve(true)
 			.then(() => {

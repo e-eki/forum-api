@@ -38,9 +38,32 @@ router.route('/message')
   })
 
   // создание нового сообщения
+  /*data = {
+		date,
+    text,
+    recipientId,
+    channelId
+	}*/
   .post(function(req, res) {
     return Promise.resolve(true)
 			.then(() => {
+        const validationErrors = [];
+
+				//validate req.body
+				if (!req.body.date || req.body.date == '') {
+					validationErrors.push('empty date');
+				}
+				if (!req.body.text || req.body.text == '') {
+					validationErrors.push('empty text');
+        }
+        if ((!req.body.recipientId || req.body.recipientId == '') &&
+            (!req.body.channelId || req.body.channelId == '')) {
+					    validationErrors.push('empty recipientId & channelId');
+				}
+				if (validationErrors.length !== 0) {
+					throw utils.initError(errors.FORBIDDEN, validationErrors);
+        }
+
 				//get token from header
 				const headerAuthorization = req.header('Authorization') || '';
 				const accessToken = tokenUtils.getAccessTokenFromHeader(headerAuthorization);
@@ -56,7 +79,7 @@ router.route('/message')
         const data = {
           date: req.body.date,
           text: req.body.text,
-          senderId: req.body.senderId,
+          senderId: user.id,
           recipientId: req.body.recipientId,
           channelId: req.body.channelId,
         };
@@ -108,6 +131,11 @@ router.route('/message/:id')
 	})
 
   // редактирование данных сообщения по его id
+  /*data = {
+		date,
+    text,
+    channelId
+	}*/
   .put(function(req, res) {
     return Promise.resolve(true)
 			.then(() => {
@@ -127,8 +155,8 @@ router.route('/message/:id')
         const data = {
           date: req.body.date,
           text: req.body.text,
-          senderId: req.body.senderId,
-          recipientId: req.body.recipientId,
+          senderId: user.id,  //todo? updaterId
+          //recipientId: req.body.recipientId,
           channelId: req.body.channelId,
         };
 
