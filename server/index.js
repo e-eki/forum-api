@@ -62,7 +62,6 @@ app.use(bodyParser.json({type: 'application/json'}));
 // запросы к api
 app.use('/api', require('./api/auth/registration'));
 app.use('/api', require('./api/auth/emailConfirm'));
-
 app.use('/api', require('./api/auth/login'));
 app.use('/api', require('./api/auth/logout'));
 app.use('/api', require('./api/auth/resetPassword'));
@@ -75,21 +74,6 @@ app.use('/api', require('./api/forum/channel'));
 app.use('/api', require('./api/forum/privateChannel'));
 app.use('/api', require('./api/forum/message'));
 app.use('/api', require('./api/forum/userInfo'));
-
-// app.use('/api', require(`./api/auth/${config.apiRoutes.registration}`));
-// app.use('/api', require(`./api/auth/${config.apiRoutes.emailConfirm}`));
-// // app.use('/api', require(`./api/auth/${config.apiRoutes.login}`));
-// // app.use('/api', require(`./api/auth/${config.apiRoutes.logout}`));
-// // app.use('/api', require(`./api/auth/${config.apiRoutes.resetPassword}`));
-// // app.use('/api', require(`./api/auth/${config.apiRoutes.refreshTokens}`));
-// app.use('/api', require(`./api/auth/${config.apiRoutes.user}`));
-
-// app.use('/api', require(`./api/forum/${config.apiRoutes.section}`));
-// app.use('/api', require(`./api/forum/${config.apiRoutes.subSection}`));
-// app.use('/api', require(`./api/forum/${config.apiRoutes.channel}`));
-// app.use('/api', require(`./api/forum/${config.apiRoutes.privateChannel}`));
-// app.use('/api', require(`./api/forum/${config.apiRoutes.message}`));
-// app.use('/api', require(`./api/forum/${config.apiRoutes.userInfo}`));
 
 // ---------------------------------------------------------------
 
