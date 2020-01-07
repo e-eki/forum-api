@@ -53,7 +53,7 @@ router.route('/login')
 				// для завершения входа нужен еще fingerprint устройства юзера,
 				// пока что сохраняем id юзера и отправляем клиенту id сохраненных данных
 				// в ответ клиент отправляет id сохраненных данных и fingerprint - через PUT,
-				// где завершается процедура входа на сайт
+				// где завершается процедура входа на сайт через соцсеть
 
 				tasks.push(socialLoginDataModel.query({userId: user.id}));
 
@@ -61,7 +61,7 @@ router.route('/login')
 			})
 			.spread((user, results) => {
 				if (results.length && (results.length >= config.security.socialLoginAttemptsMaxCount)) {
-					throw utils.initError(errors.VALIDATION_ERROR, 'Количество запросов на вход через соцсеть больше допустимого. Заходите через сайт. Или обратитесь к администратору сайта.');
+					throw utils.initError(errors.VALIDATION_ERROR, 'Количество запросов на вход через соцсеть больше допустимого. Заходите через сайт. Или обратитесь к администратору сайта.');   //?
 				}
 
 				const socialLoginData = {
@@ -124,7 +124,9 @@ router.route('/login')
 
 				return Promise.all(tasks);
 			})
-			.spread((user, result) => {
+			.spread((user, dbResponse) => {
+				utils.logDbErrors(dbResponse);
+
 				return sessionUtils.addNewSessionAndGetTokensData(user, req.body.fingerprint);
 			})
 			.then(tokensData => {
