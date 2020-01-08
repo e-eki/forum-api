@@ -9,6 +9,7 @@ const channelUtils = require('../../utils/channelUtils');
 const sectionModel = require('../../mongoDB/models/section');
 const subSectionModel = require('../../mongoDB/models/subSection');
 const rightsUtils = require('../../utils/rigthsUtils');
+const tokenUtils = require('../../utils/tokenUtils');
 const errors = require('../../utils/errors');
 
 let router = express.Router();

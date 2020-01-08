@@ -7,6 +7,7 @@ const channelModel = require('../../mongoDB/models/channel');
 const messageModel = require('../../mongoDB/models/message');
 const messageUtils = require('../../utils/messageUtils');
 const rightsUtils = require('../../utils/rigthsUtils');
+const tokenUtils = require('../../utils/tokenUtils');
 const errors = require('../../utils/errors');
 
 let router = express.Router();
