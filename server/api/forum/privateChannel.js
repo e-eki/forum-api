@@ -135,9 +135,10 @@ router.route('/private-channel')
       .then((dbResponse) => {
         utils.logDbErrors(dbResponse);
 
-				const id = (dbResponse._doc && dbResponse._doc._id) ? dbResponse._doc._id.toString() : null;
+        const id = (dbResponse._doc && dbResponse._doc._id) ? dbResponse._doc._id.toString() : null;
+        const senderId = (dbResponse._doc && dbResponse._doc._senderId) ? dbResponse._doc._senderId.toString() : null;  //?
 
-				return utils.sendResponse(res, {text: 'successfully saved', id: id}, 201);
+				return utils.sendResponse(res, {text: 'successfully saved', id: id, senderId: senderId}, 201);
 			})
 			.catch((error) => {
 				return utils.sendErrorResponse(res, error, 500);

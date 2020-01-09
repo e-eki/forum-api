@@ -3,6 +3,7 @@
 const express = require('express');
 const Promise = require('bluebird');
 const utils = require('../../utils/baseUtils');
+const userModel = require('../../mongoDB/models/user');
 const userInfoModel = require('../../mongoDB/models/userInfo');
 const rightsUtils = require('../../utils/rigthsUtils');
 const tokenUtils = require('../../utils/tokenUtils');
@@ -81,22 +82,35 @@ router.route('/user-info/:id')
 
         const tasks = [];
 
-        const shownForManageRole = ((user.role === config.userRoles.admin) || 
-                                    (user.role === config.userRoles.moderator));
+        const canEditRole = rightsUtils.isRightsValidForRole(user);
+        const canEditBlackList = rightsUtils.isRightsValidForBlackList(user);
 
-        tasks.push(shownForManageRole);
+        tasks.push(canEditRole);
+        tasks.push(canEditBlackList);
 
         tasks.push(userInfoModel.query({id: req.params.id}));
 
         return Promise.all(tasks);
       })
-      .spread((shownForManageRole, results) => {
+      .spread((canEditRole, canEditBlackList, results) => {
         if (!results.length) {
           throw utils.initError(errors.FORBIDDEN);
         }
 
         const userInfo = results[0];
-        userInfo.shownForManageRole = shownForManageRole;
+        userInfo.canEditRole = canEditRole;
+        userInfo.canEditBlackList = canEditBlackList;
+
+        const tasks = [];
+        tasks.push(userInfo);
+
+        tasks.push(userModel.query({id: userInfo.userId}));
+
+        return Promise.all(tasks);
+      })
+      .spread((userInfo, user) => {
+        userInfo.role = user.role;
+        userInfo.inBlackList = user.inBlackList;
 
         return utils.sendResponse(res, userInfo);
       })
@@ -116,9 +130,14 @@ router.route('/user-info/:id')
     city,
     profession,
     hobby,
-    captionText
+    captionText,
+    role,
+    inBlackList
 	}*/
   .put(function(req, res) {
+    let canEditRole;
+    let canEditBlackList;
+
     return Promise.resolve(true)
 			.then(() => {
 				//get token from header
@@ -134,7 +153,44 @@ router.route('/user-info/:id')
               throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
         }
 
-        const data = {
+        canEditRole = rightsUtils.isRightsValidForRole(user);
+        canEditBlackList = rightsUtils.isRightsValidForBlackList(user);
+
+        if (canEditRole || canEditBlackList) {
+          return userInfoModel.query({id: req.params.id});
+        }
+        else {
+          return false;
+        }
+      })
+      .then(results => {
+        if (!results || !results.length) {
+          return false;
+        }
+        else {
+          const userInfo = results[0];
+
+          return userModel.query({id: userInfo.userId});
+        }
+      })
+      .then(results => {
+        const tasks = [];
+
+        if (results && results.length) {
+          const user = results[0];
+
+          const userData = {
+            role: (canEditRole ? req.body.role : null),
+            inBlackList: (canEditBlackList ? req.body.inBlackList : null),
+          };
+
+          tasks.push(userModel.update(user.id, userData));
+        }
+        else {
+          tasks.push(false);
+        }
+
+        const userInfoData = {
           name: req.body.name,
           birthDate: req.body.birthDate,
           city: req.body.city,
@@ -143,10 +199,12 @@ router.route('/user-info/:id')
           captionText: req.body.captionText,
         };
 
-        return userInfoModel.update(req.params.id, data);
+        tasks.push(userInfoModel.update(req.params.id, userInfoData));
+
+        return Promise.all(tasks);
       })
-      .then(dbResponse => {
-        utils.logDbErrors(dbResponse);
+      .then(dbResponses => {
+        utils.logDbErrors(dbResponses);
 
         return utils.sendResponse(res, dbResponse, 201);
       })
