@@ -37,7 +37,7 @@ router.route('/user')
 //----- endpoint: /api/auth/user/:id
 router.route('/user/:id')
 
-  // получение юзера по его id
+  // метод не поддерживается - только получение userInfo по id
   .get(function(req, res) {      
     return utils.sendErrorResponse(res, errors.UNSUPPORTED_METHOD);
   })
@@ -46,43 +46,46 @@ router.route('/user/:id')
 		return utils.sendErrorResponse(res, errors.UNSUPPORTED_METHOD);
 	})
 
-  // редактирование данных юзера по его id
-	/*data = {
-		role,
-		inBlackList
-	}*/
+  //метод не поддерживается - редактирование данных user проиходит посредством редактирования данных userInfo
+  // // редактирование данных юзера по его id
+	// /*data = {
+	// 	role,
+	// 	inBlackList
+	// }*/
   .put(function(req, res) {
-    return Promise.resolve(true)
-			.then(() => {
-				//get token from header
-				const headerAuthorization = req.header('Authorization') || '';
-				const accessToken = tokenUtils.getAccessTokenFromHeader(headerAuthorization);
+    return utils.sendErrorResponse(res, errors.UNSUPPORTED_METHOD);
+
+    // return Promise.resolve(true)
+		// 	.then(() => {
+		// 		//get token from header
+		// 		const headerAuthorization = req.header('Authorization') || '';
+		// 		const accessToken = tokenUtils.getAccessTokenFromHeader(headerAuthorization);
 				
-				return tokenUtils.checkAccessTokenAndGetUser(accessToken);
-			})
-			.then(user => {
-        // проверяем права
-        if (!rightsUtils.isRightsValid(user) ||
-            (req.body.inBlackList && !rightsUtils.isRightsValidForBlackList(user)) ||
-            (req.body.role && !rightsUtils.isRightsValidForRole(user))) {
-              throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
-        }
+		// 		return tokenUtils.checkAccessTokenAndGetUser(accessToken);
+		// 	})
+		// 	.then(user => {
+    //     // проверяем права
+    //     if (!rightsUtils.isRightsValid(user) ||
+    //         (req.body.inBlackList && !rightsUtils.isRightsValidForBlackList(user)) ||
+    //         (req.body.role && !rightsUtils.isRightsValidForRole(user))) {
+    //           throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
+    //     }
         
-        const data = {
-          role: req.body.role,
-          inBlackList: req.body.inBlackList,
-        };
+    //     const data = {
+    //       role: req.body.role,
+    //       inBlackList: req.body.inBlackList,
+    //     };
 
-        return userModel.update(req.params.id, data);
-      })
-      .then(dbResponse => {
-        utils.logDbErrors(dbResponse);
+    //     return userModel.update(req.params.id, data);
+    //   })
+    //   .then(dbResponse => {
+    //     utils.logDbErrors(dbResponse);
 
-        return utils.sendResponse(res, 'user updated successfully', 201);
-      })
-      .catch((error) => {
-				return utils.sendErrorResponse(res, error);
-      });
+    //     return utils.sendResponse(res, 'user updated successfully', 201);
+    //   })
+    //   .catch((error) => {
+		// 		return utils.sendErrorResponse(res, error);
+    //   });
   })
 
   // метод не поддерживается - удалить юзера нельзя (можно внести в ЧС)
@@ -103,6 +106,49 @@ router.route('/user/:id')
     //   .catch((error) => {
     //     return utils.sendErrorResponse(res, error, 500);
     //   })
+  })
+
+  //----- endpoint: /api/auth/user/data
+router.route('/user/data')
+
+  // получение данных юзера по токену
+  .get(function(req, res) {      
+    return Promise.resolve(true)
+			.then(() => {
+				//get token from header
+				const headerAuthorization = req.header('Authorization') || '';
+				const accessToken = tokenUtils.getAccessTokenFromHeader(headerAuthorization);
+				
+				return tokenUtils.checkAccessTokenAndGetUser(accessToken);
+			})
+			.then(user => {
+        let data = null;
+
+        if (user) {
+          data = {
+            id: user.id,
+            role: user.role,
+            inBlackList: user.inBlackList,
+          };
+        }
+
+        return utils.sendResponse(res, data);
+      })
+      .catch(error => {
+        return utils.sendResponse(res, null);  //??null
+      })
+  })
+
+  .post(function(req, res) {
+		return utils.sendErrorResponse(res, errors.UNSUPPORTED_METHOD);
+	})
+
+  .put(function(req, res) {
+    return utils.sendErrorResponse(res, errors.UNSUPPORTED_METHOD);
+  })
+
+  .delete(function(req, res) {
+    return utils.sendErrorResponse(res, errors.UNSUPPORTED_METHOD);
   })
 ;
 

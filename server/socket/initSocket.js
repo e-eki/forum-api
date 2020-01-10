@@ -16,6 +16,7 @@ const subSectionSocketActions = require('./subSectionSocketActions');
 const channelSocketActions = require('./channelSocketActions');
 const messageSocketActions = require('./messageSocketActions');
 const privateChannelSocketActions = require('./privateChannelSocketActions');
+const userSocketActions = require('./userSocketActions');
 
 
 module.exports = {
@@ -442,6 +443,10 @@ module.exports = {
 							// 	}
 							// }
 							//break;
+
+						//---USER-DATA
+						case actionTypes.UPDATE_USER_DATA:
+							return userSocketActions.updateUserData(io, action);
 
 
 						default:
