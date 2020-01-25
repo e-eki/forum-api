@@ -108,36 +108,36 @@ router.route('/user/:id')
     //   })
   })
 
-  //----- endpoint: /api/auth/user/data
-router.route('/user/data')
+//   //----- endpoint: /api/auth/user/data
+// router.route('/user/data')
 
-  // получение данных юзера по токену
-  .get(function(req, res) {      
-    return Promise.resolve(true)
-			.then(() => {
-				//get token from header
-				const headerAuthorization = req.header('Authorization') || '';
-				const accessToken = tokenUtils.getAccessTokenFromHeader(headerAuthorization);
+//   // получение данных юзера по токену
+//   .get(function(req, res) {      
+//     return Promise.resolve(true)
+// 			.then(() => {
+// 				//get token from header
+// 				const headerAuthorization = req.header('Authorization') || '';
+// 				const accessToken = tokenUtils.getAccessTokenFromHeader(headerAuthorization);
 				
-				return tokenUtils.checkAccessTokenAndGetUser(accessToken);
-			})
-			.then(user => {
-        let data = null;
+// 				return tokenUtils.checkAccessTokenAndGetUser(accessToken);
+// 			})
+// 			.then(user => {
+//         let data = null;
 
-        if (user) {
-          data = {
-            id: user.id,
-            role: user.role,
-            inBlackList: user.inBlackList,
-          };
-        }
+//         if (user) {
+//           data = {
+//             id: user.id,
+//             role: user.role,
+//             inBlackList: user.inBlackList,
+//           };
+//         }
 
-        return utils.sendResponse(res, data);
-      })
-      .catch(error => {
-        return utils.sendResponse(res, null);  //??null
-      })
-  })
+//         return utils.sendResponse(res, data);
+//       })
+//       .catch(error => {
+//         return utils.sendResponse(res, null);  //??null
+//       })
+//   })
 
   .post(function(req, res) {
 		return utils.sendErrorResponse(res, errors.UNSUPPORTED_METHOD);

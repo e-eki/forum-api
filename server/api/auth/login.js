@@ -130,6 +130,8 @@ router.route('/login')
 				return sessionUtils.addNewSessionAndGetTokensData(user, req.body.fingerprint);
 			})
 			.then(tokensData => {
+				delete tokensData.refreshTokenExpiresIn; //?
+
 				return utils.sendResponse(res, tokensData, 201);
 			})
 			.catch((error) => {
@@ -188,6 +190,8 @@ router.route('/login')
 				return sessionUtils.addNewSessionAndGetTokensData(user, req.body.fingerprint);
 			})
 			.then(tokensData => {
+				delete tokensData.refreshTokenExpiresIn; //?
+				
 				return utils.sendResponse(res, tokensData, 201);  
 			})
 			.catch((error) => {

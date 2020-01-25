@@ -78,6 +78,8 @@ router.route('/refresh-tokens/')
 				return sessionUtils.addNewSessionAndGetTokensData(user, req.body.fingerprint);
 			})
 			.then((tokensData) => {
+				delete tokensData.refreshTokenExpiresIn; //?
+				
 				utils.sendResponse(res, tokensData, 201);
 			})
 			.catch((error) => {

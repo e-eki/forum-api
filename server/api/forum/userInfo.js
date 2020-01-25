@@ -16,7 +16,7 @@ let router = express.Router();
 router.route('/user-info')
 
   // получение информации о юзере по его аксесс токену
-  .get(function(req, res) { 
+  .get(function(req, res) {
     return Promise.resolve(true)
 			.then(() => {
 				//get token from header

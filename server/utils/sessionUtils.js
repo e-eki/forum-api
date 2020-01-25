@@ -66,7 +66,7 @@ const sessionUtils = new function() {
 			.spread((tokensData, dbResponse) => {
 				utils.logDbErrors(dbResponse);
 
-				delete tokensData.refreshTokenExpiresIn;
+				//delete tokensData.refreshTokenExpiresIn;
 				return tokensData;
 			})
 	};
