@@ -6,6 +6,7 @@ const utils = require('../../utils/baseUtils');
 const sessionUtils = require('../../utils/sessionUtils');
 const authUtils = require('../../utils/authUtils');
 const errors = require('../../utils/errors');
+const responses = require('../../utils/responses');
 const socialLoginDataModel = require('../../mongoDB/models/socialLoginData');
 const userModel = require('../../mongoDB/models/user');
 const config = require('../../config');
@@ -76,7 +77,7 @@ router.route('/login')
 
 				const socialLoginDataId = dbResponse._doc._id;
 
-				return utils.sendResponse(res, socialLoginDataId);   //!!
+				return utils.sendResponse(res, {socialLoginDataId: socialLoginDataId});   //?
 			})
 			.catch((error) => {
 				return utils.sendErrorResponse(res, error);
@@ -132,7 +133,7 @@ router.route('/login')
 			.then(tokensData => {
 				delete tokensData.refreshTokenExpiresIn; //?
 
-				return utils.sendResponse(res, tokensData, 201);
+				return utils.sendResponse(res, tokensData, responses.CREATED_RESPONSE.status);
 			})
 			.catch((error) => {
 				return utils.sendErrorResponse(res, error);
@@ -192,7 +193,7 @@ router.route('/login')
 			.then(tokensData => {
 				delete tokensData.refreshTokenExpiresIn; //?
 				
-				return utils.sendResponse(res, tokensData, 201);  
+				return utils.sendResponse(res, tokensData, responses.CREATED_RESPONSE.status);  
 			})
 			.catch((error) => {
 				return utils.sendErrorResponse(res, error);

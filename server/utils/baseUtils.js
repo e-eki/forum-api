@@ -5,70 +5,51 @@ const Promise = require('bluebird');
 // const uuidv5 = require('uuid/v5');
 const config = require('../config');
 const errors = require('./errors');
+const responses = require('./responses');
 
 const utils = new function() {
 
     // 
 	/*data = {
-		error: <  error object {statusCode: name: message: data:} | string >,
-		status: < number >,
-		data: < error detail data >,
+		errorData: <  error object >,
+		messageData: < string or array of string >,
 	}*/
-    this.initError = function(error, data, status) {
-        let _error = {
-            __type: 'api.error'
-            , statusCode: status || 500
-            , name: errors.INTERNAL_SERVER_ERROR.name
-            , message: errors.INTERNAL_SERVER_ERROR.message
-            , data: null
-        };
+    this.initError = function(errorData, messageData) {
+        let error = {};
 
-        if (typeof error === 'indefined' || error === null) {
-            return _error;
-        }
+        error.status = (errorData && errorData.status) ? errorData.status : 500;
 
-        if (error.constructor.name === 'Error') {
-            _error.name = error.name;
-            _error.message = error.message;
-            if (data) _error.data = data;
-        }
-        else if (error.constructor.name === 'String' && errors[error]) {
-            _error.name = errors[error].name;
-            _error.message = errors[error].message;
-            // в data может быть message (если string)
-            if (data) {
-                if (data.constructor.name === 'String') {
-                    _error.message = data;
-                }
-                else {
-                    _error.data = data;
-                }
+        if (messageData) {
+            if (typeof(messageData) === 'string') {
+                error.message = messageData;
             }
-            if (errors[error].status) _error.statusCode = errors[error].status;
-        }
-        else {
-            if (error.name) _error.name = error.name;
-            if (error.message) _error.message = error.message;
-            if (data) _error.data = data;
+            else if (messageData.length) {
+                let message = '';
+
+                messageData.forEach(item => {
+                    message += item;
+                    message += ' ';
+                })
+
+                error.message = message;
+            }
         }
 
-        return _error;
+        return error;
     };
 
-    this.sendResponse = function(res, response, statusCode) {
-        let status = statusCode || 200;
-        let responseData = (response || response === false) ? response : 'OK'; //??
+    this.sendResponse = function(res, responseData, statusCode) {
+        const status = statusCode || responses.OK_RESPONSE.status;
+        const response = responseData || responses.OK_RESPONSE.message;
 
-        return res.status(status).send(responseData);
+        return res.status(status).send(response);
     };
 
-	this.sendErrorResponse = function(res, error, statusCode, data) {
-        const err = (error.__type === 'api.error') ? error : this.initError(error, data, statusCode);
-        
-        const status = err.statusCode || 500;
-        delete err.statusCode;
+	this.sendErrorResponse = function(res, error) {
+        const status = error.status || errors.INTERNAL_SERVER_ERROR.status;
+        const message = error.message || errors.INTERNAL_SERVER_ERROR.message;
 
-        return res.status(status).send(err);
+        return res.status(status).send(message);
     };
 
     // вычисляет хэш пароля

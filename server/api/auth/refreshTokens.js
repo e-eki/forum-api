@@ -7,6 +7,7 @@ const sessionUtils = require('../../utils/sessionUtils');
 const sessionModel = require('../../mongoDB/models/session');
 const userModel = require('../../mongoDB/models/user');
 const errors = require('../../utils/errors');
+const responses = require('../../utils/responses');
 
 let router = express.Router();
 
@@ -80,7 +81,7 @@ router.route('/refresh-tokens/')
 			.then((tokensData) => {
 				delete tokensData.refreshTokenExpiresIn; //?
 				
-				utils.sendResponse(res, tokensData, 201);
+				utils.sendResponse(res, tokensData, responses.CREATED_RESPONSE.status);
 			})
 			.catch((error) => {
 				return utils.sendErrorResponse(res, error);

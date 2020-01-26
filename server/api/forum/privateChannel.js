@@ -9,6 +9,7 @@ const channelUtils = require('../../utils/channelUtils');
 const rightsUtils = require('../../utils/rigthsUtils');
 const tokenUtils = require('../../utils/tokenUtils');
 const errors = require('../../utils/errors');
+const responses = require('../../utils/responses');
 
 let router = express.Router();
 
@@ -138,10 +139,10 @@ router.route('/private-channel')
         const id = (dbResponse._doc && dbResponse._doc._id) ? dbResponse._doc._id.toString() : null;
         const senderId = (dbResponse._doc && dbResponse._doc._senderId) ? dbResponse._doc._senderId.toString() : null;  //?
 
-				return utils.sendResponse(res, {text: 'successfully saved', id: id, senderId: senderId}, 201);
+				return utils.sendResponse(res, {text: 'successfully saved', id: id, senderId: senderId}, responses.CREATED_RESPONSE.status);
 			})
 			.catch((error) => {
-				return utils.sendErrorResponse(res, error, 500);
+				return utils.sendErrorResponse(res, error);
 			});
   })
   
@@ -256,10 +257,10 @@ router.route('/private-channel/:id')
       .then(dbResponse => {
         utils.logDbErrors(dbResponse);
 
-        return utils.sendResponse(res, 201);
+        return utils.sendResponse(res, responses.CREATED_RESPONSE.status);
       })
       .catch((error) => {
-				return utils.sendErrorResponse(res, error, 500);
+				return utils.sendErrorResponse(res, error);
       });
   })
 
@@ -311,10 +312,10 @@ router.route('/private-channel/:id')
       .then(dbResponse => {
         utils.logDbErrors(dbResponse);
         
-        return utils.sendResponse(res);  //??data
+        return utils.sendResponse(res);
       })
       .catch((error) => {
-        return utils.sendErrorResponse(res, error, 500);
+        return utils.sendErrorResponse(res, error);
       })
   })
 ;

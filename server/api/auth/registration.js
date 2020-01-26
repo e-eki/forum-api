@@ -8,6 +8,7 @@ const userModel = require('../../mongoDB/models/user');
 const utils = require('../../utils/baseUtils');
 const mailUtils = require('../../utils/mailUtils');
 const errors = require('../../utils/errors');
+const responses = require('../../utils/responses');
 const config = require('../../config');
 
 let router = express.Router();
@@ -121,7 +122,7 @@ router.route('/registration')
 				//res.set('Content-Type', 'text/html');
 				//return res.send(page);
 
-				return utils.sendResponse(res, 'Письмо с кодом подтверждения было отправлено на указанный имейл', 201);
+				return utils.sendResponse(res, 'Письмо с кодом подтверждения было отправлено на указанный имейл', responses.CREATED_RESPONSE.status);
 			})
 			.catch((error) => {
 				return utils.sendErrorResponse(res, error);

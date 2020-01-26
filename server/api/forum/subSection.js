@@ -84,10 +84,10 @@ router.route('/subsection')
 
 				const id = (dbResponse._doc && dbResponse._doc._id) ? dbResponse._doc._id.toString() : null;
 
-				return utils.sendResponse(res, {text: 'successfully saved', id: id}, 201);
+				return utils.sendResponse(res, {text: 'successfully saved', id: id}, responses.CREATED_RESPONSE.status);
 			})
 			.catch((error) => {
-				return utils.sendErrorResponse(res, error, 500);
+				return utils.sendErrorResponse(res, error);
 			});
   })
   
@@ -203,10 +203,10 @@ router.route('/subsection/:id')
       .then(dbResponse => {
         utils.logDbErrors(dbResponse);
 
-        return utils.sendResponse(res, dbResponse, 201);
+        return utils.sendResponse(res, null, responses.CREATED_RESPONSE.status);
       })
       .catch((error) => {
-				return utils.sendErrorResponse(res, error, 500);
+				return utils.sendErrorResponse(res, error);
       });
   })
 
@@ -287,10 +287,10 @@ router.route('/subsection/:id')
       .then(dbResponses => {
         utils.logDbErrors(dbResponses);
 
-        return utils.sendResponse(res);  //??data
+        return utils.sendResponse(res);
       })
       .catch((error) => {
-        return utils.sendErrorResponse(res, error, 500);
+        return utils.sendErrorResponse(res, error);
       })
   })
 ;

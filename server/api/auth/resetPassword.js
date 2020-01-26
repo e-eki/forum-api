@@ -12,6 +12,7 @@ const userModel = require('../../mongoDB/models/user');
 const userInfoModel = require('../../mongoDB/models/userInfo');
 const resetDataModel = require('../../mongoDB/models/resetPasswordData');
 const errors = require('../../utils/errors');
+const responses = require('../../utils/responses');
 const rightsUtils = require('../../utils/rigthsUtils');
 
 let router = express.Router();
@@ -226,7 +227,7 @@ router.route('/reset-password/')
 				return sessionUtils.deleteAllUserSessions(userId);
 			})
 			.then(result => {
-				return utils.sendResponse(res, 'Password reset successfully', 201);
+				return utils.sendResponse(res, 'Password reset successfully', responses.CREATED_RESPONSE.status);
 			})
 			.catch((error) => {
 				return utils.sendErrorResponse(res, error);

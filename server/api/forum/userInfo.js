@@ -8,6 +8,7 @@ const userInfoModel = require('../../mongoDB/models/userInfo');
 const rightsUtils = require('../../utils/rigthsUtils');
 const tokenUtils = require('../../utils/tokenUtils');
 const errors = require('../../utils/errors');
+const responses = require('../../utils/responses');
 const config = require('../../config');
 
 let router = express.Router();
@@ -206,10 +207,10 @@ router.route('/user-info/:id')
       .then(dbResponses => {
         utils.logDbErrors(dbResponses);
 
-        return utils.sendResponse(res, dbResponse, 201);
+        return utils.sendResponse(res, null, responses.CREATED_RESPONSE.status);
       })
       .catch((error) => {
-        return utils.sendErrorResponse(res, error, 500);
+        return utils.sendErrorResponse(res, error);
       });
   })
 

@@ -11,6 +11,7 @@ const subSectionModel = require('../../mongoDB/models/subSection');
 const rightsUtils = require('../../utils/rigthsUtils');
 const tokenUtils = require('../../utils/tokenUtils');
 const errors = require('../../utils/errors');
+const responses = require('../../utils/responses');
 
 let router = express.Router();
 
@@ -90,10 +91,10 @@ router.route('/channel')
 
 				const id = (dbResponse._doc && dbResponse._doc._id) ? dbResponse._doc._id.toString() : null;
 
-				return utils.sendResponse(res, {text: 'successfully saved', id: id}, 201);
+				return utils.sendResponse(res, {text: 'successfully saved', id: id}, responses.CREATED_RESPONSE.status);
 			})
 			.catch((error) => {
-				return utils.sendErrorResponse(res, error, 500);
+				return utils.sendErrorResponse(res, error);
 			});
   })
   
@@ -214,10 +215,10 @@ router.route('/channel/:id')
       .then(dbResponse => {
         utils.logDbErrors(dbResponse);
 
-        return utils.sendResponse(res, dbResponse, 201);
+        return utils.sendResponse(res, null, responses.CREATED_RESPONSE.status);
       })
       .catch((error) => {
-				return utils.sendErrorResponse(res, error, 500);
+				return utils.sendErrorResponse(res, error);
       });
   })
 
@@ -256,10 +257,10 @@ router.route('/channel/:id')
       .then(dbResponses => {
         utils.logDbErrors(dbResponses);
 
-        return utils.sendResponse(res);  //??data
+        return utils.sendResponse(res);
       })
       .catch((error) => {
-        return utils.sendErrorResponse(res, error, 500);
+        return utils.sendErrorResponse(res, error);
       })
   })
 ;

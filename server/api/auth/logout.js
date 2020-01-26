@@ -6,6 +6,7 @@ const utils = require('../../utils/baseUtils');
 const tokenUtils = require('../../utils/tokenUtils');
 const sessionUtils = require('../../utils/sessionUtils');
 const errors = require('../../utils/errors');
+const responses = require('../../utils/responses');
 
 let router = express.Router();
 
@@ -43,7 +44,7 @@ router.route('/logout')
 			.then(dbResponses => {
 				utils.logDbErrors(dbResponses);
 				
-				return utils.sendResponse(res, 'User is logged out', 204);
+				return utils.sendResponse(res, 'User is logged out', responses.DELETED_RESPONSE.status);
 			})
 			.catch((error) => {
 				return utils.sendErrorResponse(res, error);
