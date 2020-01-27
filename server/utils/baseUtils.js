@@ -21,19 +21,19 @@ const utils = new function() {
 
         error.status = (errorData && errorData.status) ? errorData.status : 500;
 
+        error.message = (errorData && errorData.message) ? errorData.message : '';
+
         if (messageData) {
+            error.message += '\n';
+
             if (typeof(messageData) === 'string') {
-                error.message = messageData;
+                error.message += messageData;
             }
             else if (messageData.length) {
-                let message = '';
-
                 messageData.forEach(item => {
-                    message += item;
-                    message += '\n';
+                    error.message += item;
+                    error.message += '\n';
                 })
-
-                error.message = message;
             }
         }
 
@@ -73,50 +73,6 @@ const utils = new function() {
     // this.makeUId = function(string) {
     //     return uuidv5(string, uuidv5.URL);   //??
     // };
-
-    // логирует ошибки БД в консоль
-    this.consoleLogDbErrors = function(data) {
-        if (data) {
-            const dbResponses = data.length ? data : [data];  //?
-
-            dbResponses.forEach(dbResponse => {
-                if (dbResponse && dbResponse.errors) {
-                    dbErrors.forEach((error) => {
-                        console.error('Database error: ' + error.message);
-                    });
-                }
-            })
-        }
-    };
-
-    // инициализирует логгер в файл
-    this.initFileLogger() = function() {
-        const message = this.logTime() + ': ' + 'Start logging\n';
-
-        fs.appendFile(config.logFileName, message);
-    }
-
-    this.logTime() = function() {
-        return new Date().format("d-M-y H:m:s");
-    }
-
-    // логирует ошибки БД в файл
-    this.fileLogDbErrors = function(data) {
-        if (data) {
-            const dbResponses = data.length ? data : [data];  //?
-
-            dbResponses.forEach(dbResponse => {
-                if (dbResponse && dbResponse.errors) {
-                    dbErrors.forEach((error) => {
-                        const message = this.logTime() + ': ' + error.message + '\n';
-
-                        fs.appendFile(config.logFileName, message);
-                    });
-                }
-            })
-        }
-    };
-    
 };
 
 module.exports = utils;

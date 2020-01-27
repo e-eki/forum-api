@@ -7,6 +7,7 @@ const Promise = require('bluebird');
 const config = require('./config');
 const mongoDbUtils = require('./utils/mongoDbUtils');
 const utils = require('./utils/baseUtils');
+const logUtils = require('./utils/logUtils');
 const indexHTML = path.resolve('./front-end/public/index.html');
 const socket = require('./socket/initSocket');
 
@@ -91,18 +92,38 @@ app.use((error, req, res, next) => {
     return utils.sendErrorResponse(res, error);
 });
 
-http.listen(config.server.port, () => {   //app.listen
-    //соединение с БД
-    mongoDbUtils.setUpConnection();
+//app.listen
+http.listen(config.server.port, () => {
+    // создаем файл для логов
+    return Promise.resolve(logUtils.initFileLogger())
+        .then(result => {
+            //соединение с БД
+            return Promise.resolve(mongoDbUtils.setUpConnection());
+        })
+        .then(result => {
+            console.log(`Hosted on:  ${config.server.host}:${config.server.port}`);
 
-    console.log(`Hosted on:  ${config.server.host}:${config.server.port}`);
+            return logUtils.fileLogMessage('----- Set up DB connection -----');
+        })
+        .catch(error => {
+            console.error('Init http-server error: ' + error);
+        })
+    //соединение с БД
+    // mongoDbUtils.setUpConnection();
+
+    // return Promise.resolve(logUtils.fileLogDbErrors(`Hosted on:  ${config.server.host}:${config.server.port}`));
 });
 
 // прослушиваем прерывание работы программы (ctrl-c)
 process.on("SIGINT", () => {
+    console.log(`Hosted on:  ${config.server.host}:${config.server.port}`);
+
     // отключение от БД  (??)
     return Promise.resolve(mongoDbUtils.closeConnection())
         .then(() => {
+            return Promise.resolve(logUtils.fileLogMessageSync('----- Close DB connection -----'));
+        })
+        .then(result => {
             process.exit();
         })
 });

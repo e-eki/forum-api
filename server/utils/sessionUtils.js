@@ -3,7 +3,7 @@
 const Promise = require('bluebird');
 const config = require('../config');
 const utils = require('./baseUtils');
-const logUtils = require('../../utils/logUtils');
+const logUtils = require('./logUtils');
 const tokenUtils = require('./tokenUtils');
 const sessionModel = require('../mongoDB/models/session');
 
