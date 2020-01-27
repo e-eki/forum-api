@@ -68,7 +68,7 @@ const logUtils = new function() {
                     dbResponses.forEach(dbResponse => {
                         if (dbResponse && dbResponse.errors) {
                             dbErrors.forEach((error) => {
-                                this.fileLogMessage(error.message);
+                                tasks.push(this.fileLogMessage(error.message));
                             });
                         }
                     })

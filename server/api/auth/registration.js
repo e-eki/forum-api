@@ -123,7 +123,7 @@ router.route('/registration')
 				//res.set('Content-Type', 'text/html');
 				//return res.send(page);
 
-				return utils.sendResponse(res, 'Письмо с кодом подтверждения было отправлено на указанный имейл', responses.CREATED_RESPONSE.status);
+				return utils.sendResponse(res, 'Письмо с кодом подтверждения было отправлено на указанный имейл. Для завершения регистрации перейдите по ссылке из письма.', responses.CREATED_RESPONSE.status);
 			})
 			.catch((error) => {
 				return utils.sendErrorResponse(res, error);
