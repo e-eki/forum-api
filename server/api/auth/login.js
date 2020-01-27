@@ -3,6 +3,7 @@
 const express = require('express');
 const Promise = require('bluebird');
 const utils = require('../../utils/baseUtils');
+const logUtils = require('../../utils/logUtils');
 const sessionUtils = require('../../utils/sessionUtils');
 const authUtils = require('../../utils/authUtils');
 const errors = require('../../utils/errors');
@@ -73,7 +74,7 @@ router.route('/login')
 				return socialLoginDataModel.create(socialLoginData);
 			})
 			.then(dbResponse => {
-				utils.logDbErrors(dbResponse);
+				logUtils.consoleLogDbErrors(dbResponse);
 
 				const socialLoginDataId = dbResponse._doc._id;
 
@@ -126,7 +127,7 @@ router.route('/login')
 				return Promise.all(tasks);
 			})
 			.spread((user, dbResponse) => {
-				utils.logDbErrors(dbResponse);
+				logUtils.consoleLogDbErrors(dbResponse);
 
 				return sessionUtils.addNewSessionAndGetTokensData(user, req.body.fingerprint);
 			})
@@ -261,7 +262,7 @@ router.route('/login')
 				return Promise.all(tasks);
 			})
 			.then(dbResponses => {
-				utils.logDbErrors(dbResponses);
+				logUtils.consoleLogDbErrors(dbResponses);
 
 				return true;
 			})

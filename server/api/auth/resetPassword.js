@@ -5,6 +5,7 @@ const Promise = require('bluebird');
 const uuidV4 = require('uuidv4');
 const config = require('../../config');
 const utils = require('../../utils/baseUtils');
+const logUtils = require('../../utils/logUtils');
 const mailUtils = require('../../utils/mailUtils');
 const tokenUtils = require('../../utils/tokenUtils');
 const sessionUtils = require('../../utils/sessionUtils');
@@ -116,7 +117,7 @@ router.route('/reset-password/')
 				return Promise.all(tasks);
 			})
 			.then(dbResponses => {
-				utils.logDbErrors(dbResponses);
+				logUtils.consoleLogDbErrors(dbResponses);
 
 				return utils.sendResponse(res, 'Письмо с инструкциями по сбросу пароля отправлено на указанный имейл');
 			})
@@ -196,7 +197,7 @@ router.route('/reset-password/')
 				return Promise.all(tasks);
 			})
 			.spread((user, dbResponse) => {
-				utils.logDbErrors(dbResponse);
+				logUtils.consoleLogDbErrors(dbResponse);
 
 				const tasks = [];
 				tasks.push(user.id);
@@ -219,7 +220,7 @@ router.route('/reset-password/')
 				return Promise.all(tasks);
 			})
 			.spread((userId, dbResponses) => {
-				utils.logDbErrors(dbResponses);
+				logUtils.consoleLogDbErrors(dbResponses);
 
 				// удаляем все сессии юзера, а срок действия его access токена закончится сам
 				// после смены пароля надо заново логиниться
@@ -273,7 +274,7 @@ router.route('/reset-password/:code')
 				return Promise.all(tasks);
 			})
 			.spread((dbResponse, resetDatas) => {
-				utils.logDbErrors(dbResponse);
+				logUtils.consoleLogDbErrors(dbResponse);
 
 				if (!resetDatas.length) {
 					throw utils.initError('FORBIDDEN');
@@ -293,7 +294,7 @@ router.route('/reset-password/:code')
 				return Promise.all(tasks);
 			})
 			.then(dbResponses => {
-				utils.logDbErrors(dbResponses);
+				logUtils.consoleLogDbErrors(dbResponses);
 
 				// удаляем все сессии юзера
 				return sessionUtils.deleteAllUserSessions(user.id);

@@ -3,6 +3,7 @@
 const Promise = require('bluebird');
 const config = require('../config');
 const utils = require('./baseUtils');
+const logUtils = require('../../utils/logUtils');
 const tokenUtils = require('./tokenUtils');
 const sessionModel = require('../mongoDB/models/session');
 
@@ -42,7 +43,7 @@ const sessionUtils = new function() {
 				return Promise.all(tasks);
 			})
 			.then(dbResponses => {
-				utils.logDbErrors(dbResponses);
+				logUtils.consoleLogDbErrors(dbResponses);
 
 				return tokenUtils.getTokensData(user);
 			})
@@ -64,7 +65,7 @@ const sessionUtils = new function() {
 				return Promise.all(tasks);
 			})
 			.spread((tokensData, dbResponse) => {
-				utils.logDbErrors(dbResponse);
+				logUtils.consoleLogDbErrors(dbResponse);
 
 				//delete tokensData.refreshTokenExpiresIn;
 				return tokensData;
@@ -89,7 +90,7 @@ const sessionUtils = new function() {
 				return Promise.all(tasks);
 			})
 			.then(dbResponses => {
-				utils.logDbErrors(dbResponses);
+				logUtils.consoleLogDbErrors(dbResponses);
 
 				return true;
 			})

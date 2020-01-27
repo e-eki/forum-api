@@ -3,6 +3,7 @@
 const express = require('express');
 const Promise = require('bluebird');
 const utils = require('../../utils/baseUtils');
+const logUtils = require('../../utils/logUtils');
 const sessionUtils = require('../../utils/sessionUtils');
 const sessionModel = require('../../mongoDB/models/session');
 const userModel = require('../../mongoDB/models/user');
@@ -58,7 +59,7 @@ router.route('/refresh-tokens/')
 				return Promise.all(tasks);
 			})
 			.spread((session, dbResponse) => {
-				utils.logDbErrors(dbResponse);
+				logUtils.consoleLogDbErrors(dbResponse);
 
 				// проверяем сессию на валидность:
 				// не истекло ли время жизни, и соответствия fingerprint

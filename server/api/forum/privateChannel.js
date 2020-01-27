@@ -3,6 +3,7 @@
 const express = require('express');
 const Promise = require('bluebird');
 const utils = require('../../utils/baseUtils');
+const logUtils = require('../../utils/logUtils');
 const privateChannelModel = require('../../mongoDB/models/privateChannel');
 const messageModel = require('../../mongoDB/models/message');
 const channelUtils = require('../../utils/channelUtils');
@@ -134,7 +135,7 @@ router.route('/private-channel')
         return privateChannelModel.create(data);
       })
       .then((dbResponse) => {
-        utils.logDbErrors(dbResponse);
+        logUtils.consoleLogDbErrors(dbResponse);
 
         const id = (dbResponse._doc && dbResponse._doc._id) ? dbResponse._doc._id.toString() : null;
         const senderId = (dbResponse._doc && dbResponse._doc._senderId) ? dbResponse._doc._senderId.toString() : null;  //?
@@ -255,7 +256,7 @@ router.route('/private-channel/:id')
         return privateChannelModel.update(req.params.id, data);
       })
       .then(dbResponse => {
-        utils.logDbErrors(dbResponse);
+        logUtils.consoleLogDbErrors(dbResponse);
 
         return utils.sendResponse(res, responses.CREATED_RESPONSE.status);
       })
@@ -310,7 +311,7 @@ router.route('/private-channel/:id')
         return Promise.all(deleteTasks);
       })
       .then(dbResponse => {
-        utils.logDbErrors(dbResponse);
+        logUtils.consoleLogDbErrors(dbResponse);
         
         return utils.sendResponse(res);
       })

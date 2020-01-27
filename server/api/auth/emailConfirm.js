@@ -4,6 +4,7 @@ const Promise = require('bluebird');
 const express = require('express');
 const config = require('../../config');
 const utils = require('../../utils/baseUtils');
+const logUtils = require('../../utils/logUtils');
 const mailUtils = require('../../utils/mailUtils');
 const regDataModel = require('../../mongoDB/models/registrationData');
 const userModel = require('../../mongoDB/models/user');
@@ -85,7 +86,7 @@ router.route('/email-confirm/')
 				return confirmDataModel.create(confirmData);
 			})
 			.then(dbResponse => {
-				utils.logDbErrors(dbResponse);
+				logUtils.consoleLogDbErrors(dbResponse);
 
 				return utils.sendResponse(res, 'Письмо с кодом подтверждения было отправлено на указанный имейл повторно');
 			})
@@ -142,7 +143,7 @@ router.route('/email-confirm/:uuid')
 				return Promise.all(tasks);
 			})
 			.spread((login, dbResponse) => {
-				utils.logDbErrors(dbResponse);
+				logUtils.consoleLogDbErrors(dbResponse);
 
 				const userInfoData = {
 					userId: dbResponse._doc._id, 
@@ -152,7 +153,7 @@ router.route('/email-confirm/:uuid')
 				return userInfoModel.create(userInfoData);
 			})
 			.then(dbResponse => {
-				utils.logDbErrors(dbResponse);
+				logUtils.consoleLogDbErrors(dbResponse);
 
 				const tasks = [];
 
@@ -179,7 +180,7 @@ router.route('/email-confirm/:uuid')
 				return Promise.all(tasks);
 			})
 			.then(dbResponses => {
-				utils.logDbErrors(dbResponses);
+				logUtils.consoleLogDbErrors(dbResponses);
 
 				//показываем страницу успешного подтверждения
 				//TODO: ?? как сделать редирект на главную через неск.секунд после показа страницы?

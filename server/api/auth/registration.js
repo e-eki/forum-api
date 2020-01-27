@@ -6,6 +6,7 @@ const uuidV4 = require('uuidv4');
 const regDataModel = require('../../mongoDB/models/registrationData');
 const userModel = require('../../mongoDB/models/user');
 const utils = require('../../utils/baseUtils');
+const logUtils = require('../../utils/logUtils');
 const mailUtils = require('../../utils/mailUtils');
 const errors = require('../../utils/errors');
 const responses = require('../../utils/responses');
@@ -106,7 +107,7 @@ router.route('/registration')
 			})
 			.spread((regData, dbResponse) => {
 				// log errors
-				utils.logDbErrors(dbResponse);
+				logUtils.consoleLogDbErrors(dbResponse);
 
 				//отправляем письмо с кодом подтверждения на указанный имейл
 				return mailUtils.sendEmailConfirmLetter(regData)

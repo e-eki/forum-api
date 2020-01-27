@@ -14,6 +14,8 @@ module.exports = {
     , app: {
         port: (NODE_ENV == 'development') ? 8080 : (process.env.PORT || 3000)
     }
+    // название файла с логами БД
+    , logFileName: 'dbLogs'
     , db : {
         mongo : {
             url: 'mongodb://e:e123456@ds046677.mlab.com:46677/ch'

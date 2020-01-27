@@ -3,6 +3,8 @@
 const bcrypt = require('bcryptjs');
 const Promise = require('bluebird');
 // const uuidv5 = require('uuid/v5');
+const fs = require('fs');
+const format = require('node.date-time');
 const config = require('../config');
 const errors = require('./errors');
 const responses = require('./responses');
@@ -28,7 +30,7 @@ const utils = new function() {
 
                 messageData.forEach(item => {
                     message += item;
-                    message += ' ';
+                    message += '\n';
                 })
 
                 error.message = message;
@@ -72,15 +74,43 @@ const utils = new function() {
     //     return uuidv5(string, uuidv5.URL);   //??
     // };
 
-    // логирует ошибки БД
-    this.logDbErrors = function(data) {
+    // логирует ошибки БД в консоль
+    this.consoleLogDbErrors = function(data) {
         if (data) {
             const dbResponses = data.length ? data : [data];  //?
 
             dbResponses.forEach(dbResponse => {
                 if (dbResponse && dbResponse.errors) {
                     dbErrors.forEach((error) => {
-                        console.error('Database error: ' + error.message);   //todo: сделать логирование в файл
+                        console.error('Database error: ' + error.message);
+                    });
+                }
+            })
+        }
+    };
+
+    // инициализирует логгер в файл
+    this.initFileLogger() = function() {
+        const message = this.logTime() + ': ' + 'Start logging\n';
+
+        fs.appendFile(config.logFileName, message);
+    }
+
+    this.logTime() = function() {
+        return new Date().format("d-M-y H:m:s");
+    }
+
+    // логирует ошибки БД в файл
+    this.fileLogDbErrors = function(data) {
+        if (data) {
+            const dbResponses = data.length ? data : [data];  //?
+
+            dbResponses.forEach(dbResponse => {
+                if (dbResponse && dbResponse.errors) {
+                    dbErrors.forEach((error) => {
+                        const message = this.logTime() + ': ' + error.message + '\n';
+
+                        fs.appendFile(config.logFileName, message);
                     });
                 }
             })

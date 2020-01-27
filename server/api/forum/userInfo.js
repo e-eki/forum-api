@@ -3,6 +3,7 @@
 const express = require('express');
 const Promise = require('bluebird');
 const utils = require('../../utils/baseUtils');
+const logUtils = require('../../utils/logUtils');
 const userModel = require('../../mongoDB/models/user');
 const userInfoModel = require('../../mongoDB/models/userInfo');
 const rightsUtils = require('../../utils/rigthsUtils');
@@ -205,7 +206,7 @@ router.route('/user-info/:id')
         return Promise.all(tasks);
       })
       .then(dbResponses => {
-        utils.logDbErrors(dbResponses);
+        logUtils.consoleLogDbErrors(dbResponses);
 
         return utils.sendResponse(res, null, responses.CREATED_RESPONSE.status);
       })

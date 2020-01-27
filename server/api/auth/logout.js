@@ -3,6 +3,7 @@
 const express = require('express');
 const Promise = require('bluebird');
 const utils = require('../../utils/baseUtils');
+const logUtils = require('../../utils/logUtils');
 const tokenUtils = require('../../utils/tokenUtils');
 const sessionUtils = require('../../utils/sessionUtils');
 const errors = require('../../utils/errors');
@@ -42,7 +43,7 @@ router.route('/logout')
 				return sessionUtils.deleteAllUserSessions(user.id);
 			})
 			.then(dbResponses => {
-				utils.logDbErrors(dbResponses);
+				logUtils.consoleLogDbErrors(dbResponses);
 				
 				return utils.sendResponse(res, 'User is logged out', responses.DELETED_RESPONSE.status);
 			})

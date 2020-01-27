@@ -3,6 +3,7 @@
 const express = require('express');
 const Promise = require('bluebird');
 const utils = require('../../utils/baseUtils');
+const logUtils = require('../../utils/logUtils');
 const sectionModel = require('../../mongoDB/models/section');
 const subSectionModel = require('../../mongoDB/models/subSection');
 const channelModel = require('../../mongoDB/models/channel');
@@ -96,7 +97,7 @@ router.route('/section')
         return sectionModel.create(data);
       })
       .then(dbResponse => {
-        utils.logDbErrors(dbResponse);
+        logUtils.consoleLogDbErrors(dbResponse);
 
         const id = (dbResponse._doc && dbResponse._doc._id) ? dbResponse._doc._id.toString() : null;
 
@@ -178,7 +179,7 @@ router.route('/section/:id')
         return sectionModel.update(req.params.id, data);
       })
       .then(dbResponse => {
-        utils.logDbErrors(dbResponse);
+        logUtils.consoleLogDbErrors(dbResponse);
 
         return utils.sendResponse(res, null, responses.CREATED_RESPONSE.status);
       })
@@ -275,12 +276,12 @@ router.route('/section/:id')
         return Promise.all(deleteTasks);
       })
       .then(dbResponses => {
-        utils.logDbErrors(dbResponses);
+        logUtils.consoleLogDbErrors(dbResponses);
 
         return Promise.all(sectionsUpdateTasks);
       })
       .then(dbResponses => {
-        utils.logDbErrors(dbResponses);
+        logUtils.consoleLogDbErrors(dbResponses);
 
         return utils.sendResponse(res);
       })

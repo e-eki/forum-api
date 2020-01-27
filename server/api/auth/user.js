@@ -3,6 +3,7 @@
 const express = require('express');
 const Promise = require('bluebird');
 const utils = require('../../utils/baseUtils');
+const logUtils = require('../../utils/logUtils');
 const userModel = require('../../mongoDB/models/user');
 const userInfoModel = require('../../mongoDB/models/userInfo');
 const userVisitDataModel = require('../../mongoDB/models/userVisitData');
@@ -79,7 +80,7 @@ router.route('/user/:id')
     //     return userModel.update(req.params.id, data);
     //   })
     //   .then(dbResponse => {
-    //     utils.logDbErrors(dbResponse);
+    //     logUtils.consoleLogDbErrors(dbResponse);
 
     //     return utils.sendResponse(res, 'user updated successfully', 201);
     //   })

@@ -3,6 +3,7 @@
 const express = require('express');
 const Promise = require('bluebird');
 const utils = require('../../utils/baseUtils');
+const logUtils = require('../../utils/logUtils');
 const channelModel = require('../../mongoDB/models/channel');
 const messageModel = require('../../mongoDB/models/message');
 const messageUtils = require('../../utils/messageUtils');
@@ -89,7 +90,7 @@ router.route('/message')
         return messageModel.create(data);
       })
       .then(dbResponse => {
-        utils.logDbErrors(dbResponse);
+        logUtils.consoleLogDbErrors(dbResponse);
 
 				const id = (dbResponse._doc && dbResponse._doc._id) ? dbResponse._doc._id.toString() : null;
 
@@ -165,7 +166,7 @@ router.route('/message/:id')
         return messageModel.update(req.params.id, data);
       })
       .then(dbResponse => {
-        utils.logDbErrors(dbResponse);
+        logUtils.consoleLogDbErrors(dbResponse);
 
         return utils.sendResponse(res, null, responses.CREATED_RESPONSE.status);
       })
@@ -211,7 +212,7 @@ router.route('/message/:id')
         return Promise.all(tasks);
       })
       .spread((dbResponse, result) => {
-        utils.logDbErrors(dbResponse);
+        logUtils.consoleLogDbErrors(dbResponse);
 
         if (result && result.length) {
           const channel = result[0];
@@ -224,7 +225,7 @@ router.route('/message/:id')
         }
       })
       .then(dbResponse => {
-        utils.logDbErrors(dbResponse);
+        logUtils.consoleLogDbErrors(dbResponse);
 
         return utils.sendResponse(res);
       })
