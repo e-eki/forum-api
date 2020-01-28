@@ -7,7 +7,7 @@ const logUtils = require('../../utils/logUtils');
 const privateChannelModel = require('../../mongoDB/models/privateChannel');
 const messageModel = require('../../mongoDB/models/message');
 const channelUtils = require('../../utils/channelUtils');
-const rightsUtils = require('../../utils/rigthsUtils');
+const rightsUtils = require('../../utils/rightsUtils');
 const tokenUtils = require('../../utils/tokenUtils');
 const errors = require('../../utils/errors');
 const responses = require('../../utils/responses');
@@ -21,6 +21,8 @@ router.route('/private-channel')
 		  recipientId
 	}*/
   .get(function(req, res) {
+    let user = null;
+
     return Promise.resolve(true)
 			.then(() => {
 				//get token from header
@@ -30,6 +32,8 @@ router.route('/private-channel')
 				return tokenUtils.checkAccessTokenAndGetUser(accessToken);
 			})
 			.then(user => {
+        user = user;
+
         const config = {
           userId: user.id,
         };
@@ -80,7 +84,7 @@ router.route('/private-channel')
         
         return Promise.all(tasks);
       })
-      .spread(privateChannels => {
+      .spread(privateChannels => {   //??? только []?
         let result;
 
         if (privateChannels && privateChannels.length && (privateChannels.length > 1)) {
@@ -88,6 +92,28 @@ router.route('/private-channel')
         }
         else {
           result = privateChannels || [];
+        }
+
+        //get rights
+        //const addPrivateChannelRights = user ? rightsUtils.isRightsValidForAddPrivateChannel(user) : false;
+
+        if (result.length) {
+          result.forEach(privateChannel => {
+            const editDeletePrivateChannelRights = user ? rightsUtils.isRightsValidForEditDeletePrivateChannel(user, privateChannel) : false;
+
+            privateChannel.canAdd = privateChannel.canEdit = privateChannel.canDelete = editDeletePrivateChannelRights;
+          })
+        }
+        else {
+          const editDeletePrivateChannelRights = user ? rightsUtils.isRightsValidForEditDeletePrivateChannel(user, result) : false;
+
+          result.canAdd = result.canEdit = result.canDelete = editDeletePrivateChannelRights;
+
+          result.messages.forEach(message => {
+            const editDeleteMessageRights = user ? rightUtils.isRightsValidForEditDeleteMessage(user, message) : false;
+  
+            message.canEdit = message.canDelete = editDeleteMessageRights;
+          })
         }
 
         return utils.sendResponse(res, result);
@@ -160,7 +186,9 @@ router.route('/private-channel')
 router.route('/private-channel/:id')
 
   // получение приватного чата по его id
-  .get(function(req, res) { 
+  .get(function(req, res) {
+    let user = null;
+    
     return Promise.resolve(true)
 			.then(() => {
 				//get token from header
@@ -176,6 +204,8 @@ router.route('/private-channel/:id')
         return Promise.all(tasks);
 			})
 			.spread((user, results) => {
+        user = user;
+
         if (!results.length) {
           throw utils.initError(errors.FORBIDDEN);
         }
@@ -204,6 +234,18 @@ router.route('/private-channel/:id')
       //   return Promise.all(tasks);
       // })
       // .spread((privateChannel, dbResponse) => {
+
+        //get rights
+        const editDeletePrivateChannelRights = user ? rightsUtils.isRightsValidForEditDeletePrivateChannel(user, privateChannel) : false;
+
+        privateChannel.canAdd = privateChannel.canEdit = privateChannel.canDelete = editDeletePrivateChannelRights;
+
+        privateChannel.messages.forEach(message => {
+          const editDeleteMessageRights = user ? rightUtils.isRightsValidForEditDeleteMessage(user, message) : false;
+
+          message.canEdit = message.canDelete = editDeleteMessageRights;
+        })
+
         return utils.sendResponse(res, privateChannel);
       })
       .catch((error) => {

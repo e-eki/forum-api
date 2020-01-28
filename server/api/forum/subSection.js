@@ -9,7 +9,7 @@ const channelModel = require('../../mongoDB/models/channel');
 const messageModel = require('../../mongoDB/models/message');
 const channelUtils = require('../../utils/channelUtils');
 const sectionModel = require('../../mongoDB/models/section');
-const rightsUtils = require('../../utils/rigthsUtils');
+const rightsUtils = require('../../utils/rightsUtils');
 const tokenUtils = require('../../utils/tokenUtils');
 const errors = require('../../utils/errors');
 
@@ -18,11 +18,37 @@ let router = express.Router();
 //----- endpoint: /api/forum/subsection/
 router.route('/subsection')
 
-  // получение всех подразделов
+  // получение всех подразделов (для чего?)
   .get(function(req, res) { 
-    return subSectionModel.query()
+    let user = null;
+
+    return Promise.resolve(true)
+      .then(() => {
+        //get token from header
+				const headerAuthorization = req.header('Authorization') || '';
+				const accessToken = tokenUtils.getAccessTokenFromHeader(headerAuthorization);
+				
+        return tokenUtils.checkAccessTokenAndGetUser(accessToken)
+          .catch(error => {
+            return null;
+          })
+      })
+      .then(user => {
+        user = user;
+
+        return subSectionModel.query();
+      })
       .then(subSections => {
         const result = subSections || [];
+
+        //get rights
+        const subSectionRights = user ? rightsUtils.isRightsValidForSubSection(user) : false;
+        const addChannelRights = user ? rightsUtils.isRightsValidForCreateChannel(user) : false;
+
+        subSections.forEach(item => {
+          item.canEdit = item.canDelete = subSectionRights;
+          item.canAdd = addChannelRights;
+        })
 
         return utils.sendResponse(res, result);
       })
@@ -105,8 +131,25 @@ router.route('/subsection')
 router.route('/subsection/:id')
 
   // получение подраздела по его id
-  .get(function(req, res) {   
-    return Promise.resolve(subSectionModel.query({id: req.params.id}))
+  .get(function(req, res) {
+    let user = null;
+
+    return Promise.resolve(true)
+      .then(() => {
+        //get token from header
+				const headerAuthorization = req.header('Authorization') || '';
+				const accessToken = tokenUtils.getAccessTokenFromHeader(headerAuthorization);
+				
+        return tokenUtils.checkAccessTokenAndGetUser(accessToken)
+          .catch(error => {
+            return null;
+          })
+      })
+      .then(user => {
+        user = user;
+
+        return subSectionModel.query({id: req.params.id});
+      })
       .then(results => {
         const subSection = results[0];
         const tasks = [];
@@ -156,6 +199,19 @@ router.route('/subsection/:id')
         else {
           subSection.channels = [];
         }
+
+        //get rights
+        const subSectionRights = user ? rightsUtils.isRightsValidForSubSection(user) : false;
+        const addChannelRights = user ? rightsUtils.isRightsValidForCreateChannel(user) : false;
+        const deleteChannelRights = user ? rightsUtils.isRightsValidForDeleteChannel(user) : false;
+
+        subSection.canEdit = subSection.canDelete = subSectionRights;
+        subSection.canAdd = addChannelRights;
+
+        subSection.channels.forEach(channel => {
+          channel.canDelete = deleteChannelRights;
+          chennel.canEdit = user ? rightsUtils.isRightsValidForEditChannel(user, channel) : false;
+        })
 
         return utils.sendResponse(res, subSection);
       })

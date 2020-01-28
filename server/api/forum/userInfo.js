@@ -6,7 +6,7 @@ const utils = require('../../utils/baseUtils');
 const logUtils = require('../../utils/logUtils');
 const userModel = require('../../mongoDB/models/user');
 const userInfoModel = require('../../mongoDB/models/userInfo');
-const rightsUtils = require('../../utils/rigthsUtils');
+const rightsUtils = require('../../utils/rightsUtils');
 const tokenUtils = require('../../utils/tokenUtils');
 const errors = require('../../utils/errors');
 const responses = require('../../utils/responses');
@@ -19,6 +19,8 @@ router.route('/user-info')
 
   // получение информации о юзере по его аксесс токену
   .get(function(req, res) {
+    let user = null;
+
     return Promise.resolve(true)
 			.then(() => {
 				//get token from header
@@ -28,6 +30,8 @@ router.route('/user-info')
 				return tokenUtils.checkAccessTokenAndGetUser(accessToken);
 			})
 			.then(user => {
+        user = user;
+
         // проверяем права
         if (!rightsUtils.isRightsValid(user)) {
           throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
@@ -41,7 +45,15 @@ router.route('/user-info')
         }
 
         const userInfo = results[0];
-        delete userInfo.userId;
+
+        //get rights
+        const canEditRole = rightsUtils.isRightsValidForRole(user);
+        const canEditBlackList = rightsUtils.isRightsValidForBlackList(user);
+        const canEdit = rightsUtils.isRightsValidForEditUserInfo(user, userInfo);
+
+        userInfo.canEditRole = canEditRole;
+        userInfo.canEditBlackList = canEditBlackList;
+        userInfo.canEdit = canEdit;
 
         return utils.sendResponse(res, userInfo);
       })
@@ -69,6 +81,8 @@ router.route('/user-info/:id')
 
   // получение информации о юзере по его id
   .get(function(req, res) {
+    let user = null;
+
     return Promise.resolve(true)
 			.then(() => {
 				//get token from header
@@ -78,31 +92,30 @@ router.route('/user-info/:id')
 				return tokenUtils.checkAccessTokenAndGetUser(accessToken);
 			})
 			.then(user => {
+        user = user;
+
         // проверяем права
         if (!rightsUtils.isRightsValid(user)) {
           throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
         }
 
-        const tasks = [];
-
-        const canEditRole = rightsUtils.isRightsValidForRole(user);
-        const canEditBlackList = rightsUtils.isRightsValidForBlackList(user);
-
-        tasks.push(canEditRole);
-        tasks.push(canEditBlackList);
-
-        tasks.push(userInfoModel.query({id: req.params.id}));
-
-        return Promise.all(tasks);
+        return userInfoModel.query({id: req.params.id});
       })
-      .spread((canEditRole, canEditBlackList, results) => {
+      .then(results => {
         if (!results.length) {
           throw utils.initError(errors.FORBIDDEN);
         }
 
         const userInfo = results[0];
+
+        //get rights
+        const canEditRole = rightsUtils.isRightsValidForRole(user);
+        const canEditBlackList = rightsUtils.isRightsValidForBlackList(user);
+        const addPrivateChannelRights = rightsUtils.isRightsValidForAddPrivateChannel(user);
+
         userInfo.canEditRole = canEditRole;
         userInfo.canEditBlackList = canEditBlackList;
+        userInfo.canAddPrivateChannel = addPrivateChannelRights;
 
         const tasks = [];
         tasks.push(userInfo);

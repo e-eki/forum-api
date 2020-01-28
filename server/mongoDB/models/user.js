@@ -80,8 +80,8 @@ module.exports = {
 		const user = new UserModel({
 			_id: id,
 			// email: data.email,
-			// password: data.password,
-			// resetPasswordCode: data.resetPasswordCode,
+			password: data.password,
+			resetPasswordCode: data.resetPasswordCode,
 			role: data.role,
 			inBlackList: data.inBlackList,
 		});

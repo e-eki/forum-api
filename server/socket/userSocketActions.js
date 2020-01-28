@@ -7,7 +7,7 @@ const userModel = require('../mongoDB/models/user');
 // отправление по сокетам действий, связанных с данными юзера
 const userSocketActions = new function() {
 
-	// обновление дынных юзера (роль, чс)
+	// обновление данных юзера (роль, чс)
 	this.updateUserData = function(io, action) {
 		if (action.userId) {
 			return Promise.resolve(userModel.query({id: action.userId}))

@@ -14,7 +14,7 @@ const userInfoModel = require('../../mongoDB/models/userInfo');
 const resetDataModel = require('../../mongoDB/models/resetPasswordData');
 const errors = require('../../utils/errors');
 const responses = require('../../utils/responses');
-const rightsUtils = require('../../utils/rigthsUtils');
+const rightsUtils = require('../../utils/rightsUtils');
 
 let router = express.Router();
 

@@ -10,7 +10,7 @@ const userVisitDataModel = require('../../mongoDB/models/userVisitData');
 const tokenUtils = require('../../utils/tokenUtils');
 const config = require('../../config');
 const errors = require('../../utils/errors');
-const rightsUtils = require('../../utils/rigthsUtils');
+const rightsUtils = require('../../utils/rightsUtils');
 
 let router = express.Router();
 

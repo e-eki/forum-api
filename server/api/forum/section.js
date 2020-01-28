@@ -8,7 +8,7 @@ const sectionModel = require('../../mongoDB/models/section');
 const subSectionModel = require('../../mongoDB/models/subSection');
 const channelModel = require('../../mongoDB/models/channel');
 const messageModel = require('../../mongoDB/models/message');
-const rightsUtils = require('../../utils/rigthsUtils');
+const rightsUtils = require('../../utils/rightsUtils');
 const tokenUtils = require('../../utils/tokenUtils');
 const errors = require('../../utils/errors');
 const responses = require('../../utils/responses');
@@ -21,8 +21,24 @@ router.route('/section')
   // получение всех разделов
   .get(function(req, res) { 
     let data = null;
+    let user = null;
 
-    return Promise.resolve(sectionModel.query())
+    return Promise.resolve(true)
+      .then(() => {
+        //get token from header
+				const headerAuthorization = req.header('Authorization') || '';
+				const accessToken = tokenUtils.getAccessTokenFromHeader(headerAuthorization);
+				
+        return tokenUtils.checkAccessTokenAndGetUser(accessToken)
+          .catch(error => {
+            return null;
+          })
+      })
+      .then(user => {
+        user = user;
+
+        return Promise.resolve(sectionModel.query());
+      })
       .then((sections) => {
         data = sections;
 
@@ -36,14 +52,28 @@ router.route('/section')
 
         return Promise.all(tasks);
       })
-      .then((subSections) => {
-
+      .then(subSections => {
         if (data && data.length &&
             subSections && subSections.length) {
               for (let i = 0; i < subSections.length; i++) {
                 data[i].subSections = subSections[i] || [];
               }
         }
+
+        //get rights
+        const sectionRights = user ? rightsUtils.isRightsValidForSection(user) : false;
+        const subSectionRights = user ? rightsUtils.isRightsValidForSubSection(user) : false;
+
+        data.canAdd = sectionRights;
+
+        data.forEach(section => {
+          section.canEdit = section.canDelete = sectionRights;
+          section.canAdd = sectionRights;
+
+          section.subSections.forEach(subSection => {
+            subSection.canEdit = subSection.canDelete = subSectionRights;
+          })
+        })
 
         return utils.sendResponse(res, data);
       })
@@ -121,8 +151,25 @@ router.route('/section')
 router.route('/section/:id')
 
   // получение раздела по его id
-  .get(function(req, res) {      
-    return Promise.resolve(sectionModel.query({id: req.params.id}))
+  .get(function(req, res) {
+    let user = null;  
+    
+    return Promise.resolve(true)
+      .then(() => {
+        //get token from header
+				const headerAuthorization = req.header('Authorization') || '';
+				const accessToken = tokenUtils.getAccessTokenFromHeader(headerAuthorization);
+				
+        return tokenUtils.checkAccessTokenAndGetUser(accessToken)
+          .catch(error => {
+            return null;
+          })
+      })
+      .then(user => {
+        user = user;
+
+        return Promise.resolve(sectionModel.query({id: req.params.id}));
+      })
       .then(results => {
         const section = results[0];
         const tasks = [];
@@ -135,6 +182,17 @@ router.route('/section/:id')
       .spread((section, subSections) => {
         let data = section;
         data.subSections = subSections;
+
+        //get rights
+        const sectionRights = user ? rightsUtils.isRightsValidForSection(user) : false;
+        const subSectionRights = user ? rightsUtils.isRightsValidForSubSection(user) : false;
+
+        data.canEdit = data.canDelete = sectionRights;
+        data.canAdd = subSectionRights;
+
+        data.subSections.forEach(subSection => {
+          subSection.canEdit = subSection.canDelete = subSectionRights;
+        })
 
         return utils.sendResponse(res, data);
       })

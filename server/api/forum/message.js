@@ -7,7 +7,7 @@ const logUtils = require('../../utils/logUtils');
 const channelModel = require('../../mongoDB/models/channel');
 const messageModel = require('../../mongoDB/models/message');
 const messageUtils = require('../../utils/messageUtils');
-const rightsUtils = require('../../utils/rigthsUtils');
+const rightsUtils = require('../../utils/rightsUtils');
 const tokenUtils = require('../../utils/tokenUtils');
 const errors = require('../../utils/errors');
 const responses = require('../../utils/responses');
@@ -114,13 +114,35 @@ router.route('/message')
 router.route('/message/:id')
 
   // получение сообщения по его id
-  .get(function(req, res) {      
-    return messageModel.query({id: req.params.id})
+  .get(function(req, res) {   
+    let user = null;
+
+    return Promise.resolve(true)
+      .then(() => {
+        //get token from header
+				const headerAuthorization = req.header('Authorization') || '';
+				const accessToken = tokenUtils.getAccessTokenFromHeader(headerAuthorization);
+				
+        return tokenUtils.checkAccessTokenAndGetUser(accessToken)
+          .catch(error => {
+            return null;
+          })
+      })
+      .then(user => {
+        user = user;
+    
+        return messageModel.query({id: req.params.id});
+      })
       .then(data => {
         return messageUtils.getSenderNamesInMessages(messages);
       })
       .then(data => {
         const message = (data && data.length) ? data[0] : null;
+
+        //get rights
+        const editDeleteMessageRights = user ? rightUtils.isRightsValidForEditDeleteMessage(user, message) : false;
+
+        message.canEdit = message.canDelete = editDeleteMessageRights;
 
         return utils.sendResponse(res, message);
       })

@@ -9,7 +9,7 @@ const messageModel = require('../../mongoDB/models/message');
 const channelUtils = require('../../utils/channelUtils');
 const sectionModel = require('../../mongoDB/models/section');
 const subSectionModel = require('../../mongoDB/models/subSection');
-const rightsUtils = require('../../utils/rigthsUtils');
+const rightsUtils = require('../../utils/rightsUtils');
 const tokenUtils = require('../../utils/tokenUtils');
 const errors = require('../../utils/errors');
 const responses = require('../../utils/responses');
@@ -112,8 +112,25 @@ router.route('/channel')
 router.route('/channel/:id')
 
   // получение чата по его id
-  .get(function(req, res) {      
-    return Promise.resolve(channelModel.query({id: req.params.id}))
+  .get(function(req, res) {
+    let user = null;
+
+    return Promise.resolve(true)
+      .then(() => {
+        //get token from header
+				const headerAuthorization = req.header('Authorization') || '';
+				const accessToken = tokenUtils.getAccessTokenFromHeader(headerAuthorization);
+				
+        return tokenUtils.checkAccessTokenAndGetUser(accessToken)
+          .catch(error => {
+            return null;
+          })
+      })
+      .then(user => {
+        user = user;
+
+        return channelModel.query({id: req.params.id});
+      })
       .then(results => {
         const channel = results[0];
 
@@ -167,6 +184,21 @@ router.route('/channel/:id')
       //   return Promise.all(tasks);
       // })
       // .spread((channel, dbResponse) => {
+
+        //get rights
+        const editChannelRights = user ? rightsUtils.isRightsValidForEditChannel(user, channel) : false;
+        const deleteChannelRights = user ? rightsUtils.isRightsValidForDeleteChannel(user) : false;
+        const addMessageRights = user ? rightsUtils.isRightsValidForAddMessage(user) : false;
+
+        channel.canEdit = editChannelRights;
+        channel.canDelete = deleteChannelRights;
+        channel.canAdd = addMessageRights;
+
+        channel.messages.forEach(message => {
+          const editDeleteMessageRights = user ? rightUtils.isRightsValidForEditDeleteMessage(user, message) : false;
+
+          message.canEdit = message.canDelete = editDeleteMessageRights;
+        })
         
         return utils.sendResponse(res, channel);
       })
