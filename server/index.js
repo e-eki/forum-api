@@ -121,7 +121,7 @@ process.on("SIGINT", () => {
     // отключение от БД  (??)
     return Promise.resolve(mongoDbUtils.closeConnection())
         .then(result => {
-            logUtils.fileLogMessageSync('----- Close DB connection -----');  //todo: не пишется в логи
+            //logUtils.fileLogMessageSync('----- Close DB connection -----');  //todo: не пишется в логи
 
             process.exit();
         })

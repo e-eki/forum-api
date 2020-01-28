@@ -41,6 +41,7 @@ router.route('/user-info')
         }
 
         const userInfo = results[0];
+        delete userInfo.userId;
 
         return utils.sendResponse(res, userInfo);
       })
