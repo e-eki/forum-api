@@ -39,7 +39,7 @@ router.route('/section')
 
         return Promise.resolve(sectionModel.query());
       })
-      .then((sections) => {
+      .then(sections => {
         data = sections;
 
         const tasks = [];
