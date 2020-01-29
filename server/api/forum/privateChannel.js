@@ -161,7 +161,7 @@ router.route('/private-channel')
         return privateChannelModel.create(data);
       })
       .then((dbResponse) => {
-        logUtils.consoleLogDbErrors(dbResponse);
+        logUtils.fileLogDbErrors(dbResponse);
 
         const id = (dbResponse._doc && dbResponse._doc._id) ? dbResponse._doc._id.toString() : null;
         const senderId = (dbResponse._doc && dbResponse._doc._senderId) ? dbResponse._doc._senderId.toString() : null;  //?
@@ -298,7 +298,7 @@ router.route('/private-channel/:id')
         return privateChannelModel.update(req.params.id, data);
       })
       .then(dbResponse => {
-        logUtils.consoleLogDbErrors(dbResponse);
+        logUtils.fileLogDbErrors(dbResponse);
 
         return utils.sendResponse(res, responses.CREATED_RESPONSE.status);
       })
@@ -353,7 +353,7 @@ router.route('/private-channel/:id')
         return Promise.all(deleteTasks);
       })
       .then(dbResponse => {
-        logUtils.consoleLogDbErrors(dbResponse);
+        logUtils.fileLogDbErrors(dbResponse);
         
         return utils.sendResponse(res);
       })

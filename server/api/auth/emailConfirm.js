@@ -9,6 +9,7 @@ const mailUtils = require('../../utils/mailUtils');
 const regDataModel = require('../../mongoDB/models/registrationData');
 const userModel = require('../../mongoDB/models/user');
 const userInfoModel = require('../../mongoDB/models/userInfo');
+const userVisitDataModel = require('../../mongoDB/models/userVisitData');
 const errors = require('../../utils/errors');
 const confirmDataModel = require('../../mongoDB/models/emailConfirmData');
 
@@ -86,7 +87,7 @@ router.route('/email-confirm/')
 				return confirmDataModel.create(confirmData);
 			})
 			.then(dbResponse => {
-				logUtils.consoleLogDbErrors(dbResponse);
+				logUtils.fileLogDbErrors(dbResponse);
 
 				return utils.sendResponse(res, 'Письмо с кодом подтверждения было отправлено на указанный имейл повторно');
 			})
@@ -143,17 +144,30 @@ router.route('/email-confirm/:uuid')
 				return Promise.all(tasks);
 			})
 			.spread((login, dbResponse) => {
-				logUtils.consoleLogDbErrors(dbResponse);
+				logUtils.fileLogDbErrors(dbResponse);
+
+				const userId = dbResponse._doc._id;
+
+				const tasks = [];
 
 				const userInfoData = {
-					userId: dbResponse._doc._id, 
+					userId: userId, 
 					login: login,
 				};
 
-				return userInfoModel.create(userInfoData);
+				tasks.push(userInfoModel.create(userInfoData));
+
+				const userVisitData = {
+					userId: userId,
+					lastVisitData: [],
+				};
+
+				tasks.push(userVisitDataModel.create(userVisitData));
+
+				return Promise.all(tasks);
 			})
-			.then(dbResponse => {
-				logUtils.consoleLogDbErrors(dbResponse);
+			.then(dbResponses => {
+				logUtils.fileLogDbErrors(dbResponses);
 
 				const tasks = [];
 
@@ -180,7 +194,7 @@ router.route('/email-confirm/:uuid')
 				return Promise.all(tasks);
 			})
 			.then(dbResponses => {
-				logUtils.consoleLogDbErrors(dbResponses);
+				logUtils.fileLogDbErrors(dbResponses);
 
 				//показываем страницу успешного подтверждения
 				//TODO: ?? как сделать редирект на главную через неск.секунд после показа страницы?

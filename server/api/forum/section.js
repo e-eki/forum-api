@@ -127,7 +127,7 @@ router.route('/section')
         return sectionModel.create(data);
       })
       .then(dbResponse => {
-        logUtils.consoleLogDbErrors(dbResponse);
+        logUtils.fileLogDbErrors(dbResponse);
 
         const id = (dbResponse._doc && dbResponse._doc._id) ? dbResponse._doc._id.toString() : null;
 
@@ -237,7 +237,7 @@ router.route('/section/:id')
         return sectionModel.update(req.params.id, data);
       })
       .then(dbResponse => {
-        logUtils.consoleLogDbErrors(dbResponse);
+        logUtils.fileLogDbErrors(dbResponse);
 
         return utils.sendResponse(res, null, responses.CREATED_RESPONSE.status);
       })
@@ -334,12 +334,12 @@ router.route('/section/:id')
         return Promise.all(deleteTasks);
       })
       .then(dbResponses => {
-        logUtils.consoleLogDbErrors(dbResponses);
+        logUtils.fileLogDbErrors(dbResponses);
 
         return Promise.all(sectionsUpdateTasks);
       })
       .then(dbResponses => {
-        logUtils.consoleLogDbErrors(dbResponses);
+        logUtils.fileLogDbErrors(dbResponses);
 
         return utils.sendResponse(res);
       })

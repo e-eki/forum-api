@@ -117,4 +117,14 @@ module.exports = {
         message: 'message',
         userInfo: 'user-info'
     }
+    , roomTypes: {
+		section: 'section',
+		subSection: 'subSection',
+		channel: 'channel',
+		message: 'message',
+		privateChannel: 'privateChannel',
+		searchChannel: 'searchChannel',
+		searchMessage: 'searchMessage',
+		userInfo: 'userInfo',
+	},
 };

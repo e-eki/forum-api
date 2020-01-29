@@ -74,7 +74,7 @@ router.route('/login')
 				return socialLoginDataModel.create(socialLoginData);
 			})
 			.then(dbResponse => {
-				logUtils.consoleLogDbErrors(dbResponse);
+				logUtils.fileLogDbErrors(dbResponse);
 
 				const socialLoginDataId = dbResponse._doc._id;
 
@@ -127,7 +127,7 @@ router.route('/login')
 				return Promise.all(tasks);
 			})
 			.spread((user, dbResponse) => {
-				logUtils.consoleLogDbErrors(dbResponse);
+				logUtils.fileLogDbErrors(dbResponse);
 
 				return sessionUtils.addNewSessionAndGetTokensData(user, req.body.fingerprint);
 			})
@@ -262,7 +262,7 @@ router.route('/login')
 				return Promise.all(tasks);
 			})
 			.then(dbResponses => {
-				logUtils.consoleLogDbErrors(dbResponses);
+				logUtils.fileLogDbErrors(dbResponses);
 
 				return true;
 			})

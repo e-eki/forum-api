@@ -107,7 +107,7 @@ router.route('/registration')
 			})
 			.spread((regData, dbResponse) => {
 				// log errors
-				logUtils.consoleLogDbErrors(dbResponse);
+				logUtils.fileLogDbErrors(dbResponse);
 
 				//отправляем письмо с кодом подтверждения на указанный имейл
 				return mailUtils.sendEmailConfirmLetter(regData)

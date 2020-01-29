@@ -43,7 +43,7 @@ const sessionUtils = new function() {
 				return Promise.all(tasks);
 			})
 			.then(dbResponses => {
-				logUtils.consoleLogDbErrors(dbResponses);
+				logUtils.fileLogDbErrors(dbResponses);
 
 				return tokenUtils.getTokensData(user);
 			})
@@ -65,7 +65,7 @@ const sessionUtils = new function() {
 				return Promise.all(tasks);
 			})
 			.spread((tokensData, dbResponse) => {
-				logUtils.consoleLogDbErrors(dbResponse);
+				logUtils.fileLogDbErrors(dbResponse);
 
 				//delete tokensData.refreshTokenExpiresIn;
 				return tokensData;
@@ -90,7 +90,7 @@ const sessionUtils = new function() {
 				return Promise.all(tasks);
 			})
 			.then(dbResponses => {
-				logUtils.consoleLogDbErrors(dbResponses);
+				logUtils.fileLogDbErrors(dbResponses);
 
 				return true;
 			})

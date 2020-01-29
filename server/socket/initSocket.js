@@ -8,7 +8,7 @@ const actionTypes = require('../actionTypes');
 // const messageModel = require('./mongoDB/models/message');
 // const privateChannelModel = require('./mongoDB/models/privateChannel');
 // const userInfoModel = require('./mongoDB/models/userInfo');
-//const config = require('./config');
+const config = require('../config');
 const utils = require('../utils/baseUtils');
 //const messageUtils = require('./utils/messageUtils');
 const sectionSocketActions = require('./sectionSocketActions');
@@ -48,14 +48,27 @@ module.exports = {
 								client.join(action.roomId);
 							}
 							//client.join('1');
-							break;
+
+							if (action.roomType === config.roomTypes.channel ||
+								action.roomType === config.roomTypes.privateChannel) {
+									return channelSocketActions.updateLastVisitChannel(action);
+							}
+							else {
+								return true;
+							}
 
 						case actionTypes.LEAVE_ROOM:
 
 							if (action.roomId) {
 								client.leave(action.roomId);
 							}
-							break;
+							if (action.roomType === config.roomTypes.channel ||
+								action.roomType === config.roomTypes.privateChannel) {
+									return channelSocketActions.updateLastVisitChannel(action);
+							}
+							else {
+								return true;
+							}
 
 						//---SECTION
 

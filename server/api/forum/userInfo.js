@@ -220,7 +220,7 @@ router.route('/user-info/:id')
         return Promise.all(tasks);
       })
       .then(dbResponses => {
-        logUtils.consoleLogDbErrors(dbResponses);
+        logUtils.fileLogDbErrors(dbResponses);
 
         return utils.sendResponse(res, null, responses.CREATED_RESPONSE.status);
       })

@@ -7,7 +7,7 @@ const config = require('../config');
 const logUtils = new function() {
 
     // логирует ошибки БД в консоль
-    this.consoleLogDbErrors = function(data) {
+    this.fileLogDbErrors = function(data) {
         if (data) {
             const dbResponses = data.length ? data : [data];  //?
 

@@ -80,7 +80,7 @@ router.route('/user/:id')
     //     return userModel.update(req.params.id, data);
     //   })
     //   .then(dbResponse => {
-    //     logUtils.consoleLogDbErrors(dbResponse);
+    //     logUtils.fileLogDbErrors(dbResponse);
 
     //     return utils.sendResponse(res, 'user updated successfully', 201);
     //   })

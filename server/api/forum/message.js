@@ -90,7 +90,7 @@ router.route('/message')
         return messageModel.create(data);
       })
       .then(dbResponse => {
-        logUtils.consoleLogDbErrors(dbResponse);
+        logUtils.fileLogDbErrors(dbResponse);
 
 				const id = (dbResponse._doc && dbResponse._doc._id) ? dbResponse._doc._id.toString() : null;
 
@@ -188,7 +188,7 @@ router.route('/message/:id')
         return messageModel.update(req.params.id, data);
       })
       .then(dbResponse => {
-        logUtils.consoleLogDbErrors(dbResponse);
+        logUtils.fileLogDbErrors(dbResponse);
 
         return utils.sendResponse(res, null, responses.CREATED_RESPONSE.status);
       })
@@ -234,7 +234,7 @@ router.route('/message/:id')
         return Promise.all(tasks);
       })
       .spread((dbResponse, result) => {
-        logUtils.consoleLogDbErrors(dbResponse);
+        logUtils.fileLogDbErrors(dbResponse);
 
         if (result && result.length) {
           const channel = result[0];
@@ -247,7 +247,7 @@ router.route('/message/:id')
         }
       })
       .then(dbResponse => {
-        logUtils.consoleLogDbErrors(dbResponse);
+        logUtils.fileLogDbErrors(dbResponse);
 
         return utils.sendResponse(res);
       })

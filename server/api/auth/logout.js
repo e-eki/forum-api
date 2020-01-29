@@ -43,7 +43,7 @@ router.route('/logout')
 				return sessionUtils.deleteAllUserSessions(user.id);
 			})
 			.then(dbResponses => {
-				logUtils.consoleLogDbErrors(dbResponses);
+				logUtils.fileLogDbErrors(dbResponses);
 				
 				return utils.sendResponse(res, 'User is logged out', responses.DELETED_RESPONSE.status);
 			})

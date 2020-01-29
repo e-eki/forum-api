@@ -117,7 +117,7 @@ router.route('/reset-password/')
 				return Promise.all(tasks);
 			})
 			.then(dbResponses => {
-				logUtils.consoleLogDbErrors(dbResponses);
+				logUtils.fileLogDbErrors(dbResponses);
 
 				return utils.sendResponse(res, 'Письмо с инструкциями по сбросу пароля отправлено на указанный имейл');
 			})
@@ -197,7 +197,7 @@ router.route('/reset-password/')
 				return Promise.all(tasks);
 			})
 			.spread((user, dbResponse) => {
-				logUtils.consoleLogDbErrors(dbResponse);
+				logUtils.fileLogDbErrors(dbResponse);
 
 				const tasks = [];
 				tasks.push(user.id);
@@ -220,7 +220,7 @@ router.route('/reset-password/')
 				return Promise.all(tasks);
 			})
 			.spread((userId, dbResponses) => {
-				logUtils.consoleLogDbErrors(dbResponses);
+				logUtils.fileLogDbErrors(dbResponses);
 
 				// удаляем все сессии юзера, а срок действия его access токена закончится сам
 				// после смены пароля надо заново логиниться
@@ -274,7 +274,7 @@ router.route('/reset-password/:code')
 				return Promise.all(tasks);
 			})
 			.spread((dbResponse, resetDatas) => {
-				logUtils.consoleLogDbErrors(dbResponse);
+				logUtils.fileLogDbErrors(dbResponse);
 
 				if (!resetDatas.length) {
 					throw utils.initError('FORBIDDEN');
@@ -294,7 +294,7 @@ router.route('/reset-password/:code')
 				return Promise.all(tasks);
 			})
 			.then(dbResponses => {
-				logUtils.consoleLogDbErrors(dbResponses);
+				logUtils.fileLogDbErrors(dbResponses);
 
 				// удаляем все сессии юзера
 				return sessionUtils.deleteAllUserSessions(user.id);

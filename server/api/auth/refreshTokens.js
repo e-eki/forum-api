@@ -59,7 +59,7 @@ router.route('/refresh-tokens/')
 				return Promise.all(tasks);
 			})
 			.spread((session, dbResponse) => {
-				logUtils.consoleLogDbErrors(dbResponse);
+				logUtils.fileLogDbErrors(dbResponse);
 
 				// проверяем сессию на валидность:
 				// не истекло ли время жизни, и соответствия fingerprint
