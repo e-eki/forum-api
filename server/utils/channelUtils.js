@@ -8,20 +8,20 @@ const userInfoModel = require('../mongoDB/models/userInfo');
 
 const channelUtils = new function() {
 
-	// получить данные о сообщениях для чатов в списке
-	this.getMessagesDataForChannels = function(channels) {
+	// получить данные о сообщениях для чатов в списке, возвращает чаты
+	this.getMessagesDataForChannels = function(channels, userId) {
 		// получить последнее соообщение в каждом чате
-		return messageUtils.getLastMessageInChannels(channels)
+		return messageUtils.getLastMessagesForChannels(channels)
 			.then(lastMessages => {
 				for (let i = 0; i < channels.length; i++) {
 					const channel = channels[i];			
 					channel.lastMessage = lastMessages ? lastMessages[i] : null;
 				}
 
-				return messageUtils.getCountInChannels(channels);
+				return messageUtils.getNewMessagesCountForChannels(channels, userId);
 			})
 			// получить кол-во новых сообщений в каждом чате
-			.then((newMessagesCounts) => {
+			.then(newMessagesCounts => {
 				for (let i = 0; i < channels.length; i++) {
 					const channel = channels[i];			
 					channel.newMessagesCount = newMessagesCounts ? newMessagesCounts[i] : null;
@@ -32,7 +32,7 @@ const channelUtils = new function() {
 	};
 
 	// получить данные о сообщениях для текущего чата
-	this.getMessagesDataForChannel = function(channel) {
+	this.getMessagesDataForChannel = function(channel, userId) {
 		// сообщения в чате
 		return Promise.resolve(messageModel.query({channelId: channel.id}))
 			.then(messages => {
@@ -49,8 +49,8 @@ const channelUtils = new function() {
 				}
 			})
 			.then(channel => {
-				if (channel.messages.length) {
-					return messageUtils.getCountInChannel(channel)
+				if (channel.messages.length && userId) {
+					return messageUtils.getNewMessagesCountForChannel(channel, userId)
 				}
 				else {
 					return false;
@@ -58,7 +58,7 @@ const channelUtils = new function() {
 			})
 			// кол-во новых сообщений
 			.then(newMessagesCount => {
-				channel.newMessagesCount = newMessagesCount || 0;  //?
+				channel.newMessagesCount = newMessagesCount || 0;
 
 				return channel;
 			})

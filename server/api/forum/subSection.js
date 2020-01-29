@@ -182,9 +182,9 @@ router.route('/subsection/:id')
         const tasks = [];
         tasks.push(subSection);
 
-        if (channels && channels.length) {
+        if (channels.length && user) {
           // ищем кол-во новых сообщений и последнее сообщение в каждом чате - отображаются в подразделе
-          tasks.push(channelUtils.getMessagesDataForChannels(channels));
+          tasks.push(channelUtils.getMessagesDataForChannels(channels, user.id));
         }
         else {
           tasks.push(false);
@@ -195,9 +195,6 @@ router.route('/subsection/:id')
       .spread((subSection, channels) => {
         if (channels) {
           subSection.channels = channelUtils.sortChannelsByLastMessageDate(channels);
-        }
-        else {
-          subSection.channels = [];
         }
 
         //get rights

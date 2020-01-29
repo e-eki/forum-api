@@ -3,11 +3,12 @@
 const Promise = require('bluebird');
 const messageModel = require('../mongoDB/models/message');
 const userInfoModel = require('../mongoDB/models/userInfo');
+const userVisitDataModel = require('../mongoDB/models/userVisitData');
 
 const messageUtils = new function() {
 
-	// найти имена отправителей для сообщений
-	//todo: локализовать и как-то сделать обязательным, тк всегда для сообщений нужно имя отправителя
+	// найти имена отправителей для сообщений, возвращает сообщения с именами
+	//todo: как-то сделать обязательным, тк всегда для сообщений нужно имя отправителя
 	this.getSenderNamesInMessages = function(messages) {
 		const tasks = [];
 
@@ -16,7 +17,7 @@ const messageUtils = new function() {
 				const message = messages[i];
 
 				if (message) {
-					tasks.push(userInfoModel.query({id: message.senderId}));
+					tasks.push(userInfoModel.query({userId: message.senderId}));
 				}
 				else {
 					tasks.push(false);
@@ -40,8 +41,8 @@ const messageUtils = new function() {
 			})
 	};
 
-	// найти последнее сообщение в каждом чате
-	this.getLastMessageInChannels = function(channels) {
+	// найти последнее сообщение в каждом чате, возвращает массив сообщений
+	this.getLastMessagesForChannels = function(channels) {
 		const tasks = [];
 
 		for (let i = 0; i < channels.length; i++) {
@@ -57,34 +58,56 @@ const messageUtils = new function() {
 			});
 	};
 
-	// найти кол-во новых сообщений в каждом чате
-	this.getCountInChannels = function(channels) {
-		const tasks = [];
+	// найти кол-во новых сообщений в каждом чате, возвращает массив кол-в
+	this.getNewMessagesCountForChannels = function(channels, userId) {
+		return userVisitDataModel.query({userId: userId})
+			.then(results => {
+				const tasks = [];
 
-		for (let i = 0; i < channels.length; i++) {
-			const channel = channels[i];
+				if (results.length) {
+					const userVisitData = results[0];
 
-			tasks.push(messageModel.query({
-				channelId: channel.id,
-				channelLastVisitDate: null,   //new Date("2019-11-26T12:46:27.235Z"),  //todo: userVisitData.query()!
-				getCount: true
-			}));
-		}
+					for (let i = 0; i < channels.length; i++) {
+						const channel = channels[i];
 
-		return Promise.all(tasks);	
+						const lastVisitChannel = userVisitData.lastVisitData.find(item => item.channelId === channel.id);  //?
+						const lastVisitDate = lastVisitChannel ? lastVisitChannel.date : null;
+
+						tasks.push(messageModel.query({
+							channelId: channel.id,
+							channelLastVisitDate: lastVisitDate,
+							getCount: true
+						}));
+					}	
+				}
+
+				return Promise.all(tasks);
+			})
 	};
 
-	// найти кол-во новых сообщений в чате
-	this.getCountInChannel = function(channel) {
+	// найти кол-во новых сообщений в чате, возвращает кол-во
+	this.getNewMessagesCountForChannel = function(channel, userId) {
+		return userVisitDataModel.query({userId: userId})
+			.then(results => {
+				if (results.length) {
+					const userVisitData = results[0];
 
-		return messageModel.query({
-			channelId: channel.id,
-			channelLastVisitDate: null,   //new Date("2019-11-26T12:46:27.235Z"),   //todo: userVisitData.query()!
-			getCount: true
-		});		
+					const lastVisitChannel = userVisitData.lastVisitData.find(item => item.channelId === channel.id);  //?
+					const lastVisitDate = lastVisitChannel ? lastVisitChannel.date : null;
+
+					return messageModel.query({
+						channelId: channel.id,
+						channelLastVisitDate: lastVisitDate,
+						getCount: true
+					});
+				}
+				else {
+					return false;
+				}
+			})
 	};
 
-	// найти закрепленное сообщение в чате
+	// найти закрепленное сообщение в чате, возвращает чат
 	this.getDescriptionMessageInChannel = function(channel) {
 		const tasks = [];
 

@@ -171,20 +171,10 @@ router.route('/channel/:id')
           }
         }
 
-        return channelUtils.getMessagesDataForChannel(channel);
+        const userId = user ? user.id : null;
+        return channelUtils.getMessagesDataForChannel(channel, userId);
       })
       .then(channel => {
-      //   const tasks = [];
-      //   tasks.push(channel);
-
-      //   //проставляем дату последнего просмотра чата
-      //   channel.lastVisitDate = new Date();
-      //   tasks.push(channelModel.update(channel.id, channel));
-
-      //   return Promise.all(tasks);
-      // })
-      // .spread((channel, dbResponse) => {
-
         //get rights
         const editChannelRights = user ? rightsUtils.isRightsValidForEditChannel(user, channel) : false;
         const deleteChannelRights = user ? rightsUtils.isRightsValidForDeleteChannel(user) : false;

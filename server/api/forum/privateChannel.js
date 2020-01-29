@@ -52,11 +52,11 @@ router.route('/private-channel')
           if (req.query.recipientId) {
             const privateChannel = privateChannels[0];
 
-            tasks.push(channelUtils.getNameForPrivateChannel(privateChannel, userId));
+            tasks.push(channelUtils.getNameForPrivateChannel(privateChannel, user.id));
           }
           // иначе это список приватных чатов
           else {
-            tasks.push(channelUtils.getNamesForPrivateChannels(privateChannels, userId));
+            tasks.push(channelUtils.getNamesForPrivateChannels(privateChannels, user.id));
           }
         }
         else {
@@ -72,10 +72,10 @@ router.route('/private-channel')
           if (req.query.recipientId) {
             const privateChannel = privateChannels[0];
 
-            tasks.push(channelUtils.getMessagesDataForChannel(privateChannel));
+            tasks.push(channelUtils.getMessagesDataForChannel(privateChannel, user.id));
           }
           else {
-            tasks.push(channelUtils.getMessagesDataForChannels(privateChannels));
+            tasks.push(channelUtils.getMessagesDataForChannels(privateChannels, user.id));
           }
         }
         else {
@@ -84,7 +84,7 @@ router.route('/private-channel')
         
         return Promise.all(tasks);
       })
-      .spread(privateChannels => {   //??? только []?
+      .spread(privateChannels => {
         let result;
 
         if (privateChannels && privateChannels.length && (privateChannels.length > 1)) {
@@ -194,18 +194,15 @@ router.route('/private-channel/:id')
 				//get token from header
 				const headerAuthorization = req.header('Authorization') || '';
         const accessToken = tokenUtils.getAccessTokenFromHeader(headerAuthorization);
-        
-        const tasks = [];
 				
-        tasks.push(tokenUtils.checkAccessTokenAndGetUser(accessToken));
-        
-        tasks.push(privateChannelModel.query({id: req.params.id}));
-
-        return Promise.all(tasks);
+        return tokenUtils.checkAccessTokenAndGetUser(accessToken);
 			})
-			.spread((user, results) => {
+			.then(user => {
         user = user;
 
+        return privateChannelModel.query({id: req.params.id});
+      })
+      .then(results => {
         if (!results.length) {
           throw utils.initError(errors.FORBIDDEN);
         }
@@ -217,24 +214,12 @@ router.route('/private-channel/:id')
               throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
         }
 
-        return channelUtils.getNameForPrivateChannel(privateChannel, userId);
+        return channelUtils.getNameForPrivateChannel(privateChannel, user.id);
       })
       .then(privateChannel => {
-        return channelUtils.getMessagesDataForChannel(privateChannel);
+        return channelUtils.getMessagesDataForChannel(privateChannel, user.id);
       })
       .then((privateChannel) => {
-      //   const tasks = [];
-      //   tasks.push(privateChannel);
-
-      //   if (privateChannel) {
-      //     privateChannel.lastVisitDate = new Date();
-      //     tasks.push(privateChannelModel.update(privateChannel.id, privateChannel));
-      //   }
-
-      //   return Promise.all(tasks);
-      // })
-      // .spread((privateChannel, dbResponse) => {
-
         //get rights
         const editDeletePrivateChannelRights = user ? rightsUtils.isRightsValidForEditDeletePrivateChannel(user, privateChannel) : false;
 
