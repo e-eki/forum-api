@@ -106,7 +106,7 @@ router.route('/user-info/:id')
       })
       .then(results => {
         if (!results.length) {
-          throw utils.initError(errors.FORBIDDEN);
+          throw utils.initError(errors.FORBIDDEN, 'No user with this id');
         }
 
         const userInfo = results[0];

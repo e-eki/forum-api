@@ -18,13 +18,22 @@ const channelUtils = new function() {
 					channel.lastMessage = lastMessages ? lastMessages[i] : null;
 				}
 
-				return messageUtils.getNewMessagesCountForChannels(channels, userId);
+				const tasks = [];
+
+				if (userId) {
+					tasks.push(messageUtils.getNewMessagesCountForChannels(channels, userId));
+				}
+				else {
+					tasks.push(false);
+				}
 			})
 			// получить кол-во новых сообщений в каждом чате
 			.then(newMessagesCounts => {
-				for (let i = 0; i < channels.length; i++) {
-					const channel = channels[i];			
-					channel.newMessagesCount = newMessagesCounts ? newMessagesCounts[i] : null;
+				if (newMessagesCounts) {
+					for (let i = 0; i < channels.length; i++) {
+						const channel = channels[i];			
+						channel.newMessagesCount = newMessagesCounts ? newMessagesCounts[i] : null;
+					}
 				}
 
 				return channels;
