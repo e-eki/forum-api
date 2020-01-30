@@ -101,13 +101,13 @@ router.route('/private-channel')
           result.forEach(privateChannel => {
             const editDeletePrivateChannelRights = user ? rightsUtils.isRightsValidForEditDeletePrivateChannel(user, privateChannel) : false;
 
-            privateChannel.canAdd = privateChannel.canEdit = privateChannel.canDelete = editDeletePrivateChannelRights;
+            /*privateChannel.canAdd =*/ privateChannel.canEdit = privateChannel.canDelete = editDeletePrivateChannelRights;
           })
         }
         else {
           const editDeletePrivateChannelRights = user ? rightsUtils.isRightsValidForEditDeletePrivateChannel(user, result) : false;
 
-          result.canAdd = result.canEdit = result.canDelete = editDeletePrivateChannelRights;
+          /*result.canAdd =*/ result.canEdit = result.canDelete = editDeletePrivateChannelRights;
 
           result.messages.forEach(message => {
             const editDeleteMessageRights = user ? rightUtils.isRightsValidForEditDeleteMessage(user, message) : false;

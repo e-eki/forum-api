@@ -89,15 +89,18 @@ router.route('/user-info/:id')
 				const headerAuthorization = req.header('Authorization') || '';
 				const accessToken = tokenUtils.getAccessTokenFromHeader(headerAuthorization);
 				
-				return tokenUtils.checkAccessTokenAndGetUser(accessToken);
-			})
-			.then(user => {
+        return tokenUtils.checkAccessTokenAndGetUser(accessToken)
+          .catch(error => {
+            return null;
+          })
+      })
+      .then(user => {
         user = user;
 
         // проверяем права
-        if (!rightsUtils.isRightsValid(user)) {
-          throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
-        }
+        // if (!rightsUtils.isRightsValid(user)) {
+        //   throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
+        // }
 
         return userInfoModel.query({id: req.params.id});
       })

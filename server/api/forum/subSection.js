@@ -193,7 +193,7 @@ router.route('/subsection/:id')
         return Promise.all(tasks);
       })
       .spread((subSection, channels) => {
-        if (channels) {
+        if (channels.length && (channels.length > 1)) {
           subSection.channels = channelUtils.sortChannelsByLastMessageDate(channels);
         }
 
@@ -207,7 +207,7 @@ router.route('/subsection/:id')
 
         subSection.channels.forEach(channel => {
           channel.canDelete = deleteChannelRights;
-          chennel.canEdit = user ? rightsUtils.isRightsValidForEditChannel(user, channel) : false;
+          channel.canEdit = user ? rightsUtils.isRightsValidForEditChannel(user, channel) : false;
         })
 
         return utils.sendResponse(res, subSection);
