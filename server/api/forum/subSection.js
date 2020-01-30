@@ -12,6 +12,7 @@ const sectionModel = require('../../mongoDB/models/section');
 const rightsUtils = require('../../utils/rightsUtils');
 const tokenUtils = require('../../utils/tokenUtils');
 const errors = require('../../utils/errors');
+const responses = require('../../utils/responses');
 
 let router = express.Router();
 
@@ -33,8 +34,8 @@ router.route('/subsection')
             return null;
           })
       })
-      .then(user => {
-        user = user;
+      .then(result => {
+        user = result;
 
         return subSectionModel.query();
       })
@@ -145,8 +146,8 @@ router.route('/subsection/:id')
             return null;
           })
       })
-      .then(user => {
-        user = user;
+      .then(result => {
+        user = result;
 
         return subSectionModel.query({id: req.params.id});
       })

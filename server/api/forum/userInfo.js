@@ -29,8 +29,8 @@ router.route('/user-info')
 				
 				return tokenUtils.checkAccessTokenAndGetUser(accessToken);
 			})
-			.then(user => {
-        user = user;
+			.then(result => {
+        user = result;
 
         // проверяем права
         if (!rightsUtils.isRightsValid(user)) {
@@ -94,8 +94,8 @@ router.route('/user-info/:id')
             return null;
           })
       })
-      .then(user => {
-        user = user;
+      .then(result => {
+        user = result;
 
         // проверяем права
         // if (!rightsUtils.isRightsValid(user)) {

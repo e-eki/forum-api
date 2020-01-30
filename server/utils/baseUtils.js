@@ -3,8 +3,6 @@
 const bcrypt = require('bcryptjs');
 const Promise = require('bluebird');
 // const uuidv5 = require('uuid/v5');
-const fs = require('fs');
-const format = require('node.date-time');
 const config = require('../config');
 const errors = require('./errors');
 const responses = require('./responses');

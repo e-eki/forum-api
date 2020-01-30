@@ -126,8 +126,8 @@ router.route('/channel/:id')
             return null;
           })
       })
-      .then(user => {
-        user = user;
+      .then(result => {
+        user = result;
 
         return channelModel.query({id: req.params.id});
       })

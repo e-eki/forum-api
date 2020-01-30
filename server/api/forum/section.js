@@ -34,8 +34,8 @@ router.route('/section')
             return null;
           })
       })
-      .then(user => {
-        user = user;
+      .then(result => {
+        user = result;
 
         return Promise.resolve(sectionModel.query());
       })
@@ -165,8 +165,8 @@ router.route('/section/:id')
             return null;
           })
       })
-      .then(user => {
-        user = user;
+      .then(result => {
+        user = result;
 
         return Promise.resolve(sectionModel.query({id: req.params.id}));
       })

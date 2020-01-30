@@ -31,8 +31,8 @@ router.route('/private-channel')
 				
 				return tokenUtils.checkAccessTokenAndGetUser(accessToken);
 			})
-			.then(user => {
-        user = user;
+			.then(result => {
+        user = result;
 
         const config = {
           userId: user.id,
@@ -109,11 +109,13 @@ router.route('/private-channel')
 
           /*result.canAdd =*/ result.canEdit = result.canDelete = editDeletePrivateChannelRights;
 
-          result.messages.forEach(message => {
-            const editDeleteMessageRights = user ? rightUtils.isRightsValidForEditDeleteMessage(user, message) : false;
-  
-            message.canEdit = message.canDelete = editDeleteMessageRights;
-          })
+          if (result.messages && result.messages.length) {
+            result.messages.forEach(message => {
+              const editDeleteMessageRights = user ? rightUtils.isRightsValidForEditDeleteMessage(user, message) : false;
+    
+              message.canEdit = message.canDelete = editDeleteMessageRights;
+            })
+          }
         }
 
         return utils.sendResponse(res, result);
@@ -197,8 +199,8 @@ router.route('/private-channel/:id')
 				
         return tokenUtils.checkAccessTokenAndGetUser(accessToken);
 			})
-			.then(user => {
-        user = user;
+			.then(result => {
+        user = result;
 
         return privateChannelModel.query({id: req.params.id});
       })

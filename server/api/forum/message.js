@@ -128,8 +128,8 @@ router.route('/message/:id')
             return null;
           })
       })
-      .then(user => {
-        user = user;
+      .then(result => {
+        user = result;
     
         return messageModel.query({id: req.params.id});
       })
