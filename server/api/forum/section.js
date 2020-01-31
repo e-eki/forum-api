@@ -20,7 +20,7 @@ router.route('/section')
 
   // получение всех разделов
   .get(function(req, res) { 
-    let data = null;
+    let data = {};
     let user = null;
 
     return Promise.resolve(true)
@@ -40,7 +40,7 @@ router.route('/section')
         return Promise.resolve(sectionModel.query());
       })
       .then(sections => {
-        data = sections;
+        data.sections = sections;
 
         const tasks = [];
 
@@ -53,10 +53,10 @@ router.route('/section')
         return Promise.all(tasks);
       })
       .then(subSections => {
-        if (data && data.length &&
+        if (data.sections && data.sections.length &&
             subSections && subSections.length) {
               for (let i = 0; i < subSections.length; i++) {
-                data[i].subSections = subSections[i] || [];
+                data.sections[i].subSections = subSections[i] || [];
               }
         }
 
@@ -66,7 +66,7 @@ router.route('/section')
 
         data.canAdd = sectionRights;
 
-        data.forEach(section => {
+        data.sections.forEach(section => {
           section.canEdit = section.canDelete = sectionRights;
           section.canAdd = sectionRights;
 
