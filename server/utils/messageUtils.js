@@ -1,6 +1,7 @@
 'use strict';
 
 const Promise = require('bluebird');
+const ObjectId = require('mongoose').Types.ObjectId;
 const messageModel = require('../mongoDB/models/message');
 const userInfoModel = require('../mongoDB/models/userInfo');
 const userVisitDataModel = require('../mongoDB/models/userVisitData');
@@ -70,7 +71,7 @@ const messageUtils = new function() {
 					for (let i = 0; i < channels.length; i++) {
 						const channel = channels[i];
 
-						const lastVisitChannel = userVisitData.lastVisitData.find(item => item.channelId === channel.id);  //?
+						const lastVisitChannel = userVisitData.lastVisitData.find(item => new ObjectId(item.channelId) === new ObjectId(channel.id));  //?
 						const lastVisitDate = lastVisitChannel ? lastVisitChannel.date : null;
 
 						tasks.push(messageModel.query({
@@ -92,7 +93,7 @@ const messageUtils = new function() {
 				if (results.length) {
 					const userVisitData = results[0];
 
-					const lastVisitChannel = userVisitData.lastVisitData.find(item => item.channelId === channel.id);  //?
+					const lastVisitChannel = userVisitData.lastVisitData.find(item => new ObjectId(item.channelId) === new ObjectId(channel.id));  //?
 					const lastVisitDate = lastVisitChannel ? lastVisitChannel.date : null;
 
 					return messageModel.query({

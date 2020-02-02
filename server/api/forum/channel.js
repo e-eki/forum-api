@@ -82,7 +82,6 @@ router.route('/channel')
           senderId: user.id,
           subSectionId: req.body.subSectionId,
           descriptionMessageId: req.body.descriptionMessageId,
-          //lastVisitDate: new Date(),  //?
         };
 
         return channelModel.create(data);
@@ -143,7 +142,7 @@ router.route('/channel/:id')
       })
       .spread((channel, results) => {
         const tasks = [];
-        tasks.push(channel);  //?
+        tasks.push(channel);
 
         if (results && results.length) {
           const parentSubSection = results[0];
@@ -230,7 +229,6 @@ router.route('/channel/:id')
           senderId: user.id,  //todo? updaterId
           subSectionId: req.body.subSectionId,
           descriptionMessageId: req.body.descriptionMessageId,
-          //lastVisitDate: req.body.lastVisitDate,  //?
         };
 
         return channelModel.update(req.params.id, data);

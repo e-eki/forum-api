@@ -40,7 +40,7 @@ router.route('/section')
         return Promise.resolve(sectionModel.query());
       })
       .then(sections => {
-        data.sections = sections;
+        data.items = sections;   //?костылик для клиента
 
         const tasks = [];
 
@@ -53,10 +53,10 @@ router.route('/section')
         return Promise.all(tasks);
       })
       .then(subSections => {
-        if (data.sections && data.sections.length &&
+        if (data.items && data.items.length &&
             subSections && subSections.length) {
               for (let i = 0; i < subSections.length; i++) {
-                data.sections[i].subSections = subSections[i] || [];
+                data.items[i].subSections = subSections[i] || [];
               }
         }
 
@@ -66,7 +66,7 @@ router.route('/section')
 
         data.canAdd = sectionRights;
 
-        data.sections.forEach(section => {
+        data.items.forEach(section => {
           section.canEdit = section.canDelete = sectionRights;
           section.canAdd = sectionRights;
 

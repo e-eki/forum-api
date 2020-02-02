@@ -136,7 +136,7 @@ router.route('/user/:id')
 //         return utils.sendResponse(res, data);
 //       })
 //       .catch(error => {
-//         return utils.sendResponse(res, null);  //??null
+//         return utils.sendResponse(res, null);
 //       })
 //   })
 

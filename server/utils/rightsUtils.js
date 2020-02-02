@@ -1,6 +1,7 @@
 'use strict';
 
 const Promise = require('bluebird');
+const ObjectId = require('mongoose').Types.ObjectId;
 const config = require('../config');
 
 const rightsUtils = new function() {
@@ -31,7 +32,7 @@ const rightsUtils = new function() {
 	this.isRightsValidForEditUserInfo = function(user, userInfo) {
 		// изменить информацию о пользователе может только сам пользователь
 		return (this.isRightsValid(user) &&
-				user.id === userInfo.userId);   //?
+				(new ObjectId(user.id) === new ObjectId(userInfo.userId)));
 	};
 
 	//---- section
@@ -72,7 +73,7 @@ const rightsUtils = new function() {
 		return (this.isRightsValid(user) &&
 				(user.role === config.userRoles.admin ||
 				user.role === config.userRoles.moderator ||
-				user.id === channel.senderId));    //?
+				(new ObjectId((user.id) === new ObjectId(channel.senderId)))));
 	};
 
 	//---- private-channel
@@ -87,8 +88,8 @@ const rightsUtils = new function() {
 	this.isRightsValidForEditDeletePrivateChannel = function(user, privateChannel) {
 		// редактировать/удалить личный чат может тот, кто является его создателем/получателем
 		return (this.isRightsValid(user) &&
-				(user.id === privateChannel.senderId ||   //?
-				user.id === privateChannel.recipientId));    //?
+				(new ObjectId(user.id) === new ObjectId(privateChannel.senderId) ||
+				new ObjectId(user.id) === new ObjectId(privateChannel.recipientId)));
 	};
 
 	//---- message
@@ -105,7 +106,7 @@ const rightsUtils = new function() {
 		return (this.isRightsValid(user) &&
 				(user.role === config.userRoles.admin ||
 				user.role === config.userRoles.moderator ||
-				user.id === message.senderId));    //?
+				new ObjectId(user.id) === new ObjectId(message.senderId)));
 	};
 	
 };

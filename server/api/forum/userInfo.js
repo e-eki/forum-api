@@ -2,6 +2,7 @@
 
 const express = require('express');
 const Promise = require('bluebird');
+const ObjectId = require('mongoose').Types.ObjectId;
 const utils = require('../../utils/baseUtils');
 const logUtils = require('../../utils/logUtils');
 const userModel = require('../../mongoDB/models/user');
@@ -167,8 +168,8 @@ router.route('/user-info/:id')
 			})
 			.then(user => {
         // проверяем права
-        if (!rightsUtils.isRightsValid(user) ||
-            (user.id !== req.params.id)) {
+        if (!rightsUtils.isRightsValid(user) ||   //todo!
+            (new ObjectId(user.id !== req.params.id))) {
               throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
         }
 

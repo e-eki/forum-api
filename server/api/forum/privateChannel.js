@@ -157,7 +157,6 @@ router.route('/private-channel')
         const data = {
           recipientId: req.body.recipientId,
           senderId: user.id
-          //lastVisitDate: new Date(),  //?
         };
 
         return privateChannelModel.create(data);
@@ -279,7 +278,6 @@ router.route('/private-channel/:id')
         const data = {
           //senderId: req.body.senderId,
           descriptionMessageId: req.body.descriptionMessageId,
-          //lastVisitDate: req.body.lastVisitDate,  //?
         };
 
         return privateChannelModel.update(req.params.id, data);
