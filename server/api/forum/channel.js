@@ -72,7 +72,8 @@ router.route('/channel')
 			})
 			.then(user => {
         // проверяем права
-        if (!rightsUtils.isRightsValid(user)) {
+        if (!user ||
+            !rightsUtils.isRightsValid(user)) {
               throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
         }
 
@@ -218,7 +219,8 @@ router.route('/channel/:id')
 			})
 			.then(user => {
         // проверяем права
-        if (!rightsUtils.isRightsValid(user) ||
+        if (!user ||
+            !rightsUtils.isRightsValid(user) ||
             (req.body.senderId !== user.id)) {   //todo: check!
               throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
         }
@@ -255,7 +257,8 @@ router.route('/channel/:id')
 			})
 			.then(user => {
         // проверяем права
-        if (!rightsUtils.isRightsValid(user) ||
+        if (!user ||
+            !rightsUtils.isRightsValid(user) ||
             (!rightsUtils.isRightsValidForDeleteChannel(user))) {
               throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
         }

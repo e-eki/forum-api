@@ -2,6 +2,7 @@
 
 const express = require('express');
 const Promise = require('bluebird');
+const ObjectId = require('mongoose').Types.ObjectId;
 const utils = require('../../utils/baseUtils');
 const logUtils = require('../../utils/logUtils');
 const privateChannelModel = require('../../mongoDB/models/privateChannel');
@@ -150,8 +151,9 @@ router.route('/private-channel')
 			})
 			.then(user => {
         // проверяем права
-        if (!rightsUtils.isRightsValid(user)) {
-          throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
+        if (!user ||
+            !rightsUtils.isRightsValid(user)) {
+              throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
         }
 
         const data = {
@@ -211,7 +213,9 @@ router.route('/private-channel/:id')
         const privateChannel = results[0];
 
         // проверяем права
-        if (user.id !== privateChannel.senderId && user.id !== privateChannel.recipientId) {  //todo: check!
+        if (!user ||
+            (new ObjectId(user.id) !== new ObjectId(privateChannel.senderId) &&
+            new ObjectId(user.id) !== new ObjectId(privateChannel.recipientId))) {  //todo: check!
               throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
         }
 
@@ -270,8 +274,10 @@ router.route('/private-channel/:id')
         const privateChannel = results[0];
 
         // проверяем права
-        if (!rightsUtils.isRightsValid(user) ||
-            (user.id !== privateChannel.senderId && user.id !== privateChannel.recipientId)) {  //todo: check!
+        if (!user ||
+            !rightsUtils.isRightsValid(user) ||
+            (new ObjectId(user.id) !== new ObjectId(privateChannel.senderId) &&
+            new ObjectId(user.id) !== new ObjectId(privateChannel.recipientId))) {  //todo: check!
               throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
         }
 
@@ -318,8 +324,10 @@ router.route('/private-channel/:id')
         const privateChannel = results[0];
 
         // проверяем права
-        if (!rightsUtils.isRightsValid(user) ||
-            (user.id !== privateChannel.senderId && user.id !== privateChannel.recipientId)) {  //todo: check!
+        if (!user ||
+            !rightsUtils.isRightsValid(user) ||
+            (new ObjectId(user.id) !== new ObjectId(privateChannel.senderId) &&
+            new ObjectId(user.id !== privateChannel.recipientId))) {  //todo: check!
               throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
         }
 

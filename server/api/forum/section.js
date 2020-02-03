@@ -85,10 +85,11 @@ router.route('/section')
   // создание нового раздела
   /*data = {
 		name,
-    description,
-    orderNumber
+    description
 	}*/
   .post(function(req, res) {
+    let user = null;
+
     return Promise.resolve(true)
 			.then(() => {
         const validationErrors = [];
@@ -97,9 +98,9 @@ router.route('/section')
 				if (!req.body.name || req.body.name == '') {
 					validationErrors.push('empty name');
 				}
-				if (!req.body.orderNumber || req.body.orderNumber == '') {
-					validationErrors.push('empty orderNumber');
-				}
+				// if (!req.body.orderNumber || req.body.orderNumber == '') {
+				// 	validationErrors.push('empty orderNumber');
+				// }
 				if (validationErrors.length !== 0) {
 					throw utils.initError(errors.FORBIDDEN, validationErrors);
         }
@@ -110,18 +111,26 @@ router.route('/section')
 				
 				return tokenUtils.checkAccessTokenAndGetUser(accessToken);
 			})
-			.then(user => {
+			.then(result => {
+        user = result;
+
         // проверяем права
-        if (!rightsUtils.isRightsValid(user) ||
+        if (!user ||
+            !rightsUtils.isRightsValid(user) ||
             !rightsUtils.isRightsValidForSection(user)) {
               throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
         }
+
+        return Promise.resolve(sectionModel.query());
+      })
+      .then(sections => {
+        const orderNumber = sections.length || 0;
 
         const data = {
           name: req.body.name,
           description: req.body.description,
           senderId: user.id,
-          orderNumber: req.body.orderNumber,
+          orderNumber: orderNumber,
         };
 
         return sectionModel.create(data);
@@ -222,7 +231,8 @@ router.route('/section/:id')
 			})
 			.then(user => {
         // проверяем права
-        if (!rightsUtils.isRightsValid(user) ||
+        if (!user ||
+            !rightsUtils.isRightsValid(user) ||
             !rightsUtils.isRightsValidForSection(user)) {
               throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
         }
@@ -263,7 +273,8 @@ router.route('/section/:id')
 			})
 			.then(user => {
         // проверяем права
-        if (!rightsUtils.isRightsValid(user) ||
+        if (!user ||
+            !rightsUtils.isRightsValid(user) ||
             !rightsUtils.isRightsValidForSection(user)) {
               throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
         }

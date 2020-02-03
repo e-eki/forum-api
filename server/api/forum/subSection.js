@@ -63,9 +63,10 @@ router.route('/subsection')
 		name,
     description,
     sectionId,
-    orderNumber
 	}*/
   .post(function(req, res) {
+    let user = null;
+
     return Promise.resolve(true)
 			.then(() => {
         const validationErrors = [];
@@ -77,9 +78,9 @@ router.route('/subsection')
 				if (!req.body.sectionId || req.body.sectionId == '') {
 					validationErrors.push('empty sectionId');
         }
-        if (!req.body.orderNumber || req.body.orderNumber == '') {
-					validationErrors.push('empty orderNumber');
-				}
+        // if (!req.body.orderNumber || req.body.orderNumber == '') {
+				// 	validationErrors.push('empty orderNumber');
+				// }
 				if (validationErrors.length !== 0) {
 					throw utils.initError(errors.FORBIDDEN, validationErrors);
         }
@@ -90,11 +91,27 @@ router.route('/subsection')
 				
 				return tokenUtils.checkAccessTokenAndGetUser(accessToken);
 			})
-			.then(user => {
+			.then(result => {
+        user = result;
+
         // проверяем права
-        if (!rightsUtils.isRightsValid(user) ||
+        if (!user ||
+            !rightsUtils.isRightsValid(user) ||
             !rightsUtils.isRightsValidForSubSection(user)) {
               throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
+        }
+
+        return Promise.resolve(sectionModel.query({id: req.params.id}));
+      })
+      .then(results => {
+        let orderNumber = 0;
+
+        if (results && results.length) {
+          const section = results[0];
+
+          if (section.subSections) {
+            orderNumber = section.subSections.length;
+          }
         }
 
         const data = {
@@ -102,7 +119,7 @@ router.route('/subsection')
           description: req.body.description,
           senderId: user.id,
           sectionId: req.body.sectionId,
-          orderNumber: req.body.orderNumber,
+          orderNumber: orderNumber,
         };
 
         return subSectionModel.create(data);
@@ -242,7 +259,8 @@ router.route('/subsection/:id')
 			})
 			.then(user => {
         // проверяем права
-        if (!rightsUtils.isRightsValid(user) ||
+        if (!user ||
+            !rightsUtils.isRightsValid(user) ||
             !rightsUtils.isRightsValidForSubSection(user)) {
               throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
         }
@@ -284,7 +302,8 @@ router.route('/subsection/:id')
 			})
 			.then(user => {
         // проверяем права
-        if (!rightsUtils.isRightsValid(user) ||
+        if (!user ||
+            !rightsUtils.isRightsValid(user) ||
             !rightsUtils.isRightsValidForSubSection(user)) {
               throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
         }

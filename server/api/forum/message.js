@@ -75,8 +75,9 @@ router.route('/message')
 			})
 			.then(user => {
         // проверяем права
-        if (!rightsUtils.isRightsValid(user)) {
-          throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
+        if (!user ||
+            !rightsUtils.isRightsValid(user)) {
+              throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
         }
 
         const data = {
@@ -172,7 +173,8 @@ router.route('/message/:id')
 			})
 			.then(user => {
         // проверяем права
-        if (!rightsUtils.isRightsValid(user) ||
+        if (!user ||
+            !rightsUtils.isRightsValid(user) ||
             (req.body.senderId !== user.id)) {   //todo: check!
               throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
         }
@@ -221,7 +223,8 @@ router.route('/message/:id')
         const message = results[0];
 
         // проверяем права
-        if (!rightsUtils.isRightsValid(user) ||
+        if (!user ||
+            !rightsUtils.isRightsValid(user) ||
             (message.senderId !== user.id)) {   //todo: check!
               throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
         }

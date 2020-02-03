@@ -34,8 +34,9 @@ router.route('/user-info')
         user = result;
 
         // проверяем права
-        if (!rightsUtils.isRightsValid(user)) {
-          throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
+        if (!user ||
+            !rightsUtils.isRightsValid(user)) {
+              throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
         }
 
         return userInfoModel.query({userId: user.id});
@@ -168,8 +169,9 @@ router.route('/user-info/:id')
 			})
 			.then(user => {
         // проверяем права
-        if (!rightsUtils.isRightsValid(user) ||   //todo!
-            (new ObjectId(user.id !== req.params.id))) {
+        if (!user ||
+            !rightsUtils.isRightsValid(user) ||
+            (new ObjectId(user.id) !== new ObjectId(req.params.id))) {
               throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
         }
 

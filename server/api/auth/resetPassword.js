@@ -155,8 +155,9 @@ router.route('/reset-password/')
 			})
 			.then(user => {
 				// проверяем права
-				if (!rightsUtils.isRightsValid(user)) {
-					throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
+				if (!user ||
+					!rightsUtils.isRightsValid(user)) {
+						throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
 				}
 
 				const tasks = [];
@@ -259,8 +260,9 @@ router.route('/reset-password/:code')
 				user = users[0];
 
 				// проверяем права
-				if (!rightsUtils.isRightsValid(user)) {
-					throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
+				if (!user ||
+					!rightsUtils.isRightsValid(user)) {
+						throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
 				}
 
 				user.resetPasswordCode = null;
