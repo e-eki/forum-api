@@ -83,7 +83,8 @@ const tokenUtils = new function() {
 		return Promise.all(tasks)
 			.spread((accessToken, accessTokenExpiresIn, refreshToken, refreshTokenExpiresIn) => {
 				const tokensData = {
-					userId: user.id,   //!
+					userId: user.id,
+					userRole: user.role,  //!
 					accessToken: accessToken,
 					refreshToken: refreshToken,
 					accessTokenExpiresIn: accessTokenExpiresIn,
