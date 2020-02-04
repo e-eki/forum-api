@@ -32,7 +32,7 @@ router.route('/refresh-tokens/')
 
 				//validate req.body
 				if (!req.body.refreshToken || req.body.refreshToken == '') {
-					validationErrors.push('empty password');
+					validationErrors.push('invalid refresh token');
 				}
 				if (!req.body.fingerprint || req.body.fingerprint == '') {
 					validationErrors.push('empty device data');

@@ -101,18 +101,10 @@ router.route('/subsection')
               throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
         }
 
-        return Promise.resolve(sectionModel.query({id: req.params.id}));
+        return Promise.resolve(subSectionModel.query({sectionId: req.body.sectionId}));
       })
       .then(results => {
-        let orderNumber = 0;
-
-        if (results && results.length) {
-          const section = results[0];
-
-          if (section.subSections) {
-            orderNumber = section.subSections.length;
-          }
-        }
+        const orderNumber = results ? results.length : 0;
 
         const data = {
           name: req.body.name,

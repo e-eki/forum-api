@@ -185,7 +185,7 @@ router.route('/channel/:id')
         channel.canAdd = addMessageRights;
 
         channel.messages.forEach(message => {
-          const editDeleteMessageRights = user ? rightUtils.isRightsValidForEditDeleteMessage(user, message) : false;
+          const editDeleteMessageRights = user ? rightsUtils.isRightsValidForEditDeleteMessage(user, message) : false;
 
           message.canEdit = message.canDelete = editDeleteMessageRights;
         })
@@ -221,7 +221,7 @@ router.route('/channel/:id')
         // проверяем права
         if (!user ||
             !rightsUtils.isRightsValid(user) ||
-            (req.body.senderId !== user.id)) {   //todo: check!
+            (req.body.senderId !== user.id)) {   //todo: check!  //TODO!!!!!!!!!!!!!!!!!!!!
               throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
         }
 

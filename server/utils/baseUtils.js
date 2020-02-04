@@ -22,7 +22,7 @@ const utils = new function() {
         error.message = (errorData && errorData.message) ? errorData.message : '';
 
         if (messageData) {
-            error.message += '\n';
+            error.message += ':\n';
 
             if (typeof(messageData) === 'string') {
                 error.message += messageData;
