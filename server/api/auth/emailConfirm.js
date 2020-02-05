@@ -197,7 +197,7 @@ router.route('/email-confirm/:uuid')
 				logUtils.fileLogDbErrors(dbResponses);
 
 				//показываем страницу успешного подтверждения
-				//TODO: ?? как сделать редирект на главную через неск.секунд после показа страницы?
+				//TODO: ?как сделать редирект на главную через неск.секунд после показа страницы?
 				const page = require('../../templates/successConfirmPage');
 				res.set('Content-Type', 'text/html');
 				

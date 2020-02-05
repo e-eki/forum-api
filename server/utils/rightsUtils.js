@@ -32,7 +32,7 @@ const rightsUtils = new function() {
 	this.isRightsValidForEditUserInfo = function(user, userInfo) {
 		// изменить информацию о пользователе может только сам пользователь
 		return (this.isRightsValid(user) &&
-				(new ObjectId(user.id) === new ObjectId(userInfo.userId)));
+				(user.id.toString() === userInfo.userId.toString()));  //??todo: как правильно сравнивать id?
 	};
 
 	//---- section
