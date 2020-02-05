@@ -89,7 +89,7 @@ const channelUtils = new function() {
 
 	// получить название приватного чата
 	this.getNameForPrivateChannel = function(privateChannel, userId) {
-		const recipientId = (privateChannel.senderId === userId) ? privateChannel.recipientId : privateChannel.senderId;
+		const recipientId = (privateChannel.senderId === userId) ? privateChannel.recipientId : privateChannel.senderId;  //??
 
 		return userInfoModel.query({id: recipientId})
 			.then(result => {
@@ -105,7 +105,7 @@ const channelUtils = new function() {
 
 		for (let i = 0; i < privateChannels.length; i++) {
 			const privateChannel = privateChannels[0];
-			const recipientId = (privateChannel.senderId === userId) ? privateChannel.recipientId : privateChannel.senderId;
+			const recipientId = (privateChannel.senderId === userId) ? privateChannel.recipientId : privateChannel.senderId;  //??
 
 			tasks.push(userInfoModel.query({id: recipientId}));
 		}

@@ -89,7 +89,7 @@ const channelSocketActions = new function() {
 						};
 
 						if (userVisitData.lastVisitData.length) {
-							const lastVisitChannel = userVisitData.lastVisitData.find(item => item.channelId === action.roomId);
+							const lastVisitChannel = userVisitData.lastVisitData.find(item => item.channelId.toString() === action.roomId.toString());    //??
 
 							if (lastVisitChannel) {
 								lastVisitChannel.date = new Date();

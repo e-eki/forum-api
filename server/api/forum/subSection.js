@@ -300,26 +300,35 @@ router.route('/subsection/:id')
               throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
         }
 
-        return subSectionModel.query();
+        return subSectionModel.query({id: subSectionId});
       })
-      .then(subSections => {
+      .then(results => {
+        if (!results.length) {
+          throw utils.initError(errors.FORBIDDEN);
+        }
+
+        const subSection = results[0];
+
+        const tasks = [];
+        tasks.push(subSection);
+        tasks.push(subSectionModel.query({sectionId: subSection.sectionId}));
+
+        return Promise.all(tasks);
+      })
+      .spread((subSection, subSections) => {
         // корректируем номер порядка у всех элементов, следующих за удаляемым
         if (subSections && subSections.length) {
-          const subSection = subSections.find(item => item.id.toString() === subSectionId);
+          const nextSubSections = subSections.find(item => item.orderNumber > subSection.orderNumber);
 
-          subSections.forEach(item => {
-            if ((item.sectionId === subSection.sectionId) &&
-                (item.orderNumber > subSection.orderNumber)) {
-                  item.orderNumber--;
-
-                  subSectionsUpdateTasks.push(subSectionModel.update(item.id, item));
-            }
+          nextSubSections.forEach(item => {
+            item.orderNumber--;
+            subSectionsUpdateTasks.push(subSectionModel.update(item.id, item));
           })
         }
 
-        deleteTasks.push(subSectionModel.delete(req.params.id));
+        deleteTasks.push(subSectionModel.delete(subSectionId));
 
-        return channelModel.query({subSectionId: req.params.id});
+        return channelModel.query({subSectionId: subSectionId});
       })
       .then(channels => {
         const queryTasks = [];

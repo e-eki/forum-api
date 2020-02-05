@@ -8,7 +8,7 @@ const userModel = require('../mongoDB/models/user');
 const userSocketActions = new function() {
 
 	// обновление данных юзера (роль, чс)
-	this.updateUserData = function(io, action) {
+	this.updateUser = function(io, action) {
 		if (action.userId) {
 			return Promise.resolve(userModel.query({id: action.userId}))
 				.then(results => {
@@ -16,13 +16,14 @@ const userSocketActions = new function() {
 						const user = results[0];
 
 						const data = {
-							role: user.role
+							role: user.role,
+							inBlackList: user.inBlackList
 						};
 						
 						io.to(action.userId).emit('action', {
-							type: actionTypes.UPDATE_USER_DATA,
+							type: actionTypes.UPDATE_USER,
 							data: data,
-							debug: 'user-data',
+							debug: 'user',
 						});
 					}
 

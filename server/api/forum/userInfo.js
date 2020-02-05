@@ -47,6 +47,8 @@ router.route('/user-info')
         }
 
         const userInfo = results[0];
+        userInfo.role = user.role;
+        userInfo.inBlackList = user.inBlackList;
 
         //get rights
         const canEditRole = rightsUtils.isRightsValidForRole(user);
@@ -156,8 +158,11 @@ router.route('/user-info/:id')
     inBlackList
 	}*/
   .put(function(req, res) {
+    const userInfoId = req.params.id;
+
     let canEditRole;
     let canEditBlackList;
+    let user;
 
     return Promise.resolve(true)
 			.then(() => {
@@ -167,11 +172,22 @@ router.route('/user-info/:id')
 				
 				return tokenUtils.checkAccessTokenAndGetUser(accessToken);
 			})
-			.then(user => {
+			.then(result => {
+        user = result;
+
+        return userInfoModel.query({id: userInfoId});
+      })
+      .then(results => {
+        if (!results.length) {
+          throw utils.initError(errors.FORBIDDEN);
+        }
+
+        const userInfo = results[0];
+
         // проверяем права
         if (!user ||
             !rightsUtils.isRightsValid(user) ||
-            (new ObjectId(user.id) !== new ObjectId(req.params.id))) {
+            (user.id.toString() !== userInfo.userId.toString())) {
               throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
         }
 
@@ -179,20 +195,10 @@ router.route('/user-info/:id')
         canEditBlackList = rightsUtils.isRightsValidForBlackList(user);
 
         if (canEditRole || canEditBlackList) {
-          return userInfoModel.query({id: req.params.id});
-        }
-        else {
-          return false;
-        }
-      })
-      .then(results => {
-        if (!results || !results.length) {
-          return false;
-        }
-        else {
-          const userInfo = results[0];
-
           return userModel.query({id: userInfo.userId});
+        }
+        else {
+          return false;
         }
       })
       .then(results => {
@@ -201,10 +207,14 @@ router.route('/user-info/:id')
         if (results && results.length) {
           const user = results[0];
 
-          const userData = {
-            role: (canEditRole ? req.body.role : null),
-            inBlackList: (canEditBlackList ? req.body.inBlackList : null),
-          };
+          let userData = {};
+
+          if (canEditRole && req.body.role) {
+            userData.role = req.body.role;
+          }
+          if (canEditBlackList && req.body.inBlackList) {
+            userData.inBlackList = req.body.inBlackList;
+          }
 
           tasks.push(userModel.update(user.id, userData));
         }
@@ -221,7 +231,7 @@ router.route('/user-info/:id')
           captionText: req.body.captionText,
         };
 
-        tasks.push(userInfoModel.update(req.params.id, userInfoData));
+        tasks.push(userInfoModel.update(userInfoId, userInfoData));
 
         return Promise.all(tasks);
       })

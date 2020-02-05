@@ -457,9 +457,9 @@ module.exports = {
 							// }
 							//break;
 
-						//---USER-DATA
-						case actionTypes.UPDATE_USER_DATA:
-							return userSocketActions.updateUserData(io, action);
+						//---USER
+						case actionTypes.UPDATE_USER:
+							return userSocketActions.updateUser(io, action);
 
 
 						default:
