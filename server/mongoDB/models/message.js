@@ -16,10 +16,11 @@ module.exports = {
 					{$project: {
 						_id: 0, id: "$_id",
 						senderId: 1,
+						editorId: 1,
+						editDate: 1,
 						recipientId: 1,
 						channelId: 1,
 						date: 1,
-						editDate: 1,
 						text: 1,
 					}}
 				]);
@@ -31,6 +32,8 @@ module.exports = {
 					{$project: {
 						_id: 0, id: "$_id",
 						senderId: 1,
+						editorId: 1,
+						editDate: 1,
 						recipientId: 1,
 						channelId: 1,
 						date: 1,
@@ -66,6 +69,8 @@ module.exports = {
 						{$project: {
 							_id: 0, id: "$_id",
 							senderId: 1,
+							editorId: 1,
+							editDate: 1,
 							recipientId: 1,
 							channelId: 1,
 							date: 1,
@@ -108,7 +113,8 @@ module.exports = {
 			_id: id,
 			date: data.date,
 			text: data.text,
-			//senderId: data.senderId,
+			senderId: data.senderId,
+			editorId: data.editorId,
 			recipientId: data.recipientId,
 			channelId: data.channelId,
 			editDate: new Date(),  //?

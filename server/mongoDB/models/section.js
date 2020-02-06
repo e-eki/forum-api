@@ -19,6 +19,8 @@ module.exports = {
 						name: 1,
 						description: 1,
 						senderId: 1,
+						editorId: 1,
+						editDate: 1,
 						orderNumber: 1,
 					}}
 				]);
@@ -32,6 +34,8 @@ module.exports = {
 				name: 1,
 				description: 1,
 				senderId: 1,
+				editorId: 1,
+				editDate: 1,
 				orderNumber: 1,
 			}}
 		]);
@@ -53,7 +57,9 @@ module.exports = {
 			_id: id,
 			name: data.name,
 			description: data.description,
-			//senderId: data.senderId,
+			senderId: data.senderId,
+			editorId: data.editorId,
+			editDate: new Date(),  //?
 			orderNumber: data.orderNumber,
 		});
 

@@ -7,6 +7,8 @@ const Schema = mongoose.Schema;
 const userInfoSchema = new Schema(
 	{
 		userId: {type: Schema.Types.ObjectId },
+		editorId: {type: Schema.Types.ObjectId },
+		editDate: Date,
 		login: { type: String },
 		name: { type: String },
 		birthDate: { type: Date },

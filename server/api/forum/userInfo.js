@@ -34,9 +34,9 @@ router.route('/user-info')
         user = result;
 
         // проверяем права
-        if (!user ||
-            !rightsUtils.isRightsValid(user)) {
-              throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
+        if (!user /*||
+            !rightsUtils.isRightsValid(user)*/) {
+              throw utils.initError(errors.FORBIDDEN/*, 'Недостаточно прав для совершения данного действия'*/);
         }
 
         return userInfoModel.query({userId: user.id});
@@ -163,6 +163,7 @@ router.route('/user-info/:id')
     let canEditRole;
     let canEditBlackList;
     let user;
+    let userInfo;
 
     return Promise.resolve(true)
 			.then(() => {
@@ -182,7 +183,7 @@ router.route('/user-info/:id')
           throw utils.initError(errors.FORBIDDEN);
         }
 
-        const userInfo = results[0];
+        userInfo = results[0];
 
         // проверяем права
         if (!user ||
@@ -211,9 +212,11 @@ router.route('/user-info/:id')
 
           if (canEditRole && req.body.role) {
             userData.role = req.body.role;
+            userData.editorId = user.id;  //?
           }
           if (canEditBlackList && req.body.inBlackList) {
             userData.inBlackList = req.body.inBlackList;
+            userData.editorId = user.id;  //?
           }
 
           tasks.push(userModel.update(user.id, userData));
@@ -223,12 +226,14 @@ router.route('/user-info/:id')
         }
 
         const userInfoData = {
+          userId: userInfo.userId,   //?
           name: req.body.name,
           birthDate: req.body.birthDate,
           city: req.body.city,
           profession: req.body.profession,
           hobby: req.body.hobby,
           captionText: req.body.captionText,
+          editorId: user.id,
         };
 
         tasks.push(userInfoModel.update(userInfoId, userInfoData));

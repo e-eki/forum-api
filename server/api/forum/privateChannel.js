@@ -252,41 +252,45 @@ router.route('/private-channel/:id')
 		  descriptionMessageId
 	}*/
   .put(function(req, res) {
+    const privateChannelId = req.params.id;
+    let user;
+
     return Promise.resolve(true)
 			.then(() => {
 				//get token from header
 				const headerAuthorization = req.header('Authorization') || '';
         const accessToken = tokenUtils.getAccessTokenFromHeader(headerAuthorization);
-        
-        const tasks = [];
-				
-        tasks.push(tokenUtils.checkAccessTokenAndGetUser(accessToken));
-        
-        tasks.push(privateChannelModel.query({id: req.params.id}));
 
-        return Promise.all(tasks);
+        return tokenUtils.checkAccessTokenAndGetUser(accessToken);
+      })
+      .then(result => {
+        user = result;
+
+        // проверяем права
+        if (!user ||
+          !rightsUtils.isRightsValid(user) ||
+          (new ObjectId(user.id) !== new ObjectId(privateChannel.senderId) &&
+          new ObjectId(user.id) !== new ObjectId(privateChannel.recipientId))) {  //todo: check!
+            throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
+        }
+        
+        return privateChannelModel.query({id: privateChannelId});
 			})
-			.spread((user, results) => {
+			.then(results => {
         if (!results.length) {
           throw utils.initError(errors.FORBIDDEN);
         }
 
         const privateChannel = results[0];
 
-        // проверяем права
-        if (!user ||
-            !rightsUtils.isRightsValid(user) ||
-            (new ObjectId(user.id) !== new ObjectId(privateChannel.senderId) &&
-            new ObjectId(user.id) !== new ObjectId(privateChannel.recipientId))) {  //todo: check!
-              throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
-        }
-
         const data = {
-          //senderId: req.body.senderId,
+          senderId: privateChannel.senderId,
+          recipientId: privateChannel.recipientId,
+          editorId: user.id,
           descriptionMessageId: req.body.descriptionMessageId,
         };
 
-        return privateChannelModel.update(req.params.id, data);
+        return privateChannelModel.update(privateChannelId, data);
       })
       .then(dbResponse => {
         logUtils.fileLogDbErrors(dbResponse);

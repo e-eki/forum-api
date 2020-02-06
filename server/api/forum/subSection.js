@@ -241,6 +241,9 @@ router.route('/subsection/:id')
     orderNumber
 	}*/
   .put(function(req, res) {
+    const subSectionId = req.params.id;
+    let user;
+
     return Promise.resolve(true)
 			.then(() => {
 				//get token from header
@@ -249,7 +252,9 @@ router.route('/subsection/:id')
 				
 				return tokenUtils.checkAccessTokenAndGetUser(accessToken);
 			})
-			.then(user => {
+			.then(result => {
+        user = result;
+
         // проверяем права
         if (!user ||
             !rightsUtils.isRightsValid(user) ||
@@ -257,15 +262,25 @@ router.route('/subsection/:id')
               throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
         }
 
+        return subSectionModel.query({id: subSectionId});
+      })
+      .then(results => {
+        if (!results.length) {
+          throw utils.initError(errors.FORBIDDEN);
+        }
+
+        const subSection = results[0];
+
         const data = {
           name: req.body.name,
           description: req.body.description,
-          senderId: user.id,   //todo? updaterId
+          senderId: subSection.senderId,
+          editorId: user.id,
           sectionId: req.body.sectionId,
           orderNumber: req.body.orderNumber,
         };
 
-        return subSectionModel.update(req.params.id, data);
+        return subSectionModel.update(subSectionId, data);
       })
       .then(dbResponse => {
         logUtils.fileLogDbErrors(dbResponse);

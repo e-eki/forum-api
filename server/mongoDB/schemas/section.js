@@ -6,7 +6,9 @@ const Schema = mongoose.Schema;
 
 const sectionSchema = new Schema(
 	{
-		senderId: {type: Schema.Types.ObjectId, default: null },
+		senderId:  Schema.Types.ObjectId,
+		editorId: Schema.Types.ObjectId,
+		editDate: Date,
 		name: String,
 		description: String,
 		orderNumber: Number,

@@ -11,6 +11,8 @@ const userSchema = new Schema(
 		resetPasswordCode: { type: String },
 		role: { type: String },
 		inBlackList: { type: Boolean },
+		editorId: Schema.Types.ObjectId,
+		editDate: Date,
 	},
 	{versionKey: false}
 );

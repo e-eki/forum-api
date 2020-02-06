@@ -221,6 +221,9 @@ router.route('/section/:id')
     orderNumber
 	}*/
   .put(function(req, res) {
+    const sectionId = req.params.id;
+    let user;
+
     return Promise.resolve(true)
 			.then(() => {
 				//get token from header
@@ -229,7 +232,9 @@ router.route('/section/:id')
 				
 				return tokenUtils.checkAccessTokenAndGetUser(accessToken);
 			})
-			.then(user => {
+			.then(result => {
+        user = result;
+
         // проверяем права
         if (!user ||
             !rightsUtils.isRightsValid(user) ||
@@ -237,14 +242,23 @@ router.route('/section/:id')
               throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
         }
 
+        return sectionModel.query({id: sectionId});
+      })
+      .then(results => {
+        if (!results.length) {
+          throw utils.initError(errors.FORBIDDEN);
+        }
+        const section = results[0];
+
         const data = {
           name: req.body.name,
           description: req.body.description,
-          senderId: user.id,  //todo? updaterId
+          senderId: section.senderId,
+          editorId: user.id,
           orderNumber: req.body.orderNumber,
         };
 
-        return sectionModel.update(req.params.id, data);
+        return sectionModel.update(sectionId, data);
       })
       .then(dbResponse => {
         logUtils.fileLogDbErrors(dbResponse);

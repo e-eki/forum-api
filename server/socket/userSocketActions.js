@@ -22,6 +22,8 @@ const userSocketActions = new function() {
 						
 						io.to(action.userId).emit('action', {
 							type: actionTypes.UPDATE_USER,
+							userId: action.userId,
+							senderId: action.senderId,
 							data: data,
 							debug: 'user',
 						});

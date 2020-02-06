@@ -163,6 +163,9 @@ router.route('/message/:id')
     channelId
 	}*/
   .put(function(req, res) {
+    const messageId = req.params.id;
+    let user;
+
     return Promise.resolve(true)
 			.then(() => {
 				//get token from header
@@ -171,19 +174,31 @@ router.route('/message/:id')
 				
 				return tokenUtils.checkAccessTokenAndGetUser(accessToken);
 			})
-			.then(user => {
+			.then(result => {
+        user = result;
+
         // проверяем права
-        if (!user ||
-            !rightsUtils.isRightsValid(user) ||
-            (req.body.senderId !== user.id)) {   //todo: check!
+        if (!result ||
+            !rightsUtils.isRightsValid(result) ||
+            (req.body.senderId.toString() !== result.id.toString())) {//?
               throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
         }
+
+        return messageModel.query({id: messageId});
+      })
+      .then(results => {
+        if (!results.length) {
+          throw utils.initError(errors.FORBIDDEN);
+        }
+
+        const message = results[0];
 
         const data = {
           date: req.body.date,
           text: req.body.text,
-          senderId: user.id,  //todo? updaterId
-          //recipientId: req.body.recipientId,
+          senderId: message.senderId,
+          recipientId: message.recipientId,
+          editorId: user.id,
           channelId: req.body.channelId,
         };
 

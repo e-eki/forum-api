@@ -16,6 +16,8 @@ module.exports = {
 					{$project: {
 						_id: 0, id: "$_id",
 						userId: 1,
+						editorId: 1,
+						editDate: 1,
 						login: 1,
 						name: 1,
 						birthDate: 1,
@@ -32,6 +34,8 @@ module.exports = {
 					{$project: {
 						_id: 0, id: "$_id",
 						userId: 1,
+						editorId: 1,
+						editDate: 1,
 						login: 1,
 						name: 1,
 						birthDate: 1,
@@ -80,6 +84,8 @@ module.exports = {
 		const userInfo = new UserInfoModel({
 			_id: id,
 			userId: data.userId,   //??
+			editorId: data.editorId,
+			editDate: new Date(),  //?
 			login: data.login,
 			name: data.name,
 			birthDate: data.birthDate,

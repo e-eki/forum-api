@@ -209,6 +209,9 @@ router.route('/channel/:id')
     descriptionMessageId
 	}*/
   .put(function(req, res) {
+    const channelId = req.params.id;
+    let user;
+
     return Promise.resolve(true)
 			.then(() => {
 				//get token from header
@@ -217,23 +220,33 @@ router.route('/channel/:id')
 				
 				return tokenUtils.checkAccessTokenAndGetUser(accessToken);
 			})
-			.then(user => {
+			.then(result => {
+        user = result;
         // проверяем права
-        if (!user ||
-            !rightsUtils.isRightsValid(user) ||
-            (req.body.senderId !== user.id)) {   //todo: check!  //TODO!!!!!!!!!!!!!!!!!!!!
+        if (!result ||
+            !rightsUtils.isRightsValid(result) ||
+            (req.body.senderId.toString() !== result.id.toString())) {   //TODO!!!!!!!!!!!!!!!!!!!!
               throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
         }
+
+        return channelModel.query({id: channelId});
+      })
+      .then(results => {
+        if (!results.length) {
+          throw utils.initError(errors.FORBIDDEN);
+        }
+        const channel = results[0];
 
         const data = {
           name: req.body.name,
           description: req.body.description,
-          senderId: user.id,  //todo? updaterId
+          senderId: channel.senderId,
+          editorId: user.id,  //?
           subSectionId: req.body.subSectionId,
           descriptionMessageId: req.body.descriptionMessageId,
         };
 
-        return channelModel.update(req.params.id, data);
+        return channelModel.update(channelId, data);
       })
       .then(dbResponse => {
         logUtils.fileLogDbErrors(dbResponse);

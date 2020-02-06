@@ -15,6 +15,8 @@ module.exports = {
 					{$match: { '_id': new ObjectId(config.id)}},
 					{$project: {
 						_id: 0, id: "$_id",
+						editorId: 1,
+						editDate: 1,
 						email: 1,
 						password: 1,
 						resetPasswordCode: 1,
@@ -28,6 +30,8 @@ module.exports = {
 					{$match: { 'email': config.email}},
 					{$project: {
 						_id: 0, id: "$_id",
+						editorId: 1,
+						editDate: 1,
 						email: 1,
 						password: 1,
 						resetPasswordCode: 1,
@@ -41,6 +45,8 @@ module.exports = {
 					{$match: { 'resetPasswordCode': config.resetPasswordCode}},
 					{$project: {
 						_id: 0, id: "$_id",
+						editorId: 1,
+						editDate: 1,
 						email: 1,
 						password: 1,
 						resetPasswordCode: 1,
@@ -79,7 +85,9 @@ module.exports = {
 	update: function(id, data) {
 		const user = new UserModel({
 			_id: id,
-			// email: data.email,
+			editorId: data.editorId,
+			editDate: new Date(),  //?
+			email: data.email,
 			password: data.password,
 			resetPasswordCode: data.resetPasswordCode,
 			role: data.role,
