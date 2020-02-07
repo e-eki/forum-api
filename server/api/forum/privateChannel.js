@@ -152,7 +152,7 @@ router.route('/private-channel')
 			.then(user => {
         // проверяем права
         if (!user ||
-            !rightsUtils.isRightsValid(user)) {
+            !rightsUtils.isRightsValidForAddPrivateChannel(user)) {
               throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
         }
 
@@ -265,14 +265,6 @@ router.route('/private-channel/:id')
       })
       .then(result => {
         user = result;
-
-        // проверяем права
-        if (!user ||
-          !rightsUtils.isRightsValid(user) ||
-          (new ObjectId(user.id) !== new ObjectId(privateChannel.senderId) &&
-          new ObjectId(user.id) !== new ObjectId(privateChannel.recipientId))) {  //todo: check!
-            throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
-        }
         
         return privateChannelModel.query({id: privateChannelId});
 			})
@@ -282,6 +274,12 @@ router.route('/private-channel/:id')
         }
 
         const privateChannel = results[0];
+
+        // проверяем права
+        if (!user ||
+          !rightsUtils.isRightsValidForEditDeletePrivateChannel(user, privateChannel)) {
+            throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
+      }
 
         const data = {
           senderId: privateChannel.senderId,
@@ -305,6 +303,7 @@ router.route('/private-channel/:id')
   // удаление приватного чата по его id
   .delete(function(req, res) {
     const deleteTasks = [];
+    let user;
 
     return Promise.resolve(true)
 			.then(() => {
@@ -320,7 +319,9 @@ router.route('/private-channel/:id')
 
         return Promise.all(tasks);
 			})
-			.spread((user, results) => {
+			.spread((result, results) => {
+        user = result;
+
         if (!results.length) {
           throw utils.initError(errors.FORBIDDEN);
         }
@@ -329,9 +330,7 @@ router.route('/private-channel/:id')
 
         // проверяем права
         if (!user ||
-            !rightsUtils.isRightsValid(user) ||
-            (new ObjectId(user.id) !== new ObjectId(privateChannel.senderId) &&
-            new ObjectId(user.id !== privateChannel.recipientId))) {  //todo: check!
+            !rightsUtils.isRightsValidForEditDeletePrivateChannel(user, privateChannel)) {
               throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
         }
 

@@ -105,15 +105,20 @@ router.route('/user-info/:id')
         // if (!rightsUtils.isRightsValid(user)) {
         //   throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
         // }
+        const tasks = [];
 
-        return userInfoModel.query({id: req.params.id});
+        tasks.push(userModel.query({id: req.params.id}));
+        tasks.push(userInfoModel.query({userId: req.params.id}));
+        
+        return Promise.all(tasks);
       })
-      .then(results => {
-        if (!results.length) {
+      .spread((userResults, userInfoResults) => {
+        if (!userResults.length || !userInfoResults.length) {
           throw utils.initError(errors.FORBIDDEN, 'No user with this id');
         }
 
-        const userInfo = results[0];
+        const userData = userResults[0];
+        const userInfo = userInfoResults[0];
 
         //get rights
         const canEditRole = rightsUtils.isRightsValidForRole(user);
@@ -123,17 +128,8 @@ router.route('/user-info/:id')
         userInfo.canEditRole = canEditRole;
         userInfo.canEditBlackList = canEditBlackList;
         userInfo.canAddPrivateChannel = addPrivateChannelRights;
-
-        const tasks = [];
-        tasks.push(userInfo);
-
-        tasks.push(userModel.query({id: userInfo.userId}));
-
-        return Promise.all(tasks);
-      })
-      .spread((userInfo, user) => {
-        userInfo.role = user.role;
-        userInfo.inBlackList = user.inBlackList;
+        userInfo.role = userData.role;
+        userInfo.inBlackList = userData.inBlackList;
 
         return utils.sendResponse(res, userInfo);
       })
@@ -187,8 +183,7 @@ router.route('/user-info/:id')
 
         // проверяем права
         if (!user ||
-            !rightsUtils.isRightsValid(user) ||
-            (user.id.toString() !== userInfo.userId.toString())) {
+            !rightsUtils.isRightsValidForEditUserInfo(user, userInfo)) {
               throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
         }
 

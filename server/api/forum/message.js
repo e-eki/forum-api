@@ -53,9 +53,9 @@ router.route('/message')
         const validationErrors = [];
 
 				//validate req.body
-				if (!req.body.date || req.body.date == '') {
-					validationErrors.push('empty date');
-				}
+				// if (!req.body.date || req.body.date == '') {
+				// 	validationErrors.push('empty date');
+				// }
 				if (!req.body.text || req.body.text == '') {
 					validationErrors.push('empty text');
         }
@@ -76,12 +76,12 @@ router.route('/message')
 			.then(user => {
         // проверяем права
         if (!user ||
-            !rightsUtils.isRightsValid(user)) {
+            !rightsUtils.isRightsValidForAddMessage(user)) {
               throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
         }
 
         const data = {
-          date: req.body.date,
+          date: new Date(),
           text: req.body.text,
           senderId: user.id,
           recipientId: req.body.recipientId,
@@ -177,13 +177,6 @@ router.route('/message/:id')
 			.then(result => {
         user = result;
 
-        // проверяем права
-        if (!result ||
-            !rightsUtils.isRightsValid(result) ||
-            (req.body.senderId.toString() !== result.id.toString())) {//?
-              throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
-        }
-
         return messageModel.query({id: messageId});
       })
       .then(results => {
@@ -193,12 +186,19 @@ router.route('/message/:id')
 
         const message = results[0];
 
+        // проверяем права
+        if (!user ||
+          !rightsUtils.isRightsValidForEditDeleteMessage(user, message)) {
+            throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
+      }
+
         const data = {
-          date: req.body.date,
+          date: message.date,
           text: req.body.text,
           senderId: message.senderId,
           recipientId: message.recipientId,
           editorId: user.id,
+          editDate: new Date(),
           channelId: req.body.channelId,
         };
 
@@ -239,8 +239,7 @@ router.route('/message/:id')
 
         // проверяем права
         if (!user ||
-            !rightsUtils.isRightsValid(user) ||
-            (message.senderId !== user.id)) {   //todo: check!
+            !rightsUtils.isRightsValidForEditDeleteMessage(user, message)) {
               throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
         }
 

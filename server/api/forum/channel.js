@@ -19,7 +19,7 @@ let router = express.Router();
 //----- endpoint: /api/forum/channel/
 router.route('/channel')
 
-  // получение всех чатов (для поиска по форуму)
+  // получение всех чатов (для поиска по форуму и для списка родительских элементов для перемещения сообщения)
   .get(function(req, res) { 
     const tasks = [];
 
@@ -222,12 +222,6 @@ router.route('/channel/:id')
 			})
 			.then(result => {
         user = result;
-        // проверяем права
-        if (!result ||
-            !rightsUtils.isRightsValid(result) ||
-            (req.body.senderId.toString() !== result.id.toString())) {   //TODO!!!!!!!!!!!!!!!!!!!!
-              throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
-        }
 
         return channelModel.query({id: channelId});
       })
@@ -236,6 +230,12 @@ router.route('/channel/:id')
           throw utils.initError(errors.FORBIDDEN);
         }
         const channel = results[0];
+
+        // проверяем права
+        if (!user ||
+          !rightsUtils.isRightsValidForEditChannel(user, channel)) {
+            throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
+        }
 
         const data = {
           name: req.body.name,
@@ -260,6 +260,8 @@ router.route('/channel/:id')
 
   // удаление чата по его id
   .delete(function(req, res) {
+    const deleteTasks = [];
+
     return Promise.resolve(true)
 			.then(() => {
 				//get token from header
@@ -271,12 +273,9 @@ router.route('/channel/:id')
 			.then(user => {
         // проверяем права
         if (!user ||
-            !rightsUtils.isRightsValid(user) ||
-            (!rightsUtils.isRightsValidForDeleteChannel(user))) {
+            !rightsUtils.isRightsValidForDeleteChannel(user)) {
               throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
         }
-
-        const deleteTasks = [];
 
         deleteTasks.push(channelModel.delete(req.params.id));
 

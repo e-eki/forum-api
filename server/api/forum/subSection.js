@@ -19,7 +19,7 @@ let router = express.Router();
 //----- endpoint: /api/forum/subsection/
 router.route('/subsection')
 
-  // получение всех подразделов (для чего?)
+  // получение всех подразделов (для списка родительских элементов для перемещения чата)
   .get(function(req, res) { 
     let user = null;
 
@@ -44,7 +44,7 @@ router.route('/subsection')
 
         //get rights
         const subSectionRights = user ? rightsUtils.isRightsValidForSubSection(user) : false;
-        const addChannelRights = user ? rightsUtils.isRightsValidForCreateChannel(user) : false;
+        const addChannelRights = user ? rightsUtils.isRightsValidForAddChannel(user) : false;
 
         subSections.forEach(item => {
           item.canEdit = item.canDelete = subSectionRights;
@@ -96,7 +96,6 @@ router.route('/subsection')
 
         // проверяем права
         if (!user ||
-            !rightsUtils.isRightsValid(user) ||
             !rightsUtils.isRightsValidForSubSection(user)) {
               throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
         }
@@ -211,7 +210,7 @@ router.route('/subsection/:id')
 
         //get rights
         const subSectionRights = user ? rightsUtils.isRightsValidForSubSection(user) : false;
-        const addChannelRights = user ? rightsUtils.isRightsValidForCreateChannel(user) : false;
+        const addChannelRights = user ? rightsUtils.isRightsValidForAddChannel(user) : false;
         const deleteChannelRights = user ? rightsUtils.isRightsValidForDeleteChannel(user) : false;
 
         subSection.canEdit = subSection.canDelete = subSectionRights;
@@ -257,7 +256,6 @@ router.route('/subsection/:id')
 
         // проверяем права
         if (!user ||
-            !rightsUtils.isRightsValid(user) ||
             !rightsUtils.isRightsValidForSubSection(user)) {
               throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
         }
@@ -310,7 +308,6 @@ router.route('/subsection/:id')
 			.then(user => {
         // проверяем права
         if (!user ||
-            !rightsUtils.isRightsValid(user) ||
             !rightsUtils.isRightsValidForSubSection(user)) {
               throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
         }

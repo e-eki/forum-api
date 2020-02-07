@@ -260,8 +260,7 @@ router.route('/reset-password/:code')
 				user = users[0];
 
 				// проверяем права
-				if (!user ||
-					!rightsUtils.isRightsValid(user)) {
+				if (!rightsUtils.isRightsValid(user)) {
 						throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
 				}
 

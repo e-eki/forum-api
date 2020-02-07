@@ -116,7 +116,6 @@ router.route('/section')
 
         // проверяем права
         if (!user ||
-            !rightsUtils.isRightsValid(user) ||
             !rightsUtils.isRightsValidForSection(user)) {
               throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
         }
@@ -237,7 +236,6 @@ router.route('/section/:id')
 
         // проверяем права
         if (!user ||
-            !rightsUtils.isRightsValid(user) ||
             !rightsUtils.isRightsValidForSection(user)) {
               throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
         }
@@ -288,7 +286,6 @@ router.route('/section/:id')
 			.then(user => {
         // проверяем права
         if (!user ||
-            !rightsUtils.isRightsValid(user) ||
             !rightsUtils.isRightsValidForSection(user)) {
               throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
         }

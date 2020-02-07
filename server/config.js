@@ -55,8 +55,8 @@ module.exports = {
         , algorithm: 'HS512'
         , access: {
             type: 'access',
-           //expiresIn: 1200000   //20 мин = 20*60*1000
-            expiresIn: 7200000    //2 ч = 120*60*1000   //TODO!!
+            //expiresIn: 120000  //2 мин = 2*60*1000
+            expiresIn: 7200000    //2 ч = 120*60*1000
           },
         
           refresh: {

@@ -102,7 +102,7 @@ const channelSocketActions = new function() {
 							userVisitData.lastVisitData.push(newLastVisitChannel);
 						}
 
-						return userVisitDataModel.update(userVisitData.id, userVisitData);  //?
+						return userVisitDataModel.update(userVisitData.id, userVisitData);
 					}
 					else {
 						return true;

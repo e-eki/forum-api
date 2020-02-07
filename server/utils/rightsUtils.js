@@ -54,7 +54,7 @@ const rightsUtils = new function() {
 	//---- channel
 
 	// есть ли права добавить чат
-	this.isRightsValidForCreateChannel = function(user) {
+	this.isRightsValidForAddChannel = function(user) {
 		// добавить чат могут все
 		return this.isRightsValid(user);
 	};
@@ -73,7 +73,7 @@ const rightsUtils = new function() {
 		return (this.isRightsValid(user) &&
 				(user.role === config.userRoles.admin ||
 				user.role === config.userRoles.moderator ||
-				(new ObjectId((user.id) === new ObjectId(channel.senderId)))));
+				user.id.toString() === channel.senderId.toString()));
 	};
 
 	//---- private-channel

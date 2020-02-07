@@ -93,7 +93,7 @@ const messageUtils = new function() {
 				if (results.length) {
 					const userVisitData = results[0];
 
-					const lastVisitChannel = userVisitData.lastVisitData.find(item => new ObjectId(item.channelId) === new ObjectId(channel.id));  //?
+					const lastVisitChannel = userVisitData.lastVisitData.find(item => item.channelId.toString() === channel.id.toString());
 					const lastVisitDate = lastVisitChannel ? lastVisitChannel.date : null;
 
 					return messageModel.query({

@@ -51,7 +51,7 @@ module.exports = {
 		const userVisitData = new UserVisitDataModel({
 			_id: id,
 			userId: data.userId,
-			lastVisitData: lastVisitData,  //?
+			lastVisitData: lastVisitData,
 		});
 
 		return UserVisitDataModel.findOneAndUpdate({_id: id}, userVisitData, {new: true});

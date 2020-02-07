@@ -3,6 +3,7 @@
 const Promise = require('bluebird');
 const actionTypes = require('../actionTypes');
 const messageModel = require('../mongoDB/models/message');
+const channelModel = require('../mongoDB/models/channel');
 
 // отправление по сокетам действий, связанных с сообщениями
 const messageSocketActions = new function() {
