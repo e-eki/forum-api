@@ -91,7 +91,7 @@ const channelUtils = new function() {
 	this.getNameForPrivateChannel = function(privateChannel, userId) {
 		const recipientId = (privateChannel.senderId === userId) ? privateChannel.recipientId : privateChannel.senderId;  //??
 
-		return userInfoModel.query({id: recipientId})
+		return userInfoModel.query({userId: recipientId})
 			.then(result => {
 				privateChannel.name = (result && result.length) ? result[0].login : null;
 
@@ -107,7 +107,7 @@ const channelUtils = new function() {
 			const privateChannel = privateChannels[0];
 			const recipientId = (privateChannel.senderId === userId) ? privateChannel.recipientId : privateChannel.senderId;  //??
 
-			tasks.push(userInfoModel.query({id: recipientId}));
+			tasks.push(userInfoModel.query({userId: recipientId}));
 		}
 
 		return Promise.all(tasks)	

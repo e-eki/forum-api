@@ -105,7 +105,7 @@ router.route('/private-channel')
             /*privateChannel.canAdd =*/ privateChannel.canEdit = privateChannel.canDelete = editDeletePrivateChannelRights;
           })
         }
-        else {
+        else if (result && (result.length !== 0)) {
           const editDeletePrivateChannelRights = user ? rightsUtils.isRightsValidForEditDeletePrivateChannel(user, result) : false;
 
           /*result.canAdd =*/ result.canEdit = result.canDelete = editDeletePrivateChannelRights;
@@ -214,8 +214,8 @@ router.route('/private-channel/:id')
 
         // проверяем права
         if (!user ||
-            (new ObjectId(user.id) !== new ObjectId(privateChannel.senderId) &&
-            new ObjectId(user.id) !== new ObjectId(privateChannel.recipientId))) {  //todo: check!
+            (user.id.toString() !== privateChannel.senderId.toString() &&
+            user.id.toString() !== privateChannel.recipientId.toString())) {  //todo: check!
               throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
         }
 
@@ -231,9 +231,10 @@ router.route('/private-channel/:id')
         privateChannel.canAdd = privateChannel.canEdit = privateChannel.canDelete = editDeletePrivateChannelRights;
 
         privateChannel.messages.forEach(message => {
-          const editDeleteMessageRights = user ? rightUtils.isRightsValidForEditDeleteMessage(user, message) : false;
+          const editDeleteMessageRights = user ? rightsUtils.isRightsValidForEditDeleteMessage(user, message) : false;
 
           message.canEdit = message.canDelete = editDeleteMessageRights;
+          message.canEditChannel = editDeletePrivateChannelRights;
         })
 
         return utils.sendResponse(res, privateChannel);
@@ -285,7 +286,7 @@ router.route('/private-channel/:id')
           senderId: privateChannel.senderId,
           recipientId: privateChannel.recipientId,
           editorId: user.id,
-          descriptionMessageId: req.body.descriptionMessageId,
+          descriptionMessageId: req.body.descriptionMessageId || null,
         };
 
         return privateChannelModel.update(privateChannelId, data);

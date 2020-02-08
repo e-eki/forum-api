@@ -8,6 +8,7 @@ const tokenUtils = require('../../utils/tokenUtils');
 const sessionUtils = require('../../utils/sessionUtils');
 const errors = require('../../utils/errors');
 const responses = require('../../utils/responses');
+const userVisitUtils = require('../../utils/userVisitUtils');
 
 let router = express.Router();
 
@@ -41,6 +42,14 @@ router.route('/logout')
 			})
 			.then(user => {	
 				return sessionUtils.deleteAllUserSessions(user.id);
+			})
+			.then(dbResponses => {
+				logUtils.fileLogDbErrors(dbResponses);
+
+				// для того, чтобы в данных о последних просмотрах юзером чатов не накапливалась информация об удаленных чатах,
+				// пока что они очищаются при логауте
+				// todo: придумать лучшее решение
+				return userVisitUtils.resetUserVisitData(user.id);
 			})
 			.then(dbResponses => {
 				logUtils.fileLogDbErrors(dbResponses);

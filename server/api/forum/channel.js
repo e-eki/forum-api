@@ -188,6 +188,7 @@ router.route('/channel/:id')
           const editDeleteMessageRights = user ? rightsUtils.isRightsValidForEditDeleteMessage(user, message) : false;
 
           message.canEdit = message.canDelete = editDeleteMessageRights;
+          message.canEditChannel = editChannelRights;
         })
         
         return utils.sendResponse(res, channel);

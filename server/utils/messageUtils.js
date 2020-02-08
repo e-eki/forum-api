@@ -27,13 +27,17 @@ const messageUtils = new function() {
 		}
 
 		return Promise.all(tasks)
-			.spread(userInfos => {
+			.then(userInfos => {
 				if (messages && userInfos) {
 					for (let i = 0; i < messages.length; i++) {
-						const message = messages[i];
+						const userInfo = userInfos[i] ? userInfos[i][0] : null;
 
-						if (message) {
-							message.senderName = userInfos[i] ? userInfos[i].login : null;
+						if (userInfo) {
+							const message = messages[i];
+
+							if (message) {
+								message.senderName = userInfo.login;
+							}
 						}
 					}
 				}
@@ -71,7 +75,7 @@ const messageUtils = new function() {
 					for (let i = 0; i < channels.length; i++) {
 						const channel = channels[i];
 
-						const lastVisitChannel = userVisitData.lastVisitData.find(item => new ObjectId(item.channelId) === new ObjectId(channel.id));  //?
+						const lastVisitChannel = userVisitData.lastVisitData.find(item => item.channelId.toString() === channel.id.toString());
 						const lastVisitDate = lastVisitChannel ? lastVisitChannel.date : null;
 
 						tasks.push(messageModel.query({

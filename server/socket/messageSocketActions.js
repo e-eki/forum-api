@@ -4,6 +4,7 @@ const Promise = require('bluebird');
 const actionTypes = require('../actionTypes');
 const messageModel = require('../mongoDB/models/message');
 const channelModel = require('../mongoDB/models/channel');
+const messageUtils = require('../utils/messageUtils');
 
 // отправление по сокетам действий, связанных с сообщениями
 const messageSocketActions = new function() {
@@ -12,9 +13,20 @@ const messageSocketActions = new function() {
 	this.updateMessage = function(io, action) {
 		if (action.messageId && action.channelId) {
 			return messageModel.query({id: action.messageId})
-				.then(results => {
-					if (results && results.length) {
-						const message = results[0];
+				.then(messages => {
+					if (messages.length) {
+						return messageUtils.getSenderNamesInMessages(messages);
+					}
+					else {
+						return false;
+					}
+				})
+				.then(messages => {
+					if (!messages || !messages.length) {
+						return false;
+					}
+					else {
+						const message = messages[0];
 
 						// io.to(action.messageId).emit('action', {  //??
 						// 	type: actionTypes.UPDATE_MESSAGE_BY_ID,
@@ -64,8 +76,6 @@ const messageSocketActions = new function() {
 							})
 						}
 					}
-
-					return true;
 				})
 		}
 		else {

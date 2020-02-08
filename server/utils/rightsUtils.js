@@ -88,8 +88,8 @@ const rightsUtils = new function() {
 	this.isRightsValidForEditDeletePrivateChannel = function(user, privateChannel) {
 		// редактировать/удалить личный чат может тот, кто является его создателем/получателем
 		return (this.isRightsValid(user) &&
-				(new ObjectId(user.id) === new ObjectId(privateChannel.senderId) ||
-				new ObjectId(user.id) === new ObjectId(privateChannel.recipientId)));
+				(user.id.toString() === privateChannel.senderId.toString() ||
+				user.id.toString() === privateChannel.recipientId.toString()));
 	};
 
 	//---- message
@@ -106,7 +106,7 @@ const rightsUtils = new function() {
 		return (this.isRightsValid(user) &&
 				(user.role === config.userRoles.admin ||
 				user.role === config.userRoles.moderator ||
-				new ObjectId(user.id) === new ObjectId(message.senderId)));
+				user.id.toString() === message.senderId.toString()));
 	};
 	
 };

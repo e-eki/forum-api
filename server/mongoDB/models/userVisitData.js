@@ -17,7 +17,7 @@ module.exports = {
 				{$project: {
 					_id: 0, id: "$_id",
 					userId: 1,
-					lastVisitData: 1,  //?
+					lastVisitData: 1,
 				}}
 			]);
 		}

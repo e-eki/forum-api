@@ -121,9 +121,9 @@ router.route('/user-info/:id')
         const userInfo = userInfoResults[0];
 
         //get rights
-        const canEditRole = rightsUtils.isRightsValidForRole(user);
-        const canEditBlackList = rightsUtils.isRightsValidForBlackList(user);
-        const addPrivateChannelRights = rightsUtils.isRightsValidForAddPrivateChannel(user);
+        const canEditRole = user ? rightsUtils.isRightsValidForRole(user) : false;
+        const canEditBlackList = user ? rightsUtils.isRightsValidForBlackList(user) : false;
+        const addPrivateChannelRights = user ? rightsUtils.isRightsValidForAddPrivateChannel(user) : false;
 
         userInfo.canEditRole = canEditRole;
         userInfo.canEditBlackList = canEditBlackList;

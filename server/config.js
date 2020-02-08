@@ -20,7 +20,7 @@ module.exports = {
         mongo : {
             url: 'mongodb://e:e123456@ds046677.mlab.com:46677/ch'
             , options: {
-                autoReconnect: (process.env.NODE_ENV == 'production')  //??
+                autoReconnect: true //(process.env.NODE_ENV == 'production')  //??
                 , useNewUrlParser: true 
             }
         }
