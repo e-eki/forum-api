@@ -21,21 +21,21 @@ router.route('/subsection')
 
   // получение всех подразделов (для списка родительских элементов для перемещения чата)
   .get(function(req, res) { 
-    let user = null;
+    // let user = null;
 
     return Promise.resolve(true)
       .then(() => {
         //get token from header
-				const headerAuthorization = req.header('Authorization') || '';
-				const accessToken = tokenUtils.getAccessTokenFromHeader(headerAuthorization);
+			// 	const headerAuthorization = req.header('Authorization') || '';
+			// 	const accessToken = tokenUtils.getAccessTokenFromHeader(headerAuthorization);
 				
-        return tokenUtils.checkAccessTokenAndGetUser(accessToken)
-          .catch(error => {
-            return null;
-          })
-      })
-      .then(result => {
-        user = result;
+      //   return tokenUtils.checkAccessTokenAndGetUser(accessToken)
+      //     .catch(error => {
+      //       return null;
+      //     })
+      // })
+      // .then(result => {
+      //   user = result;
 
         return subSectionModel.query();
       })
@@ -43,13 +43,13 @@ router.route('/subsection')
         const result = subSections || [];
 
         //get rights
-        const subSectionRights = user ? rightsUtils.isRightsValidForSubSection(user) : false;
-        const addChannelRights = user ? rightsUtils.isRightsValidForAddChannel(user) : false;
+        // const subSectionRights = user ? rightsUtils.isRightsValidForSubSection(user) : false;
+        // const addChannelRights = user ? rightsUtils.isRightsValidForAddChannel(user) : false;
 
-        subSections.forEach(item => {
-          item.canEdit = item.canDelete = subSectionRights;
-          item.canAdd = addChannelRights;
-        })
+        // subSections.forEach(item => {
+        //   item.canEdit = item.canMove = item.canDelete = subSectionRights;
+        //   item.canAdd = addChannelRights;
+        // })
 
         return utils.sendResponse(res, result);
       })
@@ -213,12 +213,13 @@ router.route('/subsection/:id')
         const addChannelRights = user ? rightsUtils.isRightsValidForAddChannel(user) : false;
         const deleteChannelRights = user ? rightsUtils.isRightsValidForDeleteChannel(user) : false;
 
-        subSection.canEdit = subSection.canDelete = subSectionRights;
+        subSection.canEdit = subSection.canMove = subSection.canDelete = subSectionRights;
         subSection.canAdd = addChannelRights;
 
         subSection.channels.forEach(channel => {
           channel.canDelete = deleteChannelRights;
           channel.canEdit = user ? rightsUtils.isRightsValidForEditChannel(user, channel) : false;
+          channel.canMove = user ? rightsUtils.isRightsValidForMoveChannel(user) : false;
         })
 
         return utils.sendResponse(res, subSection);

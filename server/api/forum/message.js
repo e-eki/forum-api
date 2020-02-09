@@ -141,9 +141,11 @@ router.route('/message/:id')
         const message = (data && data.length) ? data[0] : null;
 
         //get rights
-        const editDeleteMessageRights = user ? rightUtils.isRightsValidForEditDeleteMessage(user, message) : false;
+        const editDeleteMessageRights = user ? rightsUtils.isRightsValidForEditDeleteMessage(user, message) : false;
+        const moveMessageRights = (user && !message.recipientId) ? rightsUtils.isRightsValidForMoveMessage(user) : false;
 
         message.canEdit = message.canDelete = editDeleteMessageRights;
+        message.canMove = moveMessageRights;
 
         return utils.sendResponse(res, message);
       })
@@ -190,7 +192,12 @@ router.route('/message/:id')
         if (!user ||
           !rightsUtils.isRightsValidForEditDeleteMessage(user, message)) {
             throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
-      }
+        }
+
+        // проверка на перемещение личного сообщения
+        if (message.recipientId && req.body.channelId) {
+          throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
+        }
 
         const data = {
           date: message.date,

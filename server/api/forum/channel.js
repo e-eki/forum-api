@@ -177,10 +177,13 @@ router.route('/channel/:id')
       .then(channel => {
         //get rights
         const editChannelRights = user ? rightsUtils.isRightsValidForEditChannel(user, channel) : false;
+        const moveChannelRights = user ? rightsUtils.isRightsValidForMoveChannel(user) : false;
         const deleteChannelRights = user ? rightsUtils.isRightsValidForDeleteChannel(user) : false;
         const addMessageRights = user ? rightsUtils.isRightsValidForAddMessage(user) : false;
+        const moveMessageRights = user ? rightsUtils.isRightsValidForMoveMessage(user) : false;
 
         channel.canEdit = editChannelRights;
+        channel.canMove = moveChannelRights;
         channel.canDelete = deleteChannelRights;
         channel.canAdd = addMessageRights;
 
@@ -188,6 +191,7 @@ router.route('/channel/:id')
           const editDeleteMessageRights = user ? rightsUtils.isRightsValidForEditDeleteMessage(user, message) : false;
 
           message.canEdit = message.canDelete = editDeleteMessageRights;
+          message.canMove = moveMessageRights;
           message.canEditChannel = editChannelRights;
         })
         

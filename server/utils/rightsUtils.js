@@ -37,7 +37,7 @@ const rightsUtils = new function() {
 
 	//---- section
 
-	// есть ли права добавить/изменить/удалить раздел
+	// есть ли права добавить/изменить/удалить/переместить раздел
 	this.isRightsValidForSection = function(user) {
 		return (this.isRightsValid(user) &&
 				user.role === config.userRoles.admin);
@@ -45,7 +45,7 @@ const rightsUtils = new function() {
 
 	//---- subSection
 
-	// есть ли права добавить/изменить/удалить подраздел
+	// есть ли права добавить/изменить/удалить/переместить подраздел
 	this.isRightsValidForSubSection = function(user) {
 		return (this.isRightsValid(user) &&
 				user.role === config.userRoles.admin);
@@ -57,6 +57,13 @@ const rightsUtils = new function() {
 	this.isRightsValidForAddChannel = function(user) {
 		// добавить чат могут все
 		return this.isRightsValid(user);
+	};
+
+	// есть ли права переместить чат
+	this.isRightsValidForMoveChannel = function(user) {
+		// переместить чат может админ (если это не личный чат!)
+		return (this.isRightsValid(user) &&
+				user.role === config.userRoles.admin);
 	};
 
 	// есть ли права удалить чат
@@ -100,6 +107,13 @@ const rightsUtils = new function() {
         return this.isRightsValid(user);
 	};
 
+	// есть ли права переместить сообщение
+	this.isRightsValidForMoveMessage = function(user) {
+		// переместить сообщение может админ (если оно не в личном чате!)
+		return (this.isRightsValid(user) &&
+				user.role === config.userRoles.admin);
+	};
+
 	// есть ли права редактировать/удалить сообщение
 	this.isRightsValidForEditDeleteMessage = function(user, message) {
 		// редактировать/удалить сообщение могут админ и модератор и юзер, если сообщение создано им
@@ -108,7 +122,6 @@ const rightsUtils = new function() {
 				user.role === config.userRoles.moderator ||
 				user.id.toString() === message.senderId.toString()));
 	};
-	
 };
 
 module.exports = rightsUtils;

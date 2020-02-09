@@ -31,7 +31,9 @@ router.route('/logout')
 	/*data = {
 		accessToken
 	}*/
-	.delete(function(req, res) {	
+	.delete(function(req, res) {
+		let user;
+
 		return Promise.resolve(true)
 			.then(() => {
 				//get token from header
@@ -40,7 +42,9 @@ router.route('/logout')
 				
 				return tokenUtils.checkAccessTokenAndGetUser(accessToken);
 			})
-			.then(user => {	
+			.then(result => {
+				user = result;
+
 				return sessionUtils.deleteAllUserSessions(user.id);
 			})
 			.then(dbResponses => {

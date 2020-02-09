@@ -67,11 +67,11 @@ router.route('/section')
         data.canAdd = sectionRights;
 
         data.items.forEach(section => {
-          section.canEdit = section.canDelete = sectionRights;
+          section.canEdit = section.canMove = section.canDelete = sectionRights;
           section.canAdd = sectionRights;
 
           section.subSections.forEach(subSection => {
-            subSection.canEdit = subSection.canDelete = subSectionRights;
+            subSection.canEdit = subSection.canMove = subSection.canDelete = subSectionRights;
           })
         })
 
@@ -195,11 +195,11 @@ router.route('/section/:id')
         const sectionRights = user ? rightsUtils.isRightsValidForSection(user) : false;
         const subSectionRights = user ? rightsUtils.isRightsValidForSubSection(user) : false;
 
-        data.canEdit = data.canDelete = sectionRights;
+        data.canEdit = data.canMove = data.canDelete = sectionRights;
         data.canAdd = subSectionRights;
 
         data.subSections.forEach(subSection => {
-          subSection.canEdit = subSection.canDelete = subSectionRights;
+          subSection.canEdit = subSection.canMove = subSection.canDelete = subSectionRights;
         })
 
         return utils.sendResponse(res, data);

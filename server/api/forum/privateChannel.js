@@ -103,6 +103,7 @@ router.route('/private-channel')
             const editDeletePrivateChannelRights = user ? rightsUtils.isRightsValidForEditDeletePrivateChannel(user, privateChannel) : false;
 
             /*privateChannel.canAdd =*/ privateChannel.canEdit = privateChannel.canDelete = editDeletePrivateChannelRights;
+            privateChannel.canMove = false;  // личные чаты нельзя перемещать
           })
         }
         else if (result && (result.length !== 0)) {
@@ -112,9 +113,10 @@ router.route('/private-channel')
 
           if (result.messages && result.messages.length) {
             result.messages.forEach(message => {
-              const editDeleteMessageRights = user ? rightUtils.isRightsValidForEditDeleteMessage(user, message) : false;
+              const editDeleteMessageRights = user ? rightsUtils.isRightsValidForEditDeleteMessage(user, message) : false;
     
               message.canEdit = message.canDelete = editDeleteMessageRights;
+              message.canMove = false;  // личные сообщения нельзя перемещать
             })
           }
         }
@@ -215,7 +217,7 @@ router.route('/private-channel/:id')
         // проверяем права
         if (!user ||
             (user.id.toString() !== privateChannel.senderId.toString() &&
-            user.id.toString() !== privateChannel.recipientId.toString())) {  //todo: check!
+            user.id.toString() !== privateChannel.recipientId.toString())) {
               throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
         }
 
@@ -229,11 +231,13 @@ router.route('/private-channel/:id')
         const editDeletePrivateChannelRights = user ? rightsUtils.isRightsValidForEditDeletePrivateChannel(user, privateChannel) : false;
 
         privateChannel.canAdd = privateChannel.canEdit = privateChannel.canDelete = editDeletePrivateChannelRights;
+        privateChannel.canMove = false;  // личный чат нельзя перемещать
 
         privateChannel.messages.forEach(message => {
           const editDeleteMessageRights = user ? rightsUtils.isRightsValidForEditDeleteMessage(user, message) : false;
 
           message.canEdit = message.canDelete = editDeleteMessageRights;
+          message.canMove = false;  // личные сообщения нельзя перемещать
           message.canEditChannel = editDeletePrivateChannelRights;
         })
 
