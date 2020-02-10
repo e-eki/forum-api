@@ -17,6 +17,7 @@ const channelSocketActions = require('./channelSocketActions');
 const messageSocketActions = require('./messageSocketActions');
 const privateChannelSocketActions = require('./privateChannelSocketActions');
 const userSocketActions = require('./userSocketActions');
+const userVisitUtils = require('../utils/userVisitUtils');
 
 
 module.exports = {
@@ -46,13 +47,15 @@ module.exports = {
 
 							if (action.roomId) {
 								client.join(action.roomId);
+
+								if ((action.roomType === config.roomTypes.channel ||
+									action.roomType === config.roomTypes.privateChannel) &&
+									action.userId) {
+										return userVisitUtils.updateLastVisitChannel(action.userId, action.roomId);
+								}
 							}
 							//client.join('1');
 
-							if (action.roomType === config.roomTypes.channel ||
-								action.roomType === config.roomTypes.privateChannel) {
-									return channelSocketActions.updateLastVisitChannel(action);
-							}
 							else {
 								return true;
 							}
@@ -61,10 +64,12 @@ module.exports = {
 
 							if (action.roomId) {
 								client.leave(action.roomId);
-							}
-							if (action.roomType === config.roomTypes.channel ||
-								action.roomType === config.roomTypes.privateChannel) {
-									return channelSocketActions.updateLastVisitChannel(action);
+
+								if ((action.roomType === config.roomTypes.channel ||
+									action.roomType === config.roomTypes.privateChannel) &&
+									action.userId) {
+										return userVisitUtils.updateLastVisitChannel(action.userId, action.roomId);
+								}
 							}
 							else {
 								return true;

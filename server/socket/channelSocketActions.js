@@ -70,45 +70,6 @@ const channelSocketActions = new function() {
 		else {
 			return false;
 		}
-	};
-
-	// обновление данных о последнем просмотре юзером чата
-	this.updateLastVisitChannel = function(action) {
-		if (!action.userId) {
-			return false;
-		}
-		else {
-			return userVisitDataModel.query({userId: action.userId})
-				.then(results => {
-					if (results && results.length) {
-						const userVisitData = results[0];
-
-						const newLastVisitChannel = {
-							channelId: action.roomId,
-							date: new Date(),
-						};
-
-						if (userVisitData.lastVisitData.length) {
-							const lastVisitChannel = userVisitData.lastVisitData.find(item => item.channelId.toString() === action.roomId.toString());    //??
-
-							if (lastVisitChannel) {
-								lastVisitChannel.date = new Date();
-							}
-							else {
-								userVisitData.lastVisitData.push(newLastVisitChannel);
-							}
-						}
-						else {
-							userVisitData.lastVisitData.push(newLastVisitChannel);
-						}
-
-						return userVisitDataModel.update(userVisitData.id, userVisitData);
-					}
-					else {
-						return true;
-					}
-				})
-			}
 	}
 };
 
