@@ -12,6 +12,7 @@ const rightsUtils = require('../../utils/rightsUtils');
 const tokenUtils = require('../../utils/tokenUtils');
 const errors = require('../../utils/errors');
 const responses = require('../../utils/responses');
+const userVisitUtils = require('../../utils/userVisitUtils');
 
 let router = express.Router();
 
@@ -22,6 +23,7 @@ router.route('/private-channel')
 		  recipientId
 	}*/
   .get(function(req, res) {
+    const recipientId = req.query.recipientId || null;
     let user = null;
 
     return Promise.resolve(true)
@@ -39,8 +41,8 @@ router.route('/private-channel')
           userId: user.id,
         };
 
-        if (req.query.recipientId) {
-          config.recipientId = req.query.recipientId;
+        if (recipientId) {
+          config.recipientId = recipientId;
         }
 
         return Promise.resolve(privateChannelModel.query(config));
@@ -48,17 +50,8 @@ router.route('/private-channel')
       .then(privateChannels => {
         const tasks = [];
 
-        if (privateChannels && privateChannels.length) {
-          //если ищем чат по id получателя - то это будет один приватный чат (текущий)
-          if (req.query.recipientId) {
-            const privateChannel = privateChannels[0];
-
-            tasks.push(channelUtils.getNameForPrivateChannel(privateChannel, user.id));
-          }
-          // иначе это список приватных чатов
-          else {
-            tasks.push(channelUtils.getNamesForPrivateChannels(privateChannels, user.id));
-          }
+        if (privateChannels.length) {
+          tasks.push(channelUtils.getNamesForPrivateChannels(privateChannels, user.id));
         }
         else {
           tasks.push(false);
@@ -68,16 +61,13 @@ router.route('/private-channel')
       })
       .spread(privateChannels => {
         const tasks = [];
-
-        if (privateChannels && privateChannels.length) {
-          if (req.query.recipientId) {
-            const privateChannel = privateChannels[0];
-
-            tasks.push(channelUtils.getMessagesDataForChannel(privateChannel, user.id));
-          }
-          else {
-            tasks.push(channelUtils.getMessagesDataForChannels(privateChannels, user.id));
-          }
+        
+        if (recipientId && privateChannels) {   //если ищем чат по id получателя - то это будет один приватный чат (текущий)
+          const privateChannel = privateChannels[0];
+          tasks.push(channelUtils.getMessagesDataForChannel(privateChannel, user.id));
+        }
+        if (privateChannels.length) {
+          tasks.push(channelUtils.getMessagesDataForChannels(privateChannels, user.id));
         }
         else {
           tasks.push(false);
@@ -88,35 +78,43 @@ router.route('/private-channel')
       .spread(privateChannels => {
         let result;
 
-        if (privateChannels && privateChannels.length && (privateChannels.length > 1)) {
-          result = channelUtils.sortChannelsByLastMessageDate(privateChannels);
+        // если ищем чат по id получателя - то это будет один приватный чат (текущий)
+        if (recipientId) {
+          result = privateChannels || null;
         }
-        else {
-          result = privateChannels || [];
+        else  {
+          if (privateChannels.length && (privateChannels.length > 1)) {
+            result = channelUtils.sortChannelsByLastMessageDate(privateChannels);
+          }
+          else {
+            result = privateChannels || [];
+          }
         }
 
         //get rights
         //const addPrivateChannelRights = user ? rightsUtils.isRightsValidForAddPrivateChannel(user) : false;
 
-        if (result.length) {
-          result.forEach(privateChannel => {
-            const editDeletePrivateChannelRights = user ? rightsUtils.isRightsValidForEditDeletePrivateChannel(user, privateChannel) : false;
-
-            /*privateChannel.canAdd =*/ privateChannel.canEdit = privateChannel.canDelete = editDeletePrivateChannelRights;
-            privateChannel.canMove = false;  // личные чаты нельзя перемещать
-          })
-        }
-        else if (result && (result.length !== 0)) {
-          const editDeletePrivateChannelRights = user ? rightsUtils.isRightsValidForEditDeletePrivateChannel(user, result) : false;
-
-          /*result.canAdd =*/ result.canEdit = result.canDelete = editDeletePrivateChannelRights;
-
-          if (result.messages && result.messages.length) {
-            result.messages.forEach(message => {
-              const editDeleteMessageRights = user ? rightsUtils.isRightsValidForEditDeleteMessage(user, message) : false;
-    
-              message.canEdit = message.canDelete = editDeleteMessageRights;
-              message.canMove = false;  // личные сообщения нельзя перемещать
+        if (result) {
+          if (recipientId) {
+            const editDeletePrivateChannelRights = user ? rightsUtils.isRightsValidForEditDeletePrivateChannel(user, result) : false;
+  
+            /*result.canAdd =*/ result.canEdit = result.canDelete = editDeletePrivateChannelRights;
+  
+            if (result.messages && result.messages.length) {
+              result.messages.forEach(message => {
+                const editDeleteMessageRights = user ? rightsUtils.isRightsValidForEditDeleteMessage(user, message) : false;
+      
+                message.canEdit = message.canDelete = editDeleteMessageRights;
+                message.canMove = false;  // личные сообщения нельзя перемещать
+              })
+            }
+          }
+          else if (result.length) {
+            result.forEach(privateChannel => {
+              const editDeletePrivateChannelRights = user ? rightsUtils.isRightsValidForEditDeletePrivateChannel(user, privateChannel) : false;
+  
+              /*privateChannel.canAdd =*/ privateChannel.canEdit = privateChannel.canDelete = editDeletePrivateChannelRights;
+              privateChannel.canMove = false;  // личные чаты нельзя перемещать
             })
           }
         }
@@ -133,6 +131,10 @@ router.route('/private-channel')
 		recipientId
 	}*/
   .post(function(req, res) {
+    const recipientId = req.body.recipientId;
+    let senderId;
+    let privateChannelId;
+
     return Promise.resolve(true)
 			.then(() => {
         const validationErrors = [];
@@ -158,6 +160,8 @@ router.route('/private-channel')
               throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
         }
 
+        senderId = user.id;
+
         const data = {
           recipientId: req.body.recipientId,
           senderId: user.id
@@ -165,13 +169,23 @@ router.route('/private-channel')
 
         return privateChannelModel.create(data);
       })
-      .then((dbResponse) => {
+      .then(dbResponse => {
         logUtils.fileLogDbErrors(dbResponse);
 
-        const id = (dbResponse._doc && dbResponse._doc._id) ? dbResponse._doc._id.toString() : null;
-        const senderId = (dbResponse._doc && dbResponse._doc._senderId) ? dbResponse._doc._senderId.toString() : null;  //?
+        privateChannelId = (dbResponse._doc && dbResponse._doc._id) ? dbResponse._doc._id.toString() : null;
+        //const senderId = (dbResponse._doc && dbResponse._doc._senderId) ? dbResponse._doc._senderId.toString() : null;  //?
 
-				return utils.sendResponse(res, {text: 'successfully saved', id: id, senderId: senderId}, responses.CREATED_RESPONSE.status);
+        const tasks = [];
+
+        tasks.push(userVisitUtils.updateLastVisitChannel(recipientId, privateChannelId));
+        tasks.push(userVisitUtils.updateLastVisitChannel(senderId, privateChannelId));
+
+        return Promise.all(tasks);
+      })
+      .then(dbResponse => {
+        logUtils.fileLogDbErrors(dbResponse);
+
+				return utils.sendResponse(res, {text: 'successfully saved', id: privateChannelId, senderId: senderId}, responses.CREATED_RESPONSE.status);
 			})
 			.catch((error) => {
 				return utils.sendErrorResponse(res, error);

@@ -16,14 +16,16 @@ const sessionUtils = new function() {
 				let tasks = [];
 				let sessions = results;
 
-				// если есть сессия с тем же fingerprint - удаляем ее (???)
+				// если есть сессии с тем же fingerprint - удаляем ее (???)
 				if (results.length) {
-					const newSessionDuplicate = results.find(item => item.fingerprint === fingerprint);
+					const fingerprintDuplicates = results.filter(item => item.fingerprint === fingerprint);
 
-					if (newSessionDuplicate) {
-						tasks.push(sessionModel.delete(newSessionDuplicate.id));
+					if (fingerprintDuplicates.length) {
+						fingerprintDuplicates.forEach(item => {
+							tasks.push(sessionModel.delete(item.id));
+						})
 
-						sessions = results.filter(item => item.id !== newSessionDuplicate.id);
+						sessions = results.filter(item => item.fingerprint !== fingerprint);
 					}
 				}
 

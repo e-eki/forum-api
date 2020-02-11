@@ -19,7 +19,6 @@ const privateChannelSocketActions = require('./privateChannelSocketActions');
 const userSocketActions = require('./userSocketActions');
 const userVisitUtils = require('../utils/userVisitUtils');
 
-
 module.exports = {
 	initSocket(http) {
 		const io = require('socket.io')(http);
@@ -59,6 +58,7 @@ module.exports = {
 							else {
 								return true;
 							}
+							break;
 
 						case actionTypes.LEAVE_ROOM:
 
@@ -74,6 +74,7 @@ module.exports = {
 							else {
 								return true;
 							}
+							break;
 
 						//---SECTION
 

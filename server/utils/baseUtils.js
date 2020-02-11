@@ -40,7 +40,7 @@ const utils = new function() {
 
     this.sendResponse = function(res, responseData, statusCode) {
         const status = statusCode || responses.OK_RESPONSE.status;
-        const response = responseData || responses.OK_RESPONSE.message;
+        const response = responseData; //|| responses.OK_RESPONSE.message;
 
         return res.status(status).send(response);
     };
