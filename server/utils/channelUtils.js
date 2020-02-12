@@ -77,9 +77,10 @@ const channelUtils = new function() {
             const value0 = item0.lastMessage ? item0.lastMessage.date.getTime() : null;
             const value1 = item1.lastMessage ? item1.lastMessage.date.getTime() : null;
 
-            if (value0 > value1) return 1;   //todo: сделать, чтоб чаты без сообщений были ниже в списке, чем чаты с сообщениями
+			//todo: сделать, чтоб чаты без сообщений были ниже в списке, чем чаты с сообщениями
+            if (value0 < value1) return 1;
             if (value0 === value1) return 0;
-            if (value0 < value1) return -1;
+            if (value0 > value1) return -1;
 		});
 		
 		return sortedChannels;
@@ -87,7 +88,7 @@ const channelUtils = new function() {
 
 	// получить название приватного чата
 	this.getNameForPrivateChannel = function(privateChannel, userId) {
-		const recipientId = (privateChannel.senderId === userId) ? privateChannel.recipientId : privateChannel.senderId;  //??
+		const recipientId = (privateChannel.senderId.toString() === userId.toString()) ? privateChannel.recipientId : privateChannel.senderId;
 
 		return userInfoModel.query({userId: recipientId})
 			.then(result => {
@@ -102,8 +103,8 @@ const channelUtils = new function() {
 		const tasks = [];
 
 		for (let i = 0; i < privateChannels.length; i++) {
-			const privateChannel = privateChannels[0];
-			const recipientId = (privateChannel.senderId === userId) ? privateChannel.recipientId : privateChannel.senderId;  //??
+			const privateChannel = privateChannels[i];
+			const recipientId = (privateChannel.senderId.toString() === userId.toString()) ? privateChannel.recipientId : privateChannel.senderId;
 
 			tasks.push(userInfoModel.query({userId: recipientId}));
 		}

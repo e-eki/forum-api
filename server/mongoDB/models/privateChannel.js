@@ -25,8 +25,8 @@ module.exports = {
 			}
 			else if (config.recipientId && config.userId) {
 				return PrivateChannelModel.aggregate([
-					{'$match': ({'recipientId': new ObjectId(config.recipientId)} && {'senderId': new ObjectId(config.userId)} ||
-								{'recipientId': new ObjectId(config.userId)} && {'senderId': new ObjectId(config.recipientId)})},
+					{ '$match': { $or: [ { $and: [ {'recipientId': new ObjectId(config.recipientId)}, {'senderId': new ObjectId(config.userId)} ] },
+										 { $and: [ {'recipientId': new ObjectId(config.userId)}, {'senderId': new ObjectId(config.recipientId)} ] } ] } },
 					{$project: {
 						_id: 0, id: "$_id",
 						recipientId: 1,
@@ -39,7 +39,7 @@ module.exports = {
 			}
 			else if (config.userId) {
 				return PrivateChannelModel.aggregate([
-					{'$match': {'senderId': new ObjectId(config.userId)} || {'recipientId': new ObjectId(config.userId)}},
+					{ '$match': { $or: [ {'senderId': new ObjectId(config.userId)}, {'recipientId': new ObjectId(config.userId)} ] } },
 					{$project: {
 						_id: 0, id: "$_id",
 						recipientId: 1,

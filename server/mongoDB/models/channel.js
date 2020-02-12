@@ -42,7 +42,7 @@ module.exports = {
 			}
 			else if (config.searchText) {
 				return ChannelModel.aggregate([
-					{'$match': {'name': { $regex: `${config.searchText}`}} || {'description': { $regex: `${config.searchText}`}}},
+					{ '$match': { $or: [ {'name': { $regex: `${config.searchText}`}}, {'description': { $regex: `${config.searchText}`}} ] } },
 					{$project: {
 						_id: 0, id: "$_id",
 						name: 1,

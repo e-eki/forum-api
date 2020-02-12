@@ -58,8 +58,18 @@ const messageUtils = new function() {
 		}
 
 		return Promise.all(tasks)
-			.spread(lastMessages => {
-				return this.getSenderNamesInMessages(lastMessages);
+			.then(results => {
+				const messages = [];
+
+				for (let i = 0; i < channels.length; i++) {
+					if (results[i] && results[i].length) {
+						const message = results[i][0];
+
+						messages.push(message);
+					}
+				}
+
+				return this.getSenderNamesInMessages(messages);
 			});
 	};
 

@@ -6,6 +6,10 @@ const userVisitDataModel = require('../mongoDB/models/userVisitData');
 const userVisitUtils = new function() {
 
 	// обновление данных о последнем просмотре юзером чата
+
+	// последние просмотры обновляются, когда юзер заходит в чат и выходит из него
+	// todo: если юзер закрыл вкладку, не выходя из чата, то данные о последнем промотре будут еще со входа в чат (устаревшими),
+	// и кол-во новых сообщений будет неверным. Придумать, как исправить баг.
 	this.updateLastVisitChannel = function(userId, channelId) {
 		return userVisitDataModel.query({userId: userId})
 			.then(results => {

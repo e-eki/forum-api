@@ -17,30 +17,6 @@ const http = require('http').Server(app);
 // инициализация сокетов
 const io = socket.initSocket(http);
 
-// const io = require('socket.io')(http);
-
-// // подключения клиентов
-// io.on('connection', function(client){
-//     console.log('connection!');
-
-//     client.on('action', function(action){
-//         //io.emit('chat message', msg);
-        
-//         if (action && action.type) {
-//             switch (action.type) {
-// 				case actionTypes.UPDATE_SECTIONS:
-					
-// 					break;
-				
-// 				default:
-// 					throw utils.initError('INTERNAL_SERVER_ERROR');
-//             }
-//         }
-//     });
-
-//     io.emit('state', 1123);
-// });
-
 // статические файлы
 app.use(express.static('front-end/public'));
 

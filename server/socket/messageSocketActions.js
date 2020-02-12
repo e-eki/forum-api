@@ -35,6 +35,14 @@ const messageSocketActions = new function() {
 						// 	debug: 'message',
 						// });
 
+						io.to(action.channelId).emit('action', {
+							type: actionTypes.UPDATE_MESSAGE_BY_ID,
+							data: message,
+							messageId: action.messageId,
+							channelId: action.channelId,
+							debug: 'channel',
+						});
+
 						// если это личное сообщение, то о нем должен узнать получатель
 						if (action.recipientId) {
 							io.to(action.recipientId).emit('action', {
@@ -48,16 +56,8 @@ const messageSocketActions = new function() {
 
 							return true;
 						}
-						// если это сообщение на форуме, то о нем должны узнать все, кто в соотв.чате и подразделе
-						else {
-							io.to(action.channelId).emit('action', {
-								type: actionTypes.UPDATE_MESSAGE_BY_ID,
-								data: message,
-								messageId: action.messageId,
-								channelId: action.channelId,
-								debug: 'channel',
-							});
-
+						// если это сообщение на форуме, то о нем должны узнать все, кто в соотв.подразделе
+						else 
 							return channelModel.query({id: action.channelId})
 								.then(results => {
 									if (results && results.length) {
@@ -74,7 +74,6 @@ const messageSocketActions = new function() {
 
 									return true;
 							})
-						}
 					}
 				})
 		}
