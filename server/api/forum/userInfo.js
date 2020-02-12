@@ -183,7 +183,7 @@ router.route('/user-info/:id')
 
         // проверяем права
         if (!user ||
-            !rightsUtils.isRightsValidForEditUserInfo(user, userInfo)) {
+            !rightsUtils.isRightsValidForEditUserInfo(user, userInfo)) {   //todo!!!!!!!!!!!!!
               throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
         }
 

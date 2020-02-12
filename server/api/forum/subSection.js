@@ -331,12 +331,14 @@ router.route('/subsection/:id')
       .spread((subSection, subSections) => {
         // корректируем номер порядка у всех элементов, следующих за удаляемым
         if (subSections && subSections.length) {
-          const nextSubSections = subSections.find(item => item.orderNumber > subSection.orderNumber);
+          const nextSubSections = subSections.filter(item => item.orderNumber > subSection.orderNumber);
 
-          nextSubSections.forEach(item => {
-            item.orderNumber--;
-            subSectionsUpdateTasks.push(subSectionModel.update(item.id, item));
-          })
+          if (nextSubSections.length) {
+            nextSubSections.forEach(item => {
+              item.orderNumber--;
+              subSectionsUpdateTasks.push(subSectionModel.update(item.id, item));
+            })
+          }
         }
 
         deleteTasks.push(subSectionModel.delete(subSectionId));

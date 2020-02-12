@@ -195,8 +195,9 @@ router.route('/message/:id')
         }
 
         // проверка на перемещение личного сообщения
-        if (message.recipientId && req.body.channelId) {
-          throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
+        if (message.recipientId &&
+            (req.body.channelId.toString() !== message.channelId.toString())) {
+              throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
         }
 
         const data = {
