@@ -15,10 +15,12 @@ const rightsUtils = new function() {
 	//---- user
 
 	// есть ли права изменить внесение в ЧС
-	this.isRightsValidForBlackList = function(user) {
+	this.isRightsValidForBlackList = function(user, editableUser) {
 		// изменить внесение кого-либо в ЧС могут админ и модератор
+		// причем модератор не может внести в ЧС админа!
 		return (this.isRightsValid(user) && 
-				(user.role === config.userRoles.admin || user.role === config.userRoles.moderator));
+				(user.role === config.userRoles.admin ||
+				(user.role === config.userRoles.moderator && editableUser.role !== config.userRoles.admin)));
 	};
 
 	// есть ли права изменить роль

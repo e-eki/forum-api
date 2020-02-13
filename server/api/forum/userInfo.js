@@ -52,7 +52,7 @@ router.route('/user-info')
 
         //get rights
         const canEditRole = rightsUtils.isRightsValidForRole(user);
-        const canEditBlackList = rightsUtils.isRightsValidForBlackList(user);
+        const canEditBlackList = rightsUtils.isRightsValidForBlackList(user, user);  //?
         const canEdit = rightsUtils.isRightsValidForEditUserInfo(user, userInfo);
 
         userInfo.canEditRole = canEditRole;
@@ -122,7 +122,7 @@ router.route('/user-info/:id')
 
         //get rights
         const canEditRole = user ? rightsUtils.isRightsValidForRole(user) : false;
-        const canEditBlackList = user ? rightsUtils.isRightsValidForBlackList(user) : false;
+        const canEditBlackList = user ? rightsUtils.isRightsValidForBlackList(user, userData) : false;  //?
         const addPrivateChannelRights = user ? rightsUtils.isRightsValidForAddPrivateChannel(user) : false;
 
         userInfo.canEditRole = canEditRole;
@@ -156,9 +156,11 @@ router.route('/user-info/:id')
   .put(function(req, res) {
     const userInfoId = req.params.id;
 
+    let canEditUserInfo;
     let canEditRole;
     let canEditBlackList;
     let user;
+    let editableUser;
     let userInfo;
 
     return Promise.resolve(true)
@@ -181,57 +183,62 @@ router.route('/user-info/:id')
 
         userInfo = results[0];
 
+        return userModel.query({id: userInfo.userId});
+      })
+      .then(results => {
+        if (!results.length) {
+          throw utils.initError(errors.FORBIDDEN);
+        }
+
+        editableUser = results[0];
+
         // проверяем права
+        canEditUserInfo = rightsUtils.isRightsValidForEditUserInfo(user, userInfo);
+        canEditRole = rightsUtils.isRightsValidForRole(user);
+        canEditBlackList = rightsUtils.isRightsValidForBlackList(user, editableUser);
+
         if (!user ||
-            !rightsUtils.isRightsValidForEditUserInfo(user, userInfo)) {   //todo!!!!!!!!!!!!!
+            (!canEditUserInfo && !canEditRole && !canEditBlackList)) {
               throw utils.initError(errors.FORBIDDEN, 'Недостаточно прав для совершения данного действия');
         }
 
-        canEditRole = rightsUtils.isRightsValidForRole(user);
-        canEditBlackList = rightsUtils.isRightsValidForBlackList(user);
-
-        if (canEditRole || canEditBlackList) {
-          return userModel.query({id: userInfo.userId});
-        }
-        else {
-          return false;
-        }
-      })
-      .then(results => {
         const tasks = [];
 
-        if (results && results.length) {
-          const user = results[0];
-
+        if (canEditRole || canEditBlackList) {
           let userData = {};
 
           if (canEditRole && req.body.role) {
             userData.role = req.body.role;
-            userData.editorId = user.id;  //?
+            userData.editorId = user.id;
           }
-          if (canEditBlackList && req.body.inBlackList) {
+          if (canEditBlackList) {
             userData.inBlackList = req.body.inBlackList;
-            userData.editorId = user.id;  //?
+            userData.editorId = user.id;
           }
 
-          tasks.push(userModel.update(user.id, userData));
+          tasks.push(userModel.update(editableUser.id, userData));
         }
         else {
           tasks.push(false);
         }
 
-        const userInfoData = {
-          userId: userInfo.userId,   //?
-          name: req.body.name,
-          birthDate: req.body.birthDate,
-          city: req.body.city,
-          profession: req.body.profession,
-          hobby: req.body.hobby,
-          captionText: req.body.captionText,
-          editorId: user.id,
-        };
-
-        tasks.push(userInfoModel.update(userInfoId, userInfoData));
+        if (canEditUserInfo) {
+          const userInfoData = {
+            userId: userInfo.userId,   //?
+            name: req.body.name,
+            birthDate: req.body.birthDate,
+            city: req.body.city,
+            profession: req.body.profession,
+            hobby: req.body.hobby,
+            captionText: req.body.captionText,
+            editorId: user.id,
+          };
+  
+          tasks.push(userInfoModel.update(userInfoId, userInfoData));
+        }
+        else {
+          tasks.push(false);
+        }
 
         return Promise.all(tasks);
       })
