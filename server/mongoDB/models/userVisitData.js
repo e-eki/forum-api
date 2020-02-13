@@ -6,6 +6,8 @@ const lastVisitChannelSchema = require('../schemas/lastVisitChannel');
 const userVisitDataSchema = require('../schemas/userVisitData');
 
 const LastVisitChannelModel = mongoose.model('LastVisitChannel', lastVisitChannelSchema);
+
+// модель для работы с данными о последних просмотрах юзером чатов
 const UserVisitDataModel = mongoose.model('UserVisitData', userVisitDataSchema);
 
 module.exports = {

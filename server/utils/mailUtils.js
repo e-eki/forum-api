@@ -4,6 +4,7 @@ const Promise = require('bluebird');
 const nodemailer = require('nodemailer');
 const config = require('../config');
 
+// утилиты для отправки почты
 const mailUtils = new function() {
 
 	// отправка письма подтверждения имейла

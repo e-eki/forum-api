@@ -8,9 +8,10 @@ const userModel = require('../mongoDB/models/user');
 const utils = require('./baseUtils');
 const errors = require('./errors');
 
-// методы ищут юзера по email при входе через сайт/вк/фб
+// методы ищут юзера по email при входе через сайт/вк/гугл
 const authUtils = new function() {
 
+	// получить юзера при входе через сайт
 	this.getUserBySiteAuth = function(email, password) {
 		//find user with this email
 		return Promise.resolve(userModel.query({email: email}))
@@ -38,6 +39,7 @@ const authUtils = new function() {
 			})
 	};
 
+	// получить юзера при входе через вк
 	this.getUserByVkAuth = function(code) {
 		//send request to vk api to get access_token & email
 		return axios.get(
@@ -70,6 +72,7 @@ const authUtils = new function() {
 			})
 	};
 
+	// получить юзера при входе через гугл
 	this.getUserByGoogleAuth = function(code) {
 		//send request to google+ api to get access_token
 		return Promise.resolve(true)

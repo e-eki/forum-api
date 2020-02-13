@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const ObjectId = require('mongoose').Types.ObjectId;
 const sectionSchema = require('../schemas/section');
 
+// модель для работы с разделами
 const SectionModel = mongoose.model('Section', sectionSchema);
 
 module.exports = {
@@ -59,7 +60,7 @@ module.exports = {
 			description: data.description,
 			senderId: data.senderId,
 			editorId: data.editorId,
-			editDate: new Date(),  //?
+			editDate: new Date(),
 			orderNumber: data.orderNumber,
 		});
 

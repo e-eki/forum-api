@@ -1,9 +1,9 @@
 'use strict';
 
 const fs = require('fs');
-const format = require('node.date-time');
 const config = require('../config');
 
+// утилиты для работы с логами
 const logUtils = new function() {
 
     // логирует ошибки БД в консоль
@@ -32,10 +32,12 @@ const logUtils = new function() {
         });
     };
 
+    // возвращает текущую дату в формате, удобном для логов
     this.logTime = function() {
         return new Date().format("dd-MM-y HH:mm:SS");
     };
 
+    // записать строку в файл логов
     this.fileLogMessage = function(message) {
         return fs.appendFile(config.logFileName, (this.logTime() + ' : ' + message + '\n'), function(error){
             if (error) {
@@ -46,6 +48,7 @@ const logUtils = new function() {
         });
     }
 
+    // записать строку в файл логов синхронно (?)
     this.fileLogMessageSync = function(message) {
         return fs.appendFileSync(config.logFileName, (this.logTime() + ' : ' + message + '\n'), function(error){
             if (error) {

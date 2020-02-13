@@ -4,6 +4,7 @@ const config = require('../config');
 
 module.exports = new function() {
 
+	// создать письмо для подтверждения адреса электронной почты
     this.get = function(data) {		
 		const mainLink = `${config.server.protocol}://${config.server.host}:${config.server.port}`;
 

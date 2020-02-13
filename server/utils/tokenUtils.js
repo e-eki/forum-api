@@ -8,6 +8,7 @@ const utils = require('./baseUtils');
 const userModel = require('../mongoDB/models/user');
 const errors = require('../utils/errors');
 
+// утилиты для работы с токенами
 const tokenUtils = new function() {
 
 	// генерит аксесс токен

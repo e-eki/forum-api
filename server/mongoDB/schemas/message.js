@@ -4,15 +4,16 @@ const mongoose = require('mongoose');
 
 const Schema = mongoose.Schema;
 
+// сообщение
 const messageSchema = new Schema(
 	{
-		senderId: Schema.Types.ObjectId,
-		editorId: Schema.Types.ObjectId,
-		editDate: Date,
-		recipientId: {type: Schema.Types.ObjectId, default: null },
-		channelId: {type: Schema.Types.ObjectId, default: null },
-		date: Date,
-		text: String,
+		senderId: Schema.Types.ObjectId,   // id отправителя
+		editorId: Schema.Types.ObjectId,   // id последнего редактировавшего
+		editDate: Date,  // дата редактирования
+		recipientId: {type: Schema.Types.ObjectId, default: null },  // id получателя
+		channelId: {type: Schema.Types.ObjectId, default: null },  // id чата
+		date: Date,   // дата создания
+		text: String,  // текст
 	},
 	{versionKey: false}
 );

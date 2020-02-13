@@ -1,11 +1,11 @@
 'use strict';
 
 const Promise = require('bluebird');
-const ObjectId = require('mongoose').Types.ObjectId;
 const messageUtils = require('./messageUtils');
 const messageModel = require('../mongoDB/models/message');
 const userInfoModel = require('../mongoDB/models/userInfo');
 
+// утилиты для работы с чатами
 const channelUtils = new function() {
 
 	// получить данные о сообщениях для чатов в списке, возвращает чаты
@@ -40,7 +40,7 @@ const channelUtils = new function() {
 
 	// получить данные о сообщениях для текущего чата
 	this.getMessagesDataForChannel = function(channel, userId) {
-		// сообщения в чате
+		// список сообщений в чате
 		return Promise.resolve(messageModel.query({channelId: channel.id}))
 			.then(messages => {
 				return messageUtils.getSenderNamesInMessages(messages);
@@ -48,6 +48,7 @@ const channelUtils = new function() {
 			.then(messages => {
 				channel.messages = messages;
 
+				// закрепленное сообщение в чате
 				if (channel.descriptionMessageId) {
 					return messageUtils.getDescriptionMessageInChannel(channel)
 				}
@@ -86,8 +87,9 @@ const channelUtils = new function() {
 		return sortedChannels;
 	}
 
-	// получить название приватного чата
+	// получить название личного чата (логин оппонента)
 	this.getNameForPrivateChannel = function(privateChannel, userId) {
+		// берем логин получателя или отправителя, в зависимотси от того, чей id не равен id юзера
 		const recipientId = (privateChannel.senderId.toString() === userId.toString()) ? privateChannel.recipientId : privateChannel.senderId;
 
 		return userInfoModel.query({userId: recipientId})
@@ -98,7 +100,7 @@ const channelUtils = new function() {
 			}) 
 	}
 
-	// получить названия приватных чатов
+	// получить названия личных чатов
 	this.getNamesForPrivateChannels = function(privateChannels, userId) {
 		const tasks = [];
 

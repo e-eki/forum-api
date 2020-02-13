@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const ObjectId = require('mongoose').Types.ObjectId;
 const messageSchema = require('../schemas/message');
 
+// модель для работы с сообщениями
 const MessageModel = mongoose.model('Message', messageSchema);
 
 module.exports = {
@@ -42,6 +43,7 @@ module.exports = {
 				]);
 			}
 			else if (config.channelId) {
+				// получить последнее по дате сообщение
 				if (config.getLastMessage) {
 					return MessageModel.aggregate([
 						{'$match': { 'channelId': new ObjectId(config.channelId)}},
@@ -55,6 +57,7 @@ module.exports = {
 						}}
 					]);
 				}
+				// получить кол-во сообщений с датой, позже указанной
 				else if (config.getCount) {   //&& config.channelLastVisitDate?
 					return MessageModel.count(
 						// db.collection.find( { a: { $gt: 5 }, b: 5 } ).count()
@@ -117,7 +120,7 @@ module.exports = {
 			editorId: data.editorId,
 			recipientId: data.recipientId,
 			channelId: data.channelId,
-			editDate: new Date(),  //?
+			editDate: new Date(),
 		});
 
 		return MessageModel.findOneAndUpdate({_id: id}, message, {new: true});

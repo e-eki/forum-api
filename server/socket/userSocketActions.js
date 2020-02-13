@@ -20,6 +20,7 @@ const userSocketActions = new function() {
 							inBlackList: user.inBlackList
 						};
 						
+						// отправляется юзеру
 						io.to(action.userId).emit('action', {
 							type: actionTypes.UPDATE_USER,
 							userId: action.userId,

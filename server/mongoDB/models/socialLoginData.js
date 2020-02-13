@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const ObjectId = require('mongoose').Types.ObjectId;
 const socialLoginDataSchema = require('../schemas/socialLoginData');
 
+// модель для работы с данными о попытках входа через соцсети
 const LoginDataModel = mongoose.model('SocialLoginData', socialLoginDataSchema);
 
 module.exports = {

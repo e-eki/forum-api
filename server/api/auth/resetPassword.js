@@ -79,7 +79,6 @@ router.route('/reset-password/')
 				const tasks = [];
 
 				tasks.push(user);
-
 				tasks.push(userInfoModel.query({userId : user.id}));
 
 				return Promise.all(tasks);
@@ -244,7 +243,7 @@ router.route('/reset-password/')
 //----- endpoint: /api/auth/reset-password/:code
 router.route('/reset-password/:code')
 
-	// сюда приходит запрос на сброс пароля по ссылке из письма
+	// сюда приходит запрос на сброс пароля по ссылке из письма  //todo! не приходит
 	.get(function(req, res) {
 		let user;
 		let fingerprint;

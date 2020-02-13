@@ -1,21 +1,25 @@
 'use strict';
 
 const NODE_ENV = process.env.NODE_ENV || 'development';
+
+// название форума
 const forumName = 'Сферический в вакууме';
 
 module.exports = {
     version: '1.0'
+    // настройки сервера
     , server: {
         port: 3000   //process.env.PORT || 3000
         , host: (NODE_ENV == 'development') ? 'localhost' : 'checkers-game0.herokuapp.com'  
         , protocol: (NODE_ENV == 'development') ? 'http' : "https"
     }
     // для запуска фронта на другом порту
-    , app: {
-        port: (NODE_ENV == 'development') ? 8080 : (process.env.PORT || 3000)
-    }
+    // , app: {
+    //     port: (NODE_ENV == 'development') ? 8080 : (process.env.PORT || 3000)
+    // }
     // название файла с логами БД
     , logFileName: 'dbLogs.log'
+    // настройки соединения с БД
     , db : {
         mongo : {
             url: 'mongodb://e:e123456@ds046677.mlab.com:46677/ch'
@@ -25,9 +29,11 @@ module.exports = {
             }
         }
     }
+    // настройки получения хэша
     , bcrypt: {
         saltLength: 10
-    } 
+    }
+    // настройки почты
     , mail_settings: {
         service: 'Gmail' 
         , auth: { 
@@ -38,6 +44,7 @@ module.exports = {
         , confirmEmailSubject: `Подтверждение адреса электронной почты на форуме «${forumName}»`
         , resetPasswordSubject: `Восстановление пароля на форуме «${forumName}»`
     }
+    // настройки безопасности
     , security: {
         // количество попыток регистрации (и отправления письма с кодом) - с одного устройства (с одним fingerprint)
         regAttemptsMaxCount: 10,
@@ -50,6 +57,7 @@ module.exports = {
         // количество попыток юзера залогиниться через соцсети (подряд)
         socialLoginAttemptsMaxCount: 20,   //?
     }
+    // токены
     , token: {
         secret: 'b2NjdXB5TWFycw=='
         , algorithm: 'HS512'
@@ -65,6 +73,7 @@ module.exports = {
             expiresIn: 86400000   //24 ч
           },
     }
+    // роли юзеров
     ,userRoles: {
         // админ может всё: добавление/удаление/изменение/перемещение разделов/подразделов/чатов/сообщений,
         // назначение/отмена назначения юзера админом/модератором,
@@ -83,25 +92,33 @@ module.exports = {
         // доступно всем: добавление/удаление/изменение ТОЛЬКО СВОИХ личных чатов и сообщений (если не в ЧС),
         // редактирование своей личной информации (если не в ЧС)
     }
-    , socialRedirectUri: (NODE_ENV == 'development') ? 'http://localhost:3000/api/login' : 'https://checkers-game0.herokuapp.com/api/login'   //??
+    // ссылка для редиректа при входе через соцсети   //todo!
+    , socialRedirectUri: (NODE_ENV == 'development') ? 'http://localhost:3000/api/login' : 'https://checkers-game0.herokuapp.com/api/login'   
+    // аутентификация через вконтакте
     , vk: {
         clientId: 6711833
         , secret: 'rOrwLNZOUlqmqXqZNhhZ'
         , ver: 5.69
     }
-    , fb: {
-        clientId: 455348051621476
-        , secret: '5659aab04ba4524050c5b15c64ebd421'
-    }
+    // аутентификация через фейсбук
+    // , fb: {
+    //     clientId: 455348051621476
+    //     , secret: '5659aab04ba4524050c5b15c64ebd421'
+    // }
+    // аутентификация через гугл
     , google: {
         clientId: '100666725887-otk617ad9448ec49096hufs8001hhel3.apps.googleusercontent.com'
         , secret: '3elLUQtox2HzRoUYmX-rapi1'
         , grantType: 'authorization_code'
     }
 
-    //-----
+    //--- настройки форума
+
+    // id комнаты, к которой присоединяется сокет клиента при открытии главной страницы
     , defaultRoomId: '0'
-    , forumName: forumName   //?
+    // название форума
+    , forumName: forumName
+    // адреса api
     , apiRoutes: {
         registration: 'registration',
         emailConfirm: 'email-confirm',
@@ -118,6 +135,7 @@ module.exports = {
         message: 'message',
         userInfo: 'user-info'
     }
+    // типы комнат, к которым присоединяются сокеты клиентов - соотв. открытой странице
     , roomTypes: {
 		section: 'section',
 		subSection: 'subSection',

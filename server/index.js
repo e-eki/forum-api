@@ -10,6 +10,7 @@ const utils = require('./utils/baseUtils');
 const logUtils = require('./utils/logUtils');
 const indexHTML = path.resolve('./front-end/public/index.html');
 const socket = require('./socket/initSocket');
+const errors = require('./utils/errors');
 
 const app = express();
 const http = require('http').Server(app);
@@ -59,7 +60,7 @@ app.get('/*', (req, res) => res.sendFile(indexHTML));
 
 // Если произошла ошибка валидации, то отдаем 400 Bad Request
 app.use((req, res, next) => {
-    const error = utils.initError('NOT_FOUND', 'url does not exist');
+    const error = utils.initError(errors.NOT_FOUND, 'url does not exist');
     return utils.sendErrorResponse(res, error);
 });
 

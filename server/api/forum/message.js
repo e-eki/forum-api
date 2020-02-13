@@ -144,6 +144,7 @@ router.route('/message/:id')
         const editDeleteMessageRights = user ? rightsUtils.isRightsValidForEditDeleteMessage(user, message) : false;
         const moveMessageRights = (user && !message.recipientId) ? rightsUtils.isRightsValidForMoveMessage(user) : false;
 
+        // права управления сообщением для данного юзера
         message.canEdit = message.canDelete = editDeleteMessageRights;
         message.canMove = moveMessageRights;
 
@@ -261,6 +262,7 @@ router.route('/message/:id')
       .spread((dbResponse, result) => {
         logUtils.fileLogDbErrors(dbResponse);
 
+        // если это сообщение является закрепленным в чате, то открепляем его
         if (result && result.length) {
           const channel = result[0];
           channel.descriptionMessageId = null;

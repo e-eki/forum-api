@@ -2,7 +2,6 @@
 
 const express = require('express');
 const Promise = require('bluebird');
-const ObjectId = require('mongoose').Types.ObjectId;
 const utils = require('../../utils/baseUtils');
 const logUtils = require('../../utils/logUtils');
 const userModel = require('../../mongoDB/models/user');
@@ -52,9 +51,10 @@ router.route('/user-info')
 
         //get rights
         const canEditRole = rightsUtils.isRightsValidForRole(user);
-        const canEditBlackList = rightsUtils.isRightsValidForBlackList(user, user);  //?
+        const canEditBlackList = rightsUtils.isRightsValidForBlackList(user, user);
         const canEdit = rightsUtils.isRightsValidForEditUserInfo(user, userInfo);
 
+        // права управления личной информацией юзера для данного юзера
         userInfo.canEditRole = canEditRole;
         userInfo.canEditBlackList = canEditBlackList;
         userInfo.canEdit = canEdit;
@@ -120,17 +120,19 @@ router.route('/user-info/:id')
         const userData = userResults[0];
         const userInfo = userInfoResults[0];
 
-        //get rights
-        const canEditRole = user ? rightsUtils.isRightsValidForRole(user) : false;
-        const canEditBlackList = user ? rightsUtils.isRightsValidForBlackList(user, userData) : false;  //?
-        const addPrivateChannelRights = user ? rightsUtils.isRightsValidForAddPrivateChannel(user) : false;
-
-        userInfo.canEditRole = canEditRole;
-        userInfo.canEditBlackList = canEditBlackList;
-        userInfo.canAddPrivateChannel = addPrivateChannelRights;
         userInfo.role = userData.role;
         userInfo.inBlackList = userData.inBlackList;
 
+        //get rights
+        const canEditRole = user ? rightsUtils.isRightsValidForRole(user) : false;
+        const canEditBlackList = user ? rightsUtils.isRightsValidForBlackList(user, userData) : false;
+        const addPrivateChannelRights = user ? rightsUtils.isRightsValidForAddPrivateChannel(user) : false;
+
+        // права управления личной информацией юзера для данного юзера
+        userInfo.canEditRole = canEditRole;
+        userInfo.canEditBlackList = canEditBlackList;
+        userInfo.canAddPrivateChannel = addPrivateChannelRights;
+        
         return utils.sendResponse(res, userInfo);
       })
       .catch((error) => {
@@ -224,7 +226,7 @@ router.route('/user-info/:id')
 
         if (canEditUserInfo) {
           const userInfoData = {
-            userId: userInfo.userId,   //?
+            userId: userInfo.userId,
             name: req.body.name,
             birthDate: req.body.birthDate,
             city: req.body.city,
@@ -253,6 +255,7 @@ router.route('/user-info/:id')
   })
 
   // удаление информации юзера по его id - todo??
+  // пока что удалить нельзя, ни юзера, ни его личную информацию - можно добавить в ЧС форума
   .delete(function(req, res) {
     return utils.sendErrorResponse(res, errors.UNSUPPORTED_METHOD);
   })

@@ -23,6 +23,7 @@ const privateChannelSocketActions = new function() {
 					}
 				})
 				.then(privateChannel => {
+					// отправляется тем, кто на странице данного личного чата (?)
 					io.to(action.privateChannelId).emit('action', {
 						type: actionTypes.UPDATE_PRIVATE_CHANNEL_BY_ID,
 						data: privateChannel,
@@ -31,6 +32,7 @@ const privateChannelSocketActions = new function() {
 					});
 
 					if (action.senderId) {
+						// и юзеру, который создал/обновил чат
 						io.to(action.senderId).emit('action', {
 							type: actionTypes.UPDATE_PRIVATE_CHANNEL_BY_ID,
 							data: privateChannel,
@@ -40,6 +42,7 @@ const privateChannelSocketActions = new function() {
 					}
 
 					if (action.recipientId) {
+						// и юзеру, с которым чат
 						io.to(action.recipientId).emit('action', {
 							type: actionTypes.UPDATE_PRIVATE_CHANNEL_BY_ID,
 							data: privateChannel,
@@ -59,6 +62,7 @@ const privateChannelSocketActions = new function() {
 	// удаление приватного чата
 	this.deletePrivateChannel = function(io, action) {
 		if (action.privateChannelId) {
+			// отправляется тем, кто на странице данного личного чата (?)
 			io.to(action.privateChannelId).emit('action', {
 				type: actionTypes.DELETE_PRIVATE_CHANNEL_BY_ID,
 				privateChannelId: action.privateChannelId,
@@ -66,6 +70,7 @@ const privateChannelSocketActions = new function() {
 			});
 
 			if (action.senderId) {
+				// и юзеру, который удалил чат
 				io.to(action.senderId).emit('action', {
 					type: actionTypes.DELETE_PRIVATE_CHANNEL_BY_ID,
 					privateChannelId: action.privateChannelId,
@@ -74,6 +79,7 @@ const privateChannelSocketActions = new function() {
 			}
 
 			if (action.recipientId) {
+				// и юзеру, с которым был чат
 				io.to(action.recipientId).emit('action', {
 					type: actionTypes.DELETE_PRIVATE_CHANNEL_BY_ID,
 					privateChannelId: action.privateChannelId,

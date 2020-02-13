@@ -7,6 +7,7 @@ const logUtils = require('./logUtils');
 const tokenUtils = require('./tokenUtils');
 const sessionModel = require('../mongoDB/models/session');
 
+// утилиты для работы с сессиями
 const sessionUtils = new function() {
 
 	// создать новую сессию и вернуть токены

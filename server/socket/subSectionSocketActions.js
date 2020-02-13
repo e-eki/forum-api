@@ -16,6 +16,7 @@ const subSectionSocketActions = new function() {
 					if (results && results.length) {
 						const subSection = results[0];
 
+						// отправляется тем, кто на главной странице (с разделами)
 						io.to(config.defaultRoomId).emit('action', {
 							type: actionTypes.UPDATE_SUBSECTION_BY_ID,
 							data: subSection,
@@ -24,6 +25,7 @@ const subSectionSocketActions = new function() {
 							debug: 'default',
 						});
 
+						// тем, кто на странице этого подраздела
 						io.to(action.subSectionId).emit('action', {
 							type: actionTypes.UPDATE_SUBSECTION_BY_ID,
 							data: subSection,
@@ -32,6 +34,7 @@ const subSectionSocketActions = new function() {
 							debug: 'subSection',
 						});
 
+						// тем, кто на странице раздела, в котором данный подраздел
 						io.to(action.sectionId).emit('action', {
 							type: actionTypes.UPDATE_SUBSECTION_BY_ID,
 							data: subSection,
@@ -52,6 +55,8 @@ const subSectionSocketActions = new function() {
 	// удаление подраздела
 	this.deleteSubSection = function(io, action) {
 		if (action.sectionId && action.subSectionId) {
+
+			// отправляется тем, кто на главной странице (с разделами)
 			io.to(config.defaultRoomId).emit('action', {
 				type: actionTypes.DELETE_SUBSECTION_BY_ID,
 				subSectionId: action.subSectionId,
@@ -59,6 +64,7 @@ const subSectionSocketActions = new function() {
 				debug: 'default',
 			});
 
+			// тем, кто на странице данного подраздела
 			io.to(action.subSectionId).emit('action', {
 				type: actionTypes.DELETE_SUBSECTION_BY_ID,
 				subSectionId: action.subSectionId,
@@ -66,6 +72,7 @@ const subSectionSocketActions = new function() {
 				debug: 'subSection',
 			});
 
+			// тем, кто на странице раздела, в котором данный подраздел
 			io.to(action.sectionId).emit('action', {
 				type: actionTypes.DELETE_SUBSECTION_BY_ID,
 				sectionId: action.sectionId,

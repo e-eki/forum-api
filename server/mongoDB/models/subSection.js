@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const ObjectId = require('mongoose').Types.ObjectId;
 const subSectionSchema = require('../schemas/subSection');
 
+// модель для работы с подразделами
 const SubSectionModel = mongoose.model('SubSection', subSectionSchema);
 
 module.exports = {
@@ -75,7 +76,7 @@ module.exports = {
 			description: data.description,
 			senderId: data.senderId,
 			editorId: data.editorId,
-			editDate: new Date(),  //?
+			editDate: new Date(),
 			sectionId: data.sectionId,
 			orderNumber: data.orderNumber,
 		});

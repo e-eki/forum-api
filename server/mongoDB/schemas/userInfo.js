@@ -4,18 +4,19 @@ const mongoose = require('mongoose');
 
 const Schema = mongoose.Schema;
 
+// данные юзера (личная информация)
 const userInfoSchema = new Schema(
 	{
-		userId: {type: Schema.Types.ObjectId },
-		editorId: {type: Schema.Types.ObjectId },
-		editDate: Date,
-		login: { type: String },
-		name: { type: String },
-		birthDate: { type: Date },
-		city: { type: String },
-		profession: { type: String },
-		hobby: { type: String },
-		captionText: { type: String },
+		userId: {type: Schema.Types.ObjectId },  // id юзера
+		editorId: {type: Schema.Types.ObjectId },  // id последнего редактировавшего
+		editDate: Date,   // дата редактирования
+		login: { type: String },   // логин
+		name: { type: String },    // имя-фамилия
+		birthDate: { type: Date },  // дата рождения
+		city: { type: String },     // город
+		profession: { type: String },   // профессия
+		hobby: { type: String },      // хобби
+		captionText: { type: String },  // подпись под аватаром
 	},
 	{versionKey: false}
 );

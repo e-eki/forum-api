@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const ObjectId = require('mongoose').Types.ObjectId;
 const channelSchema = require('../schemas/channel');
 
+// модель для работы с чатами
 const ChannelModel = mongoose.model('Channel', channelSchema);
 
 module.exports = {
@@ -89,7 +90,7 @@ module.exports = {
 			description: data.description,
 			senderId: data.senderId,
 			editorId: data.editorId,
-			editDate: new Date(),  //?
+			editDate: new Date(),
 			subSectionId: data.subSectionId,
 			descriptionMessageId: data.descriptionMessageId,
 		});

@@ -3,13 +3,14 @@
 const Promise = require('bluebird');
 const userVisitDataModel = require('../mongoDB/models/userVisitData');
 
+// утилиты для управления данными о последних просмотрах юзером чатов
 const userVisitUtils = new function() {
-
-	// обновление данных о последнем просмотре юзером чата
 
 	// последние просмотры обновляются, когда юзер заходит в чат и выходит из него
 	// todo: если юзер закрыл вкладку, не выходя из чата, то данные о последнем промотре будут еще со входа в чат (устаревшими),
 	// и кол-во новых сообщений будет неверным. Придумать, как исправить баг.
+
+	// обновление данных о последнем просмотре юзером чата - заменяем дату просмотра на текущую
 	this.updateLastVisitChannel = function(userId, channelId) {
 		return userVisitDataModel.query({userId: userId})
 			.then(results => {
@@ -22,7 +23,7 @@ const userVisitUtils = new function() {
 					};
 
 					if (userVisitData.lastVisitData.length) {
-						const lastVisitChannel = userVisitData.lastVisitData.find(item => item.channelId.toString() === channelId.toString());    //??
+						const lastVisitChannel = userVisitData.lastVisitData.find(item => item.channelId.toString() === channelId.toString());
 
 						if (lastVisitChannel) {
 							lastVisitChannel.date = new Date();
@@ -38,7 +39,7 @@ const userVisitUtils = new function() {
 					return userVisitDataModel.update(userVisitData.id, userVisitData);
 				}
 				else {
-					return false;  //?
+					return false;
 				}
 			})
 	}
@@ -55,7 +56,7 @@ const userVisitUtils = new function() {
 					return userVisitDataModel.update(userVisitData.id, userVisitData);
 				}
 				else {
-					return false; //?
+					return false;
 				}
 			})
     }

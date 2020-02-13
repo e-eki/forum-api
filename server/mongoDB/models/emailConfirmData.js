@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const ObjectId = require('mongoose').Types.ObjectId;
 const confirmDataSchema = require('../schemas/emailConfirmData');
 
+// модель для работы с данными о запросе письма с повторным подтверждением почты
 const ConfirmDataModel = mongoose.model('EmailConfirmData', confirmDataSchema);
 
 module.exports = {

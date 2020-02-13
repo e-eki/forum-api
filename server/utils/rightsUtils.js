@@ -1,9 +1,9 @@
 'use strict';
 
 const Promise = require('bluebird');
-const ObjectId = require('mongoose').Types.ObjectId;
 const config = require('../config');
 
+// утилиты для работы с правами юзера
 const rightsUtils = new function() {
 
 	// базовая проверка прав
@@ -34,7 +34,7 @@ const rightsUtils = new function() {
 	this.isRightsValidForEditUserInfo = function(user, userInfo) {
 		// изменить информацию о пользователе может только сам пользователь
 		return (this.isRightsValid(user) &&
-				(user.id.toString() === userInfo.userId.toString()));  //??todo: как правильно сравнивать id?
+				(user.id.toString() === userInfo.userId.toString()));
 	};
 
 	//---- section

@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const ObjectId = require('mongoose').Types.ObjectId;
 const sessionSchema = require('../schemas/session');
 
+// модель для работы с сессиями
 const SessionModel = mongoose.model('Session', sessionSchema);
 
 module.exports = {

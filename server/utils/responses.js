@@ -1,5 +1,6 @@
 'use strict';
 
+// используемые типы http-ответов
 const responses = {
     OK_RESPONSE: {message: 'OK', status: 200}   
     , CREATED_RESPONSE: {name: 'created', status: 201}

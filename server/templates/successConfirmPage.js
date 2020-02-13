@@ -4,6 +4,7 @@ const config = require('../config');
 
 const mainLink = `${config.server.protocol}://${config.server.host}:${config.server.port}`;
   
+// страница успешного подтверждения почты
 const successConfirmPage =  
 	`<!DOCTYPE HTML>
 	<html>

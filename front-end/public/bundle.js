@@ -67241,7 +67241,7 @@ var App = function (_Component) {
                                                                                                                 _react2.default.createElement(_reactRouter.Route, { path: '/registration', component: _RegistrationFormContainer2.default }),
                                                                                                                 _react2.default.createElement(_reactRouter.Route, { path: '/recovery-password', component: _RecoveryPasswordFormContainer2.default }),
                                                                                                                 _react2.default.createElement(_reactRouter.Route, { path: '/email-confirm', component: _EmailConfirmFormContainer2.default }),
-                                                                                                                _react2.default.createElement(_reactRouter.Route, { path: '/reset-password', component: _ResetPasswordFormContainer2.default }),
+                                                                                                                _react2.default.createElement(_reactRouter.Route, { exact: true, path: '/reset-password/:access', component: _ResetPasswordFormContainer2.default }),
                                                                                                                 _react2.default.createElement(_reactRouter.Route, { exact: true, path: '/sections/:id', component: _sectionContainer2.default }),
                                                                                                                 _react2.default.createElement(_reactRouter.Route, { exact: true, path: '/subsections/:id', component: _subSectionContainer2.default }),
                                                                                                                 _react2.default.createElement(_reactRouter.Route, { exact: true, path: '/channels/:id', component: _channelContainer2.default }),
@@ -68104,7 +68104,10 @@ var ResetPasswordFormContainer = function (_PureComponent) {
         value: function doResetPassword(password) {
             var _this2 = this;
 
+            debugger;
+
             return _bluebird2.default.resolve(true).then(function () {
+                debugger;
                 // если на форму попали по ссылке из письма, то аксесс токен должен быть в параметрах
                 if (_this2.props.match && _this2.props.match.params && _this2.props.match.params.id) {
                     return _this2.props.match.params.id; //TODO!!! check
@@ -68114,8 +68117,10 @@ var ResetPasswordFormContainer = function (_PureComponent) {
                         return (0, _authApi.getActualAccessToken)();
                     }
             }).then(function (accessToken) {
+                debugger;
                 return (0, _authApi.resetPassword)(accessToken, password);
             }).then(function (response) {
+                debugger;
                 var alertData = {
                     message: 'Пароль успешно изменен.', //?
                     secondaryMessage: 'На страницу входа',
@@ -68131,6 +68136,8 @@ var ResetPasswordFormContainer = function (_PureComponent) {
     }, {
         key: 'render',
         value: function render() {
+            debugger;
+
             return _react2.default.createElement(_resetPasswordForm2.default, {
                 setAlertData: this.props.setAlertData,
                 doResetPassword: this.doResetPassword

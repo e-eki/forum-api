@@ -4,6 +4,7 @@ const config = require('../config');
 
 module.exports = new function() {
 
+	// создать письмо для смены пароля
     this.get = function(data) {		
 		const mainLink = `${config.server.protocol}://${config.server.host}:${config.server.port}`;
 
@@ -22,7 +23,7 @@ module.exports = new function() {
 				<body>
 					<div class="wrapper">
 						<p>Здравствуйте, ${data.login}!</p>
-						<br/>Чтобы восстановить доступ к своему аккаунту, перейдите по <a href="${mainLink}/${config.apiRoutes.resetPassword}/${data.resetPasswordCode}">ссылке</a>.</p>
+						<br/>Чтобы восстановить доступ к своему аккаунту, перейдите по <a href="${mainLink}/api/${config.apiRoutes.resetPassword}/${data.resetPasswordCode}">ссылке</a>.</p>
 						<p>Ваш форум «${config.forumName}».
 						<br/><a href="${mainLink}">На главную страницу</a></p>
 					</div>

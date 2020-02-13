@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const ObjectId = require('mongoose').Types.ObjectId;
 const privateChannelSchema = require('../schemas/privateChannel');
 
+// модель для работы с личными чатами
 const PrivateChannelModel = mongoose.model('PrivateChannel', privateChannelSchema);
 
 module.exports = {
@@ -23,6 +24,7 @@ module.exports = {
 					}}
 				]);
 			}
+			// получить личный чат двух указанных юзеров
 			else if (config.recipientId && config.userId) {
 				return PrivateChannelModel.aggregate([
 					{ '$match': { $or: [ { $and: [ {'recipientId': new ObjectId(config.recipientId)}, {'senderId': new ObjectId(config.userId)} ] },
@@ -37,6 +39,7 @@ module.exports = {
 					}}
 				]);
 			}
+			// получить все личные чаты указанного юзера
 			else if (config.userId) {
 				return PrivateChannelModel.aggregate([
 					{ '$match': { $or: [ {'senderId': new ObjectId(config.userId)}, {'recipientId': new ObjectId(config.userId)} ] } },
@@ -79,7 +82,7 @@ module.exports = {
 			recipientId: data.recipientId,
 			senderId: data.senderId,
 			editorId: data.editorId,
-			editDate: new Date(),  //?
+			editDate: new Date(),
 		});
 
 		return PrivateChannelModel.findOneAndUpdate({_id: id}, privateChannel, {new: true});

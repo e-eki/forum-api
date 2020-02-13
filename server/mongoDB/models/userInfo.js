@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const ObjectId = require('mongoose').Types.ObjectId;
 const userInfoSchema = require('../schemas/userInfo');
 
+// модель для работы с личной информацией юзера
 const UserInfoModel = mongoose.model('UserInfo', userInfoSchema);
 
 module.exports = {
@@ -83,9 +84,9 @@ module.exports = {
 	update: function(id, data) {
 		const userInfo = new UserInfoModel({
 			_id: id,
-			userId: data.userId,   //??
+			userId: data.userId,
 			editorId: data.editorId,
-			editDate: new Date(),  //?
+			editDate: new Date(),
 			login: data.login,
 			name: data.name,
 			birthDate: data.birthDate,

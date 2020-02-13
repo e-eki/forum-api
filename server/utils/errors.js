@@ -1,5 +1,6 @@
 'use strict';
 
+// используемые типы ошибок
 const errors = {
     INTERNAL_SERVER_ERROR: {message: 'Internal server error', status: 500}   
     , INVALID_INPUT_DATA: {message: 'Invalid input data', status: 400}

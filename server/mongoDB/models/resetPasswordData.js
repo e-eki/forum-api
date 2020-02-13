@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const ObjectId = require('mongoose').Types.ObjectId;
 const resetDataSchema = require('../schemas/resetPasswordData');
 
+// модель для работы с данными о запросе письма для сброса пароля
 const ResetDataModel = mongoose.model('ResetPasswordData', resetDataSchema);
 
 module.exports = {
@@ -11,6 +12,7 @@ module.exports = {
 	query: function(config) {
 		if (config) {
 			if (config.fingerprint && config.getCount) {
+				// получить кол-во запросов письма для сброса пароля
 				return ResetDataModel.count(
 					{ 'fingerprint': config.fingerprint}		
 				);

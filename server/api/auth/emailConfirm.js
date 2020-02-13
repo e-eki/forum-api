@@ -139,6 +139,7 @@ router.route('/email-confirm/:uuid')
 					inBlackList: false,
 				};
 
+				// создаем юзера
 				tasks.push(userModel.create(userData));
 
 				return Promise.all(tasks);
@@ -155,6 +156,7 @@ router.route('/email-confirm/:uuid')
 					login: login,
 				};
 
+				// создаем личную информацию юзера
 				tasks.push(userInfoModel.create(userInfoData));
 
 				const userVisitData = {
@@ -162,6 +164,7 @@ router.route('/email-confirm/:uuid')
 					lastVisitData: [],
 				};
 
+				// создаем данные о последних просмотрах юзером чатов
 				tasks.push(userVisitDataModel.create(userVisitData));
 
 				return Promise.all(tasks);

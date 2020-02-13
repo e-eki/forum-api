@@ -2,7 +2,6 @@
 
 const express = require('express');
 const Promise = require('bluebird');
-const ObjectId = require('mongoose').Types.ObjectId;
 const utils = require('../../utils/baseUtils');
 const logUtils = require('../../utils/logUtils');
 const privateChannelModel = require('../../mongoDB/models/privateChannel');
@@ -19,6 +18,8 @@ let router = express.Router();
 //----- endpoint: /api/forum/private-channel/
 router.route('/private-channel')
 
+  // если в req.query есть recipientId (id получателя), то получение личного чата юзера и получателя
+  // если нет, то всех личных чатов юзера
   /*query = {
 		  recipientId
 	}*/
@@ -62,7 +63,8 @@ router.route('/private-channel')
       .spread(privateChannels => {
         const tasks = [];
         
-        if (recipientId && privateChannels) {   //если ищем чат по id получателя - то это будет один приватный чат (текущий)
+        //если ищем чат по id получателя - то это будет один приватный чат (текущий)
+        if (recipientId && privateChannels) {   
           const privateChannel = privateChannels[0];
           tasks.push(channelUtils.getMessagesDataForChannel(privateChannel, user.id));
         }
@@ -98,12 +100,14 @@ router.route('/private-channel')
           if (recipientId) {
             const editDeletePrivateChannelRights = user ? rightsUtils.isRightsValidForEditDeletePrivateChannel(user, result) : false;
   
+            // права управления личным чатом для данного юзера
             /*result.canAdd =*/ result.canEdit = result.canDelete = editDeletePrivateChannelRights;
   
             if (result.messages && result.messages.length) {
               result.messages.forEach(message => {
                 const editDeleteMessageRights = user ? rightsUtils.isRightsValidForEditDeleteMessage(user, message) : false;
       
+                // права управления сообщением для данного юзера
                 message.canEdit = message.canDelete = editDeleteMessageRights;
                 message.canMove = false;  // личные сообщения нельзя перемещать
               })
@@ -113,6 +117,7 @@ router.route('/private-channel')
             result.forEach(privateChannel => {
               const editDeletePrivateChannelRights = user ? rightsUtils.isRightsValidForEditDeletePrivateChannel(user, privateChannel) : false;
   
+              // права управления личным чатом для данного юзера
               /*privateChannel.canAdd =*/ privateChannel.canEdit = privateChannel.canDelete = editDeletePrivateChannelRights;
               privateChannel.canMove = false;  // личные чаты нельзя перемещать
             })
@@ -173,10 +178,11 @@ router.route('/private-channel')
         logUtils.fileLogDbErrors(dbResponse);
 
         privateChannelId = (dbResponse._doc && dbResponse._doc._id) ? dbResponse._doc._id.toString() : null;
-        //const senderId = (dbResponse._doc && dbResponse._doc._senderId) ? dbResponse._doc._senderId.toString() : null;  //?
 
         const tasks = [];
 
+        // сразу после создания личного чата пишем, что оба юзера только что его просмотрели
+        // (нужно для корректного подсчета кол-ва новых сообщений)
         tasks.push(userVisitUtils.updateLastVisitChannel(recipientId, privateChannelId));
         tasks.push(userVisitUtils.updateLastVisitChannel(senderId, privateChannelId));
 
@@ -244,12 +250,14 @@ router.route('/private-channel/:id')
         //get rights
         const editDeletePrivateChannelRights = user ? rightsUtils.isRightsValidForEditDeletePrivateChannel(user, privateChannel) : false;
 
+        // права управления личным чатом для данного юзера
         privateChannel.canAdd = privateChannel.canEdit = privateChannel.canDelete = editDeletePrivateChannelRights;
         privateChannel.canMove = false;  // личный чат нельзя перемещать
 
         privateChannel.messages.forEach(message => {
           const editDeleteMessageRights = user ? rightsUtils.isRightsValidForEditDeleteMessage(user, message) : false;
 
+          // права управления сообщением для данного юзера
           message.canEdit = message.canDelete = editDeleteMessageRights;
           message.canMove = false;  // личные сообщения нельзя перемещать
           message.canEditChannel = editDeletePrivateChannelRights;
@@ -358,7 +366,7 @@ router.route('/private-channel/:id')
         return messageModel.query({channelId: req.params.id});
       })
       .then(messages => {
-
+        // удаляем все сообщения данного личного чата
         if (messages && messages.length) {
           messages.forEach(item => {
             deleteTasks.push(messageModel.delete(item.id));

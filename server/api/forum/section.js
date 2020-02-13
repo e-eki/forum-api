@@ -64,13 +64,16 @@ router.route('/section')
         const sectionRights = user ? rightsUtils.isRightsValidForSection(user) : false;
         const subSectionRights = user ? rightsUtils.isRightsValidForSubSection(user) : false;
 
+        // права управления разделами для данного юзера
         data.canAdd = sectionRights;
 
         data.items.forEach(section => {
+          // права управления разделом для данного юзера
           section.canEdit = section.canMove = section.canDelete = sectionRights;
           section.canAdd = sectionRights;
 
           section.subSections.forEach(subSection => {
+            // права управления подразделом для данного юзера
             subSection.canEdit = subSection.canMove = subSection.canDelete = subSectionRights;
           })
         })
@@ -123,6 +126,7 @@ router.route('/section')
         return Promise.resolve(sectionModel.query());
       })
       .then(sections => {
+        // номер в списке разделов
         const orderNumber = sections.length || 0;
 
         const data = {
@@ -195,10 +199,13 @@ router.route('/section/:id')
         const sectionRights = user ? rightsUtils.isRightsValidForSection(user) : false;
         const subSectionRights = user ? rightsUtils.isRightsValidForSubSection(user) : false;
 
+        
+        // права управления разделом для данного юзера
         data.canEdit = data.canMove = data.canDelete = sectionRights;
         data.canAdd = subSectionRights;
 
-        data.subSections.forEach(subSection => {
+        data.subSections.forEach(subSection => {   
+          // права управления подразделом для данного юзера
           subSection.canEdit = subSection.canMove = subSection.canDelete = subSectionRights;
         })
 
@@ -293,7 +300,7 @@ router.route('/section/:id')
         return sectionModel.query();
       })
       .then(sections => {
-        // корректируем номер порядка у всех элементов, следующих за удаляемым
+        // корректируем номер в списке у всех элементов, следующих за удаляемым
         if (sections && sections.length) {
           const section = sections.find(item => item.id.toString() === sectionId);
 
@@ -313,6 +320,7 @@ router.route('/section/:id')
       .then(subSections => {
         const queryTasks = [];
 
+        // удаляем все подразделы данного раздела
         if (subSections && subSections.length) {
           subSections.forEach(item => {
             deleteTasks.push(subSectionModel.delete(item.id));
@@ -326,6 +334,7 @@ router.route('/section/:id')
       .then(results => {
         const queryTasks = [];
 
+        // удаляем все чаты в подразделах данного раздела
         if (results && results.length) {
           results.forEach(channels => {
             if (channels && channels.length) {
@@ -343,6 +352,7 @@ router.route('/section/:id')
         return Promise.all(queryTasks);
       })
       .then(results => {
+        // удаляем все сообщения в чатах в подразделах данного раздела
         if (results && results.length) {
           results.forEach(messages => {
             if (messages && messages.length) {

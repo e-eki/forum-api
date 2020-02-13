@@ -103,6 +103,7 @@ router.route('/subsection')
         return Promise.resolve(subSectionModel.query({sectionId: req.body.sectionId}));
       })
       .then(results => {
+        // номер в списке подразделов
         const orderNumber = results ? results.length : 0;
 
         const data = {
@@ -213,10 +214,12 @@ router.route('/subsection/:id')
         const addChannelRights = user ? rightsUtils.isRightsValidForAddChannel(user) : false;
         const deleteChannelRights = user ? rightsUtils.isRightsValidForDeleteChannel(user) : false;
 
+        // права управления подразделом для данного юзера
         subSection.canEdit = subSection.canMove = subSection.canDelete = subSectionRights;
         subSection.canAdd = addChannelRights;
 
         subSection.channels.forEach(channel => {
+          // права управления чатом для данного юзера
           channel.canDelete = deleteChannelRights;
           channel.canEdit = user ? rightsUtils.isRightsValidForEditChannel(user, channel) : false;
           channel.canMove = user ? rightsUtils.isRightsValidForMoveChannel(user) : false;
@@ -329,7 +332,7 @@ router.route('/subsection/:id')
         return Promise.all(tasks);
       })
       .spread((subSection, subSections) => {
-        // корректируем номер порядка у всех элементов, следующих за удаляемым
+        // корректируем номер в списке у всех элементов, следующих за удаляемым
         if (subSections && subSections.length) {
           const nextSubSections = subSections.filter(item => item.orderNumber > subSection.orderNumber);
 
@@ -348,6 +351,7 @@ router.route('/subsection/:id')
       .then(channels => {
         const queryTasks = [];
 
+        // удаляем все чаты данного подраздела
         if (channels && channels.length) {
           channels.forEach(item => {
             deleteTasks.push(channelModel.delete(item.id));
@@ -359,6 +363,7 @@ router.route('/subsection/:id')
         return Promise.all(queryTasks);
       })
       .then(results => {
+        // удаляем все сообщения в чатах данного подраздела
         if (results && results.length) {
           results.forEach(messages => {
             if (messages && messages.length) {

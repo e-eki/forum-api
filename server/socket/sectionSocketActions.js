@@ -16,6 +16,7 @@ const sectionSocketActions = new function() {
 					if (results && results.length) {
 						const section = results[0];
 
+						// отправляется тем, кто на главной странице (с разделами)
 						io.to(config.defaultRoomId).emit('action', {
 							type: actionTypes.UPDATE_SECTION_BY_ID,
 							data: section,
@@ -23,7 +24,8 @@ const sectionSocketActions = new function() {
 							debug: 'default',
 						});
 
-						io.to(section.id.toString()).emit('action', {
+						// тем, кто на странице данного раздела
+						io.to(section.id).emit('action', {
 							type: actionTypes.UPDATE_SECTION_BY_ID,
 							data: section,
 							sectionId: action.sectionId,
@@ -42,12 +44,14 @@ const sectionSocketActions = new function() {
 	// удаление раздела
 	this.deleteSection = function(io, action) {
 		if (action.sectionId) {
+			// отправляется тем, кто на главной странице (с разделами)
 			io.to(config.defaultRoomId).emit('action', {
 				type: actionTypes.DELETE_SECTION_BY_ID,
 				sectionId: action.sectionId,
 				debug: 'default',
 			});
 
+			// тем, кто на странице данного раздела
 			io.to(action.sectionId).emit('action', {
 				type: actionTypes.DELETE_SECTION_BY_ID,
 				sectionId: action.sectionId,

@@ -57,6 +57,8 @@ router.route('/login')
 				// в ответ клиент отправляет id сохраненных данных и fingerprint - через PUT,
 				// где завершается процедура входа на сайт через соцсеть
 
+				// todo: check!
+
 				tasks.push(socialLoginDataModel.query({userId: user.id}));
 
 				return Promise.all(tasks);
@@ -70,7 +72,7 @@ router.route('/login')
 					userId: user.id.toString()
 				};
 
-				// добавляем новую запись
+				// добавляем новую запись о попытке входа через соцсеть
 				return socialLoginDataModel.create(socialLoginData);
 			})
 			.then(dbResponse => {
@@ -146,6 +148,8 @@ router.route('/login')
 		socialLoginDataId,
 		fingerprint
 	}*/
+
+	// todo: check!
 	.put(function(req, res) {
 		return Promise.resolve(true)
 			.then(() => {	
@@ -220,7 +224,7 @@ router.route('/login')
     * }
     */
 
-   const getUser = function(service, data) {  //?let
+   const getUser = function(service, data) {
 		return Promise.resolve(true)
 			.then(() => {
 				let task;
@@ -244,7 +248,8 @@ router.route('/login')
 			})
 	};
 
-	// удалить все данные о входе через соцсеть для этого юзера
+	// удалить все данные о входе через соцсеть для этого юзера 
+	// todo: вынести в utils
 	const deleteUserSocialLoginData = function(userId) {
 		return socialLoginDataModel.query({userId: userId})
 			.then(results => {

@@ -24,6 +24,7 @@ const channelSocketActions = new function() {
 					}
 				})
 				.then(channel => {
+					// отправляется тем, кто на странице данного чата
 					io.to(action.channelId).emit('action', {
 						type: actionTypes.UPDATE_CHANNEL_BY_ID,
 						data: channel,
@@ -32,6 +33,7 @@ const channelSocketActions = new function() {
 						debug: 'channel',
 					});
 
+					// тем, кто на странице подраздела, в котором данный чат
 					io.to(action.subSectionId).emit('action', {
 						type: actionTypes.UPDATE_CHANNEL_BY_ID,
 						data: channel,
@@ -51,6 +53,7 @@ const channelSocketActions = new function() {
 	// удаление чата
 	this.deleteChannel = function(io, action) {
 		if (action.channelId && action.subSectionId) {
+			// отправляется тем, кто на странице данного чата
 			io.to(action.channelId).emit('action', {
 				type: actionTypes.DELETE_CHANNEL_BY_ID,
 				channelId: action.channelId,
@@ -58,6 +61,7 @@ const channelSocketActions = new function() {
 				debug: 'channel',
 			});
 
+			// тем, кто на странице подраздела, в котором данный чат
 			io.to(action.subSectionId).emit('action', {
 				type: actionTypes.DELETE_CHANNEL_BY_ID,
 				channelId: action.channelId,

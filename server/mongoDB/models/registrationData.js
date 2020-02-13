@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const ObjectId = require('mongoose').Types.ObjectId;
 const regDataSchema = require('../schemas/registrationData');
 
+// модель для работы с данными о регистрации юзера
 const RegDataModel = mongoose.model('RegistrationData', regDataSchema);
 
 module.exports = {
@@ -11,6 +12,7 @@ module.exports = {
 	query: function(config) {
 		if (config) {
 			if (config.fingerprint && config.getCount) {
+				// получить кол-во попыток регистрации
 				return RegDataModel.count(
 					{ 'fingerprint': config.fingerprint}		
 				);

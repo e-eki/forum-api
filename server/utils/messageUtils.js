@@ -1,11 +1,11 @@
 'use strict';
 
 const Promise = require('bluebird');
-const ObjectId = require('mongoose').Types.ObjectId;
 const messageModel = require('../mongoDB/models/message');
 const userInfoModel = require('../mongoDB/models/userInfo');
 const userVisitDataModel = require('../mongoDB/models/userVisitData');
 
+// утилиты для работы с сообщениями
 const messageUtils = new function() {
 
 	// найти имена отправителей для сообщений, возвращает сообщения с именами

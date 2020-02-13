@@ -182,6 +182,7 @@ router.route('/channel/:id')
         const addMessageRights = user ? rightsUtils.isRightsValidForAddMessage(user) : false;
         const moveMessageRights = user ? rightsUtils.isRightsValidForMoveMessage(user) : false;
 
+        // права управления чатом для данного юзера
         channel.canEdit = editChannelRights;
         channel.canMove = moveChannelRights;
         channel.canDelete = deleteChannelRights;
@@ -190,6 +191,7 @@ router.route('/channel/:id')
         channel.messages.forEach(message => {
           const editDeleteMessageRights = user ? rightsUtils.isRightsValidForEditDeleteMessage(user, message) : false;
 
+          // права управления сообщением для данного юзера
           message.canEdit = message.canDelete = editDeleteMessageRights;
           message.canMove = moveMessageRights;
           message.canEditChannel = editChannelRights;
@@ -246,7 +248,7 @@ router.route('/channel/:id')
           name: req.body.name,
           description: req.body.description,
           senderId: channel.senderId,
-          editorId: user.id,  //?
+          editorId: user.id,
           subSectionId: req.body.subSectionId,
           descriptionMessageId: req.body.descriptionMessageId,
         };
@@ -287,6 +289,7 @@ router.route('/channel/:id')
         return messageModel.query({channelId: req.params.id});
       })
       .then(messages => {
+        // удаляем все сообщения данного чата
         if (messages && messages.length) {
           messages.forEach(item => {
             deleteTasks.push(messageModel.delete(item.id));

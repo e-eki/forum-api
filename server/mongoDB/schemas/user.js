@@ -4,15 +4,16 @@ const mongoose = require('mongoose');
 
 const Schema = mongoose.Schema;
 
+// данные юзера (системные)
 const userSchema = new Schema(
 	{
-		email: { type: String },
-		password: { type: String },
-		resetPasswordCode: { type: String },
-		role: { type: String },
-		inBlackList: { type: Boolean },
-		editorId: Schema.Types.ObjectId,
-		editDate: Date,
+		email: { type: String },   // имейл
+		password: { type: String },   // пароль
+		resetPasswordCode: { type: String },  // код для сброса пароля
+		role: { type: String },   // роль
+		inBlackList: { type: Boolean },    // находится ли юзер в ЧС форума
+		editorId: Schema.Types.ObjectId,   // id последнего редактировавшего
+		editDate: Date,   // дата редактирования
 	},
 	{versionKey: false}
 );

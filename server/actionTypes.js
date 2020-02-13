@@ -1,17 +1,13 @@
 'use strict';
 
+// типы действий, приходящих по сокетам с клиентов
 module.exports = {
+
+	JOIN_ROOM: 'JOIN_ROOM',
+	LEAVE_ROOM: 'LEAVE_ROOM',
 	
 	UPDATE_SECTIONS: 'UPDATE_SECTIONS',
 
-	//UPDATE_USER_INFO: 'UPDATE_USER_INFO',
-
-	
-	JOIN_ROOM: 'JOIN_ROOM',
-	LEAVE_ROOM: 'LEAVE_ROOM',
-
-
-	//--
 	UPDATE_SECTION_BY_ID: 'UPDATE_SECTION_BY_ID',
 	DELETE_SECTION_BY_ID: 'DELETE_SECTION_BY_ID',
 

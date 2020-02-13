@@ -35,6 +35,7 @@ const messageSocketActions = new function() {
 						// 	debug: 'message',
 						// });
 
+						// отправляется тем, кто на странице чата, в котором данное сообщение
 						io.to(action.channelId).emit('action', {
 							type: actionTypes.UPDATE_MESSAGE_BY_ID,
 							data: message,
@@ -91,6 +92,7 @@ const messageSocketActions = new function() {
 			// 	debug: 'message',
 			// });
 
+			// отправляется тем, кто на странице чата, в котором данное сообщение
 			io.to(action.channelId).emit('action', {
 				type: actionTypes.DELETE_MESSAGE_BY_ID,
 				messageId: action.messageId,

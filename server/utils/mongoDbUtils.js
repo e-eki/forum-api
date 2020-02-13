@@ -3,6 +3,7 @@
 const mongoose = require('mongoose');
 const config = require('../config');
 
+// утилиты для работы с БД
 module.exports = {
 	// установка соединения с БД
 	setUpConnection: function() {

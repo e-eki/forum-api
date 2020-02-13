@@ -7,9 +7,10 @@ const config = require('../config');
 const errors = require('./errors');
 const responses = require('./responses');
 
+// различные утилиты
 const utils = new function() {
 
-    // 
+    // выбросить указанную ошибку
 	/*data = {
 		errorData: <  error object >,
 		messageData: < string or array of string >,
@@ -38,6 +39,7 @@ const utils = new function() {
         return error;
     };
 
+    // отправка ответа
     this.sendResponse = function(res, responseData, statusCode) {
         const status = statusCode || responses.OK_RESPONSE.status;
         const response = responseData; //|| responses.OK_RESPONSE.message;
@@ -45,6 +47,7 @@ const utils = new function() {
         return res.status(status).send(response);
     };
 
+    // отправка ошибки
 	this.sendErrorResponse = function(res, error) {
         const status = error.status || errors.INTERNAL_SERVER_ERROR.status;
         const message = error.message || errors.INTERNAL_SERVER_ERROR.message;

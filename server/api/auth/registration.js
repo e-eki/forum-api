@@ -100,7 +100,7 @@ router.route('/registration')
 				const tasks = [];
 				tasks.push(regData);
 
-				//save new regData
+				// сохраняем данные о регистрации (нужны для создания юзера после подтвержения имейла)
 				tasks.push(regDataModel.create(regData));
 
 				return Promise.all(tasks);

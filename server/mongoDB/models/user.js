@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const ObjectId = require('mongoose').Types.ObjectId;
 const userSchema = require('../schemas/user');
 
+// модель для работы с системными данными юзера
 const UserModel = mongoose.model('User', userSchema);
 
 module.exports = {
@@ -86,7 +87,7 @@ module.exports = {
 		const user = new UserModel({
 			_id: id,
 			editorId: data.editorId,
-			editDate: new Date(),  //?
+			editDate: new Date(),
 			email: data.email,
 			password: data.password,
 			resetPasswordCode: data.resetPasswordCode,
