@@ -31,10 +31,10 @@ module.exports = {
     , mail_settings: {
         service: 'Gmail' 
         , auth: { 
-            user: 'checkers.game.online', 
-            pass: 'qwerty12345_'
+            user: 'snow.trekking.forum', 
+            pass: 'asdfg12345_'
         }
-        , from: `"Форум «${forumName}»." <checkers.game.online@gmail.com>`
+        , from: `"Форум «${forumName}»." <snow.trekking.forum@gmail.com>`
         , confirmEmailSubject: `Подтверждение адреса электронной почты на форуме «${forumName}»`
         , resetPasswordSubject: `Восстановление пароля на форуме «${forumName}»`
     }
