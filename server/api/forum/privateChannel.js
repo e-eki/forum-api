@@ -80,7 +80,7 @@ router.route('/private-channel')
       .spread(privateChannels => {
         let result;
 
-        // если ищем чат по id получателя - то это будет один приватный чат (текущий)
+        // если ищем чат по id получателя - то это будет один личный чат (текущий)
         if (recipientId) {
           result = privateChannels || null;
         }

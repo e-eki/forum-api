@@ -106,6 +106,7 @@ router.route('/email-confirm/')
 ;
 
 //----- endpoint: /api/auth/email-confirm/:uuid
+// здесь завершается регистрация юзера и создаются записи о нем в БД
 router.route('/email-confirm/:uuid')
 
 	// сюда приходит запрос на подтверждение имейла по ссылке из письма

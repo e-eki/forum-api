@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const ObjectId = require('mongoose').Types.ObjectId;
 const userSchema = require('../schemas/user');
 
-// модель для работы с системными данными юзера
+// модель для работы с данными юзера
 const UserModel = mongoose.model('User', userSchema);
 
 module.exports = {

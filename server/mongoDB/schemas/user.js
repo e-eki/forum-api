@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 
 const Schema = mongoose.Schema;
 
-// данные юзера (системные)
+// данные юзера
 const userSchema = new Schema(
 	{
 		email: { type: String },   // имейл

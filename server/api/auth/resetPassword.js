@@ -129,7 +129,7 @@ router.route('/reset-password/')
 	/*data = {
 		accessToken,
 		password,
-		oldPassword     //todo!
+		oldPassword     //todo: check!
 	}*/
 	.put(function(req, res) {
 		return Promise.resolve(true)
@@ -243,7 +243,7 @@ router.route('/reset-password/')
 //----- endpoint: /api/auth/reset-password/:code
 router.route('/reset-password/:code')
 
-	// сюда приходит запрос на сброс пароля по ссылке из письма  //todo! не приходит
+	// сюда приходит запрос на сброс пароля по ссылке из письма
 	.get(function(req, res) {
 		let user;
 		let fingerprint;
@@ -312,7 +312,7 @@ router.route('/reset-password/:code')
 				// протухнет ссылка, и новую можно получить только в новом письме.
 
 				// редиректим на страницу сброса пароля
-				//todo!
+				//todo! не открывается страница на фронте (???)
 				const link = `${config.server.protocol}://${config.server.host}:${config.server.port}/${config.apiRoutes.resetPassword}/${tokensData.accessToken}`;
 				return res.redirect(`${link}`);
 			})
