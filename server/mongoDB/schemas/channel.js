@@ -9,6 +9,7 @@ const channelSchema = new Schema(
 	{
 		senderId: Schema.Types.ObjectId,   // id отправителя
 		editorId: Schema.Types.ObjectId,    // id последнего редактировавшего
+		editDate: Date,  // дата редактирования
 		subSectionId: Schema.Types.ObjectId ,  // id подраздела, в котором чат
 		name: String,   // название чата
 		description: String,   // описание чата
