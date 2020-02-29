@@ -63,14 +63,14 @@ module.exports = {
         , algorithm: 'HS512'
         , access: {
             type: 'access',
-            //expiresIn: 120000  //2 мин = 2*60*1000
-            expiresIn: 7200000    //2 ч = 120*60*1000
+            expiresIn: 1800000  //30 мин = 30*60*1000
+            // expiresIn: 7200000    //2 ч = 120*60*1000
           },
         
           refresh: {
             type: 'refresh',
             //expiresIn: 3600000  //60 мин
-            expiresIn: 86400000   //24 ч
+            expiresIn: 43200000   //12 ч
           },
     }
     // роли юзеров
