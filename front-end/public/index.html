@@ -4,51 +4,36 @@
     <head>
         <meta charset="utf-8">
         <meta http-equiv="content-language" content="ru" />
-        <!-- Сообщает Internet Explorer использовать самый новый движок для рендера -->
+        <!-- чтобы Internet Explorer использовал самый новый движок для рендера -->
         <meta http-equiv="x-ua-compatible" content="IE=EmulateIE9">
         <!-- Задание тега Viewport для адаптивного отображения страницы -->
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
         <title>Сферический форум в вакууме</title>
         <meta name="Description" content="Сферический форум в вакууме">
         <!--link rel="shortcut icon" type="image/png" href="./favicon.png"-->
-        
-        <!-- <img src={window.location.origin + '/icons/favicon.png'} /> -->
-        <!-- <link rel="apple-touch-icon" sizes="57x57" href={window.location.origin + "./icons/favicon/apple-icon-57x57.png"}>
-        <link rel="apple-touch-icon" sizes="60x60" href={window.location.origin + "./icons/favicon/apple-icon-60x60.png"}>
-        <link rel="apple-touch-icon" sizes="72x72" href={window.location.origin + "./icons/favicon/apple-icon-72x72.png"}>
-        <link rel="apple-touch-icon" sizes="76x76" href={window.location.origin + "./icons/favicon/apple-icon-76x76.png"}>
-        <link rel="apple-touch-icon" sizes="114x114" href={window.location.origin + "./icons/favicon/apple-icon-114x114.png"}>
-        <link rel="apple-touch-icon" sizes="120x120" href={window.location.origin + "./icons/favicon/apple-icon-120x120.png"}>
-        <link rel="apple-touch-icon" sizes="144x144" href={window.location.origin + "./icons/favicon/apple-icon-144x144.png"}>
-        <link rel="apple-touch-icon" sizes="152x152" href={window.location.origin + "./icons/favicon/apple-icon-152x152.png"}> -->
-        <!-- <link rel="apple-touch-icon" sizes="180x180" href="./icons/favicon/apple-icon-180x180.png"> -->
-        <link rel="icon" type="image/png" sizes="192x192"  href="http://localhost:8080/icons/favicon/android-icon-192x192.png">
-        <link rel="icon" type="image/png" sizes="32x32" href="http://localhost:8080/icons/favicon/favicon-32x32.png">
-        <link rel="icon" type="image/png" sizes="96x96" href="http://localhost:8080/icons/favicon/favicon-96x96.png">
-        <link rel="icon" type="image/png" sizes="16x16" href="http://localhost:8080/icons/favicon/favicon-16x16.png">
-        <link rel="manifest" href="http://localhost:8080/icons/favicon/manifest.json">
+
+        <base href="/">
+
+        <link rel="apple-touch-icon" sizes="57x57" href="./icons/favicon/apple-icon-57x57.png">
+        <link rel="apple-touch-icon" sizes="60x60" href="./icons/favicon/apple-icon-60x60.png">
+        <link rel="apple-touch-icon" sizes="72x72" href="./icons/favicon/apple-icon-72x72.png">
+        <link rel="apple-touch-icon" sizes="76x76" href="./icons/favicon/apple-icon-76x76.png">
+        <link rel="apple-touch-icon" sizes="114x114" href="./icons/favicon/apple-icon-114x114.png">
+        <link rel="apple-touch-icon" sizes="120x120" href="./icons/favicon/apple-icon-120x120.png">
+        <link rel="apple-touch-icon" sizes="144x144" href="./icons/favicon/apple-icon-144x144.png">
+        <link rel="apple-touch-icon" sizes="152x152" href="./icons/favicon/apple-icon-152x152.png">
+        <link rel="apple-touch-icon" sizes="180x180" href="./icons/favicon/apple-icon-180x180.png">
+        <link rel="icon" type="image/png" sizes="192x192"  href="./icons/favicon/android-icon-192x192.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="./icons/favicon/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="96x96" href="./icons/favicon/favicon-96x96.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="./icons/favicon/favicon-16x16.png">
+        <link rel="manifest" href="./icons/favicon/manifest.json">
         <meta name="msapplication-TileColor" content="#ffffff">
-        <meta name="msapplication-TileImage" content="http://localhost:8080/icons/favicon/ms-icon-144x144.png">
+        <meta name="msapplication-TileImage" content="./icons/favicon/ms-icon-144x144.png">
         <meta name="theme-color" content="#ffffff">
 
-        <!-- Предотвращает дублирование контента на странице  -->
-        <!--link rel="canonical" href="http://example.com/2017/09/a-new-article-to-red.html"-->
-
-        <!--meta property="og:type" content="website">
-        <meta property="og:url" content="https://example.com/page.html">
-        <meta property="og:title" content="Content Title">
-        <meta property="og:image" content="https://example.com/image.jpg">
-        <meta property="og:description" content="Description Here">
-        <meta property="og:site_name" content="Site Name">
-        <meta property="og:locale" content="en_US">
-
-        <meta name="twitter:card" content="summary">
-        <meta name="twitter:site" content="@site_account">
-        <meta name="twitter:creator" content="@individual_account">
-        <meta name="twitter:url" content="https://example.com/page.html">
-        <meta name="twitter:title" content="Content Title">
-        <meta name="twitter:description" content="Content description less than 200 characters">
-        <meta name="twitter:image" content="https://example.com/image.jpg"-->
+        <!-- Microsoft Tiles -->
+        <meta name="msapplication-config" content="./icons/favicon/browserconfig.xml" />
 
         <meta name="robots" content="all"/>
 		<meta name="Keywords" content="">
@@ -59,15 +44,14 @@
         <noscript>
             You need to enable JavaScript to run this app.
             Включите поддержку JavaScript в своём браузере для корректного отображения страницы.
-				</noscript>
+        </noscript>
 
-				<div id="root"></div>
+        <div id="root"></div>
 
-				<!--[if IE]><script src="http://phpbbex.com/oldies/oldies.js" charset="utf-8"></script><![endif]-->
+        <!--[if IE]><script src="http://phpbbex.com/oldies/oldies.js" charset="utf-8"></script><![endif]-->
 
-				<![if !IE]>
-					<script src="./bundle.js"></script>
-				<![endif]>
-
+        <![if !IE]>
+            <script src="./bundle.js"></script>
+        <![endif]>
     </body>
 </html>
