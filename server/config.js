@@ -10,8 +10,10 @@ module.exports = {
     // настройки сервера
     , server: {
         port: 3000   //process.env.PORT || 3000
-        , host: (NODE_ENV == 'development') ? 'localhost' : 'checkers-game0.herokuapp.com'  
-        , protocol: (NODE_ENV == 'development') ? 'http' : "https"
+        // , host: (NODE_ENV == 'development') ? 'localhost' : 'checkers-game0.herokuapp.com'  
+        // , protocol: (NODE_ENV == 'development') ? 'http' : "https"
+        , host: 'localhost' 
+        , protocol: 'http'
     }
     // для запуска фронта на другом порту
     // , app: {

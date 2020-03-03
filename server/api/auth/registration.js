@@ -5,6 +5,7 @@ const Promise = require('bluebird');
 const uuidV4 = require('uuidv4');
 const regDataModel = require('../../mongoDB/models/registrationData');
 const userModel = require('../../mongoDB/models/user');
+const userInfoModel = require('../../mongoDB/models/userInfo');
 const utils = require('../../utils/baseUtils');
 const logUtils = require('../../utils/logUtils');
 const mailUtils = require('../../utils/mailUtils');
@@ -68,7 +69,7 @@ router.route('/registration')
 				//check email & login duplicates
 				let tasks = [];
 				tasks.push(userModel.query({email: req.body.email}));
-				tasks.push(userModel.query({login: req.body.login}));
+				tasks.push(userInfoModel.query({login: req.body.login}));
 				
 				return Promise.all(tasks);
 			})

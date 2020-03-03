@@ -47,6 +47,24 @@ module.exports = {
 					}}
 				]);
 			}
+			else if (config.login) {
+				return UserInfoModel.aggregate([
+					{$match: { 'login': config.login}},
+					{$project: {
+						_id: 0, id: "$_id",
+						userId: 1,
+						// editorId: 1,
+						// editDate: 1,
+						login: 1,
+						// name: 1,
+						// birthDate: 1,
+						// city: 1,
+						// profession: 1,
+						// hobby: 1,
+						// captionText: 1,
+					}}
+				]);
+			}
 		}	
 
 		return [];
