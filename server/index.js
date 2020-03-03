@@ -8,7 +8,7 @@ const config = require('./config');
 const mongoDbUtils = require('./utils/mongoDbUtils');
 const utils = require('./utils/baseUtils');
 const logUtils = require('./utils/logUtils');
-const indexHTML = path.resolve('./front-end/public/index.html');
+const indexHTML = path.resolve('./frontend/public/index.html');
 const socket = require('./socket/initSocket');
 const errors = require('./utils/errors');
 
@@ -19,7 +19,7 @@ const http = require('http').Server(app);
 const io = socket.initSocket(http);
 
 // статические файлы
-app.use(express.static('front-end/public'));
+app.use(express.static('frontend/public'));
 
 app.use((req, res, next) => {
     res.set({
