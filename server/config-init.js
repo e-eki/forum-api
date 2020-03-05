@@ -12,13 +12,9 @@ module.exports = {
     // настройки сервера
     , server: {
         port: 3000   //process.env.PORT || 3000
-        , host: (NODE_ENV == 'development') ? 'localhost' : 'checkers-game0.herokuapp.com'  
+        , host: (NODE_ENV == 'development') ? 'localhost' : 'forum-messenger.herokuapp.com'  
         , protocol: (NODE_ENV == 'development') ? 'http' : "https"
     }
-    // для запуска фронта на другом порту
-    // , app: {
-    //     port: (NODE_ENV == 'development') ? 8080 : (process.env.PORT || 3000)
-    // }
     // название файла с логами БД
     , logFileName: 'dbLogs.log'
     // настройки соединения с БД
