@@ -46,7 +46,7 @@
   },
   "scripts": {
     "test": "node server/index.js",
-    "dev": "set NODE_ENV=development&& nodemon --inspect-brk server/index.js",
+    "dev": "set NODE_ENV=development&& nodemon --debug server/index.js",
     "prod": "set NODE_ENV=production&& nodemon server/index.js",
     "size": "size-limit"
   },

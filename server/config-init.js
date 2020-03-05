@@ -33,7 +33,7 @@ module.exports = {
     }
     // настройки получения хэша
     , bcrypt: {
-        saltLength: 10
+        saltLength: '<saltLength>'
     }
     // настройки почты
     , mail_settings: {
@@ -61,18 +61,16 @@ module.exports = {
     }
     // токены
     , token: {
-        secret: 'b2NjdXB5TWFycw=='
-        , algorithm: 'HS512'
+        secret: '<secret>'
+        , algorithm: '<algorithm>'
         , access: {
             type: 'access',
-            //expiresIn: 120000  //2 мин = 2*60*1000
-            expiresIn: 7200000    //2 ч = 120*60*1000
+            expiresIn: '<expiresIn>'
           },
         
           refresh: {
             type: 'refresh',
-            //expiresIn: 3600000  //60 мин
-            expiresIn: 86400000   //24 ч
+            expiresIn: '<expiresIn>'
           },
     }
     // роли юзеров
@@ -94,23 +92,17 @@ module.exports = {
         // доступно всем: добавление/удаление/изменение ТОЛЬКО СВОИХ личных чатов и сообщений (если не в ЧС),
         // редактирование своей личной информации (если не в ЧС)
     }
-    // ссылка для редиректа при входе через соцсети   //todo!
-    , socialRedirectUri: (NODE_ENV == 'development') ? 'http://localhost:3000/api/login' : 'https://checkers-game0.herokuapp.com/api/login'   
+    // ссылка для редиректа при входе через соцсети
+    , socialRedirectUri: '<socialRedirectUri>'
     // аутентификация через вконтакте
     , vk: {
-        clientId: 6711833
-        , secret: 'rOrwLNZOUlqmqXqZNhhZ'
+        clientId: '<clientId>'
+        , secret: '<secret>'
         , ver: 5.69
     }
-    // аутентификация через фейсбук
-    // , fb: {
-    //     clientId: 455348051621476
-    //     , secret: '5659aab04ba4524050c5b15c64ebd421'
-    // }
-    // аутентификация через гугл
     , google: {
-        clientId: '100666725887-otk617ad9448ec49096hufs8001hhel3.apps.googleusercontent.com'
-        , secret: '3elLUQtox2HzRoUYmX-rapi1'
+        clientId: '<clientId>'
+        , secret: '<secret>'
         , grantType: 'authorization_code'
     }
 

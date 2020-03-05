@@ -136,7 +136,7 @@ router.route('/email-confirm/:uuid')
 					email: regData.email,
 					password: regData.password,
 					resetPasswordCode: null,
-					role: config.userRoles.moderator,  // сразу после регистрации роль модератор (в демонстрационных целях)  //todo!!!!!!
+					role: config.userRoles.user,  // сразу после регистрации роль - юзер
 					inBlackList: false,
 				};
 
