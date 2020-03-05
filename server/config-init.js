@@ -3,7 +3,6 @@
 //config version for Github
 
 const NODE_ENV = process.env.NODE_ENV || 'development';
-
 // название форума
 const forumName = 'Сферический в вакууме';
 
