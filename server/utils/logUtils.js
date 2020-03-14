@@ -34,7 +34,7 @@ const logUtils = new function() {
 
     // возвращает текущую дату в формате, удобном для логов
     this.logTime = function() {
-        return new Date().format("dd-MM-y HH:mm:SS");
+        return new Date().toString();
     };
 
     // записать строку в файл логов

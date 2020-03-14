@@ -8,7 +8,7 @@
     "bcryptjs": "^2.4.3",
     "bluebird": "^3.5.2",
     "body-parser": "^1.18.3",
-    "express": "^4.16.3",
+    "express": "4.17.1",
     "fingerprintjs2": "^2.1.0",
     "jsonwebtoken": "^8.3.0",
     "mongoose": ">=5.7.5",
@@ -46,7 +46,7 @@
   },
   "scripts": {
     "test": "node server/index.js",
-    "dev": "set NODE_ENV=development&& nodemon --debug server/index.js",
+    "dev": "set NODE_ENV=development&& nodemon --inspect server/index.js",
     "prod": "set NODE_ENV=production&& nodemon server/index.js",
     "size": "size-limit"
   },

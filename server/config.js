@@ -24,10 +24,12 @@ module.exports = {
     // настройки соединения с БД
     , db : {
         mongo : {
-            url: 'mongodb://e:e123456@ds046677.mlab.com:46677/ch'
+            url: 'mongodb://myUserAdmin:earendil346@194.87.147.67:27017'
+
             , options: {
                 autoReconnect: true //(process.env.NODE_ENV == 'production')  //??
-                , useNewUrlParser: true 
+                , useNewUrlParser: true
+                , useUnifiedTopology: true
             }
         }
     }
