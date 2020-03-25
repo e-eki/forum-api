@@ -19,7 +19,7 @@ module.exports = {
     // настройки соединения с БД
     , db : {
         mongo : {
-            url: 'mongodb://<dbuser>:<dbpassword>@ds046677.mlab.com:46677/ch'
+            url: '<url>'
             , options: {
                 autoReconnect: true //(process.env.NODE_ENV == 'production')  //??
                 , useNewUrlParser: true 
